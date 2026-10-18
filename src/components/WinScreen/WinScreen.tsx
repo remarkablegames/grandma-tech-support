@@ -19,7 +19,7 @@ export function WinScreen({ onPlayAgain }: WinScreenProps) {
 
         <div className="flex flex-col items-center gap-4 p-6 text-center">
           <img
-            src="/windows_icons_32x32/mail.png"
+            src="windows_icons_32x32/mail.png"
             alt=""
             width={32}
             height={32}

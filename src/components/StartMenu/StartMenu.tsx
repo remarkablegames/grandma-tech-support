@@ -17,7 +17,7 @@ export function StartMenu({ items, onSelect }: StartMenuProps) {
         className="bg-win-navy flex w-7 items-end justify-center pb-3"
       >
         <span className="rotate-180 text-sm font-bold tracking-widest text-white [writing-mode:vertical-rl]">
-          Grandma95
+          Rainbows95
         </span>
       </div>
 

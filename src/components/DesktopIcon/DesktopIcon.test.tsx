@@ -9,7 +9,7 @@ const onSelect = vi.fn();
 const icon: DesktopIconConfig = {
   id: 'notes',
   label: 'Sticky Notes',
-  icon: '/windows_icons_32x32/sticky_note.png',
+  icon: 'windows_icons_32x32/sticky_note.png',
 };
 
 describe('DesktopIcon component', () => {

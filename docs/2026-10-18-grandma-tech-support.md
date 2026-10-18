@@ -44,7 +44,8 @@ fake virus warning or the misleading buttons on pop-ups.
 - Taskbar: `Start` button (toggles the Start menu), one button per window (raises it,
   pressed style for the focused window), tray with a clock reading `3:47 PM`.
 - Start menu: `Programs`, `Documents`, `Settings`, `Find`, `Help`, `Run...`,
-  `Shut Down...` — each closes the menu and shows a joke dialog.
+  `Shut Down...` — each closes the menu and shows a joke dialog. Its vertical side
+  stripe brands the fictional OS as **Rainbows95**.
 - Desktop icons (single click selects, Win95 style): `My Computer`, `Recycle Bin`,
   `My Documents`, `Sticky Notes`, `Calculator`, and the decoy `Grandma's Mail`. Selecting
   the decoy makes Grandma point the player back to "the internet thing".
@@ -101,6 +102,12 @@ Plus a `Play again` button that fully resets the game.
 - **Icons:** `public/windows_icons_32x32/` (Windows 95 ~Calming~ Icon Pack, credited in
   the README). Shown at their native 32px where they fit (desktop icons, pop-ups) and
   scaled to 16–48px elsewhere, always with `image-rendering: pixelated` to stay crisp.
+  Every asset path is **relative** (never a leading `/`) so subpath deploys (GitHub
+  Pages, itch.io) resolve correctly.
+- **App icon:** `public/logo.svg` — the waving four-pane flag with its pixel-dissolve
+  trail, adapted from the Windows 95 logo (a deliberate parody homage; the game's own
+  brand lives in the OS name "Rainbows95"). Flag-only, no wordmark, so it stays
+  legible at favicon sizes.
 - **Motion:** CSS `@keyframes` only — popup scale-in, dialog wobble, win-screen pop,
   start-menu slide, ad blink. Honors `prefers-reduced-motion`.
 - **Responsive:** windows use viewport-scaled initial positions and

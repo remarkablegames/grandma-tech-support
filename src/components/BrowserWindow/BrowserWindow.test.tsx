@@ -14,7 +14,7 @@ function renderWindow(isFront: boolean) {
     <BrowserWindow
       windowId="inbox"
       title="Test Window"
-      icon="/windows_icons_32x32/mail.png"
+      icon="windows_icons_32x32/mail.png"
       url="http://example.test/page"
       position={{ x: 100, y: 50 }}
       isFront={isFront}

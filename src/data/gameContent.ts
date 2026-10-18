@@ -9,7 +9,7 @@ import type {
   WindowMeta,
 } from 'src/types/game';
 
-const ICONS = '/windows_icons_32x32';
+const ICONS = 'windows_icons_32x32';
 
 export const JOKES = {
   toasterTile:

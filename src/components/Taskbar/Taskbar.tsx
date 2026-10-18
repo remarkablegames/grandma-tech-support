@@ -25,7 +25,7 @@ export function Taskbar({
         className="win-button flex shrink-0 items-center gap-1.5 px-2 py-1.5 text-sm font-bold text-black"
       >
         <img
-          src="/windows_icons_32x32/program.png"
+          src="windows_icons_32x32/program.png"
           alt=""
           width={16}
           height={16}
@@ -63,7 +63,7 @@ export function Taskbar({
 
       <div className="win-inset ml-auto flex shrink-0 items-center gap-1.5 px-2 py-1.5 text-xs text-black">
         <img
-          src="/windows_icons_32x32/clock.png"
+          src="windows_icons_32x32/clock.png"
           alt=""
           width={16}
           height={16}
