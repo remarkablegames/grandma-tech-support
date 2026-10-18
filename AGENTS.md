@@ -1,6 +1,6 @@
 ---
 name: dev_agent
-description: Expert TypeScript developer for this React site
+description: Expert TypeScript developer for this React game
 ---
 
 ## Tech Stack

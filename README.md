@@ -1,18 +1,18 @@
 # Grandma Tech Support
 
-[![build](https://github.com/remarkablemark/vite-react-tailwind-template/actions/workflows/build.yml/badge.svg)](https://github.com/remarkablemark/vite-react-tailwind-template/actions/workflows/build.yml)
-[![test](https://github.com/remarkablemark/vite-react-tailwind-template/actions/workflows/test.yml/badge.svg)](https://github.com/remarkablemark/vite-react-tailwind-template/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/remarkablemark/vite-react-tailwind-template/graph/badge.svg?token=DEr2eVeqdz)](https://codecov.io/gh/remarkablemark/vite-react-tailwind-template)
+[![build](https://github.com/remarkablegames/grandma-tech-support/actions/workflows/build.yml/badge.svg)](https://github.com/remarkablegames/grandma-tech-support/actions/workflows/build.yml)
+[![test](https://github.com/remarkablegames/grandma-tech-support/actions/workflows/test.yml/badge.svg)](https://github.com/remarkablegames/grandma-tech-support/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/remarkablegames/grandma-tech-support/graph/badge.svg?token=DEr2eVeqdz)](https://codecov.io/gh/remarkablegames/grandma-tech-support)
 
-⚡ Vite React Tailwind Template
+🛠️ Grandma needs help with her computer. Follow her instructions, dodge suspicious pop-ups, and try not to delete anything important.
 
 ## Install
 
 Clone the repository:
 
 ```sh
-git clone https://github.com/remarkablemark/vite-react-tailwind-template.git
-cd vite-react-tailwind-template
+git clone https://github.com/remarkablegames/grandma-tech-support.git
+cd grandma-tech-support
 ```
 
 Install the dependencies:
