@@ -16,6 +16,12 @@ Or download for desktop:
 - [macOS](https://github.com/remarkablegames/grandma-tech-support/releases/latest/download/macos.zip)
 - [Linux](https://github.com/remarkablegames/grandma-tech-support/releases/latest/download/linux.zip)
 
+## Credits
+
+### Art
+
+- [𝕎𝕚𝕟𝕕𝕠𝕨𝕤 𝟡𝟝 ~𝓒𝓪𝓵𝓶𝓲𝓷𝓰~ Icon Pack](https://aconfuseddragon.itch.io/windows-95-calming)
+
 ## Install
 
 Clone the repository:
