@@ -1,12 +1,12 @@
 {
   "name": "Grandma Tech Support",
   "short_name": "Grandma Tech Support",
-  "description": "Grandma Tech Support",
+  "description": "🛠️ Help grandma fix her computer.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "icons": [
     {
       "src": "logo.svg",

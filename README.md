@@ -6,6 +6,16 @@
 
 🛠️ Grandma needs help with her computer. Follow her instructions, dodge suspicious pop-ups, and try not to delete anything important.
 
+Play in your browser:
+
+- [remarkablegames](https://remarkablegames.org/grandma-tech-support/)
+
+Or download for desktop:
+
+- [Windows](https://github.com/remarkablegames/grandma-tech-support/releases/latest/download/windows.zip)
+- [macOS](https://github.com/remarkablegames/grandma-tech-support/releases/latest/download/macos.zip)
+- [Linux](https://github.com/remarkablegames/grandma-tech-support/releases/latest/download/linux.zip)
+
 ## Install
 
 Clone the repository:
@@ -56,7 +66,3 @@ Checks for type errors.
 ### `npm test`
 
 Runs the tests.
-
-## License
-
-[MIT](LICENSE)
