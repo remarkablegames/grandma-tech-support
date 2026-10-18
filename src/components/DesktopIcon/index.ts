@@ -1,0 +1,1 @@
+export { DesktopIcon } from './DesktopIcon';

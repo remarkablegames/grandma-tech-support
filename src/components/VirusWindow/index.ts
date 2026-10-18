@@ -1,0 +1,1 @@
+export { VirusWindow } from './VirusWindow';

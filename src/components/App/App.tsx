@@ -1,47 +1,81 @@
-import { useState } from 'react';
+import { DESKTOP_ICONS, START_ITEMS, WINDOW_META } from 'src/data/gameContent';
+import { useGame } from 'src/hooks/useGame';
 
-import { brands } from './brands';
+import { BrowserWindow } from '../BrowserWindow';
+import { DesktopIcon } from '../DesktopIcon';
+import { GrandmaSpeech } from '../GrandmaSpeech';
+import { InboxWindow } from '../InboxWindow';
+import { MessageDialog } from '../MessageDialog';
+import { Popups } from '../Popups';
+import { ShoppingWindow } from '../ShoppingWindow';
+import { StartMenu } from '../StartMenu';
+import { Taskbar } from '../Taskbar';
+import { VirusWindow } from '../VirusWindow';
+import { WinScreen } from '../WinScreen';
 
 export function App() {
-  const [count, setCount] = useState(0);
+  const game = useGame();
 
   return (
-    <main className="max-w-(--breakpoint-xl) p-8 text-center dark:bg-slate-900 dark:text-slate-100">
-      <div className="flex justify-center">
-        {brands.map(({ alt, href, src }) => (
-          <a key={href} href={href} rel="nofollow noopener" target="_blank">
-            <img
-              src={src}
-              className="m-4 h-24 hover:drop-shadow-2xl"
-              alt={alt}
-            />
-          </a>
+    <div className="bg-win-desktop relative h-dvh w-full overflow-hidden select-none">
+      <div className="absolute top-2 left-2 z-[5] flex flex-col gap-1">
+        {DESKTOP_ICONS.map((icon) => (
+          <DesktopIcon
+            key={icon.id}
+            icon={icon}
+            selected={game.selectedIcon === icon.id}
+            onSelect={game.selectIcon}
+          />
         ))}
       </div>
 
-      <h1 className="my-10 text-5xl font-bold">Vite + React + Tailwind</h1>
-
-      <div className="p-8">
-        <button
-          className="cursor-pointer rounded-md border border-slate-300 bg-slate-50 px-4 py-2 text-center text-sm font-medium text-slate-800 shadow-xs transition-all hover:border-slate-800 focus:border-slate-800 focus:bg-slate-50 active:border-slate-800 active:bg-slate-50 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-500 dark:focus:border-slate-500 dark:focus:bg-slate-800 dark:active:border-slate-500 dark:active:bg-slate-800"
-          onClick={() => {
-            setCount((count) => count + 1);
-          }}
-          type="button"
+      {WINDOW_META.map((meta) => (
+        <BrowserWindow
+          key={meta.id}
+          windowId={meta.id}
+          title={meta.title}
+          icon={meta.icon}
+          url={meta.url}
+          position={game.positions[meta.id]}
+          isFront={game.focusedId === meta.id}
+          zIndex={10 + game.zOrder.indexOf(meta.id)}
+          onFocus={game.raise}
+          onMove={game.moveWindow}
+          onJoke={game.showJoke}
         >
-          count is {count}
-        </button>
+          {meta.id === 'shopping' && <ShoppingWindow onJoke={game.showJoke} />}
+          {meta.id === 'inbox' && (
+            <InboxWindow onJoke={game.showJoke} onOpenEmail={game.openEmail} />
+          )}
+          {meta.id === 'virus' && <VirusWindow onJoke={game.showJoke} />}
+          <Popups
+            windowId={meta.id}
+            popups={game.openPopups}
+            onDismiss={game.dismissPopup}
+            onAction={game.popupAction}
+          />
+        </BrowserWindow>
+      ))}
 
-        <p className="my-4 text-slate-600 dark:text-slate-400">
-          Edit{' '}
-          <code className="font-[monospace]">src/components/App/App.tsx</code>{' '}
-          and save to test HMR
-        </p>
-      </div>
+      <GrandmaSpeech line={game.grandmaLine} />
 
-      <p className="text-slate-400 dark:text-slate-500">
-        Click on the Vite, React, and Tailwind logos to learn more
-      </p>
-    </main>
+      <Taskbar
+        windows={WINDOW_META}
+        focusedId={game.focusedId}
+        startOpen={game.startOpen}
+        onStartToggle={game.toggleStart}
+        onWindowClick={game.raise}
+      />
+
+      {game.startOpen && (
+        <StartMenu items={START_ITEMS} onSelect={game.selectStartItem} />
+      )}
+
+      {game.message !== null && (
+        <MessageDialog message={game.message} onDismiss={game.dismissJoke} />
+      )}
+
+      {game.phase === 'won' && <WinScreen onPlayAgain={game.playAgain} />}
+    </div>
   );
 }

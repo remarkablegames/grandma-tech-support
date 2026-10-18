@@ -1,0 +1,39 @@
+interface MessageDialogProps {
+  message: string;
+  onDismiss: () => void;
+}
+
+export function MessageDialog({ message, onDismiss }: MessageDialogProps) {
+  return (
+    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-label="System Message"
+        className="animate-dialog bg-win-face win-outset w-full max-w-sm p-[3px]"
+      >
+        <div className="win-titlebar px-2 py-1 text-xs font-bold text-white">
+          System Message
+        </div>
+
+        <div className="flex items-start gap-3 p-4">
+          <span aria-hidden="true" className="text-3xl">
+            😅
+          </span>
+          <p className="text-sm leading-snug text-black">{message}</p>
+        </div>
+
+        <div className="flex justify-center pb-4">
+          <button
+            type="button"
+            autoFocus
+            onClick={onDismiss}
+            className="win-button min-w-24 px-4 py-1.5 text-sm font-bold text-black"
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

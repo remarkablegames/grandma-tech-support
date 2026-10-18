@@ -1,1 +1,150 @@
 @import 'tailwindcss';
+
+@theme {
+  /* System fonts only — offline friendly, no web fonts. */
+  --font-sans: Tahoma, Verdana, 'DejaVu Sans', sans-serif;
+
+  /* Fictional Win95 pastiche palette. */
+  --color-win-desktop: #008080;
+  --color-win-face: #c0c0c0;
+  --color-win-light: #ffffff;
+  --color-win-highlight: #dfdfdf;
+  --color-win-shadow: #808080;
+  --color-win-dark: #000000;
+  --color-win-navy: #000080;
+  --color-win-blue: #1084d0;
+  --color-win-alert: #d40000;
+
+  --animate-popup: win-popup 0.12s ease-out;
+  --animate-dialog: win-dialog 0.2s ease-out;
+  --animate-menu: win-menu 0.1s ease-out;
+  --animate-blink: win-blink 1s steps(2, start) infinite;
+
+  @keyframes win-popup {
+    from {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes win-dialog {
+    0% {
+      opacity: 0;
+      transform: scale(0.9) translateY(6px);
+    }
+
+    70% {
+      transform: scale(1.02) translateY(0);
+    }
+
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes win-menu {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes win-blink {
+    50% {
+      opacity: 0.15;
+    }
+  }
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    overflow: hidden;
+    background-color: var(--color-win-desktop);
+  }
+
+  /* Win95-style dotted focus rectangle. */
+  button:focus-visible {
+    outline: 1px dotted var(--color-win-dark);
+    outline-offset: -4px;
+  }
+}
+
+/* Raised 3D border, like a toolbar or desktop icon. */
+@utility win-outset {
+  box-shadow:
+    inset -1px -1px 0 var(--color-win-dark),
+    inset 1px 1px 0 var(--color-win-light),
+    inset -2px -2px 0 var(--color-win-shadow),
+    inset 2px 2px 0 var(--color-win-highlight);
+}
+
+/* Sunken 3D border, like a text field or URL bar. */
+@utility win-inset {
+  box-shadow:
+    inset 1px 1px 0 var(--color-win-dark),
+    inset -1px -1px 0 var(--color-win-light),
+    inset 2px 2px 0 var(--color-win-shadow),
+    inset -2px -2px 0 var(--color-win-highlight);
+}
+
+/* Classic raised button that presses down while held. */
+@utility win-button {
+  background-color: var(--color-win-face);
+  box-shadow:
+    inset -1px -1px 0 var(--color-win-dark),
+    inset 1px 1px 0 var(--color-win-light),
+    inset -2px -2px 0 var(--color-win-shadow),
+    inset 2px 2px 0 var(--color-win-highlight);
+
+  &:active {
+    box-shadow:
+      inset 1px 1px 0 var(--color-win-dark),
+      inset -1px -1px 0 var(--color-win-light),
+      inset 2px 2px 0 var(--color-win-shadow),
+      inset -2px -2px 0 var(--color-win-highlight);
+  }
+}
+
+/* Active title bar gradient (navy) vs inactive (gray). */
+@utility win-titlebar {
+  background: linear-gradient(
+    90deg,
+    var(--color-win-navy),
+    var(--color-win-blue)
+  );
+}
+
+@utility win-titlebar-inactive {
+  background: linear-gradient(90deg, var(--color-win-shadow), #b5b5b5);
+}
+
+@utility pixelated {
+  image-rendering: pixelated;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
