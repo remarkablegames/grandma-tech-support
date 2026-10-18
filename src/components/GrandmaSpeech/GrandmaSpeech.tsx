@@ -7,7 +7,7 @@ export function GrandmaSpeech({ line }: GrandmaSpeechProps) {
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-none absolute bottom-12 left-2 z-40 flex max-w-[min(92vw,26rem)] items-start gap-2"
+      className="pointer-events-none absolute right-2 bottom-12 z-40 flex max-w-[min(92vw,26rem)] flex-row-reverse items-start gap-2"
     >
       <span aria-hidden="true" className="text-3xl">
         👵

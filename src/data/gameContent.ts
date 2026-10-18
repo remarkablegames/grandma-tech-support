@@ -15,41 +15,40 @@ export const JOKES = {
   toasterTile:
     'That’s the seventh toaster, dear. The garage is mostly toasters now.',
   buyButton:
-    'You’ve spent $4.99 you don’t have, dear. Kidding — nothing happened.',
+    'You’ve spent $4.99 you don’t have. Just kidding, the payment didn’t go through.',
   liarClose:
-    'That Close button was reporting to the ads. Now there are twice as many.',
+    'That “Close” button was reporting to the ads. Now there are twice as many.',
   fixNow:
-    'We “fixed” it by deleting nothing, dear. It wasn’t broken. The button lied.',
+    'We “fixed” it by deleting nothing. It wasn’t broken in the first place.',
   claimPrize:
     'Congratulations: you’ve won a FREE mouse. The live one got away.',
   cleanNow:
-    'Your computer is now 400% more infected. Kidding — someone made this window in Paint.',
-  maybeLater: 'It’ll still be urgent later, dear. It’s very patient.',
-  minimize: 'It’s already as small as it gets, dear.',
-  maximize: 'It’s exactly the right size, dear.',
-  windowClose: 'That one’s never worked, dear. Purely decorative.',
-  goBack:
-    'There’s nowhere to go back to, dear. The internet thing only goes forward.',
-  goForward: 'Forward is where the pop-ups live, dear.',
-  emailDog: 'Forty-seven pictures of the dog, dear. All the same dog.',
-  emailUpdate: 'That’s the update that broke the internet thing in 2019.',
-  startPrograms: 'There are 47 programs, dear. 46 of them are Solitaire.',
-  startDocuments: 'They’re all called “untitled_final_v2”, dear.',
-  startSettings: 'Everything’s set to “don’t touch”, dear.',
-  startFind: 'It was open in the internet thing, dear.',
-  startHelp: 'You ARE the help, dear.',
-  startRun: 'That’s how the toaster got installed, dear.',
-  startShutDown: 'Don’t shut it down! I’m expecting an email, dear.',
+    'Your computer is now 400% more infected. Just kidding, someone made this in Paint.',
+  maybeLater: 'It’ll still be urgent later.',
+  minimize: 'It’s already as small as it gets.',
+  maximize: 'It can’t get any larger.',
+  windowClose: 'That one’s never worked, it’s purely decorative.',
+  goBack: 'There’s nowhere to go back to. The internet only goes forward.',
+  goForward: 'Forward is where the pop-ups live.',
+  emailDog: 'Forty-seven pictures of the same dog.',
+  emailUpdate: 'That’s the update that broke the internet in year 2000.',
+  startPrograms: 'There are 47 programs. 46 of them are Solitaire.',
+  startDocuments: 'They’re all called “untitled_final_v2”.',
+  startSettings: 'Everything’s set to “don’t touch”.',
+  startFind: 'It was open in the internet thing.',
+  startHelp: 'You ARE the help.',
+  startRun: 'That’s how the toaster got installed.',
+  startShutDown: 'Don’t shut it down! I’m expecting an email.',
 } as const;
 
 export const GRANDMA_LINES = {
   intro:
     'Help me find my email, dear. It was open in the internet thing. Don’t click anything that says it’s urgent.',
   correctClose:
-    'That’s it, dear — the little X in the corner. Never trust a big button.',
+    'That’s it! The little X in the corner. Never trust a big button.',
   mailDecoy:
-    'That one’s been broken since 2003, dear. Your email’s in the internet thing.',
-  win: 'You did it, dear! You found my email, and you didn’t fall for the toaster. Tell your grandfather the computer stays with me.',
+    'That one’s been broken since 2000. Your email’s in the internet thing.',
+  win: 'You did it, my dear! You found my email, and you didn’t fall for the toaster. Tell your grandfather the computer stays with me.',
 } as const;
 
 export const WINDOW_META: WindowMeta[] = [
@@ -78,7 +77,7 @@ export const POPUP_CONFIGS: Record<PopupId, PopupConfig> = {
     title: 'CONGRATULATIONS!!!',
     icon: `${ICONS}/sticky_note.png`,
     message:
-      'You are the 1,000,000th visitor! Claim your FREE toaster (shipping not included).',
+      'You’re the 1,000,000th visitor! Claim your FREE toaster (shipping not included).',
     buttons: [
       { label: 'Buy', message: JOKES.buyButton },
       { label: 'Close', message: JOKES.liarClose, spawns: 2 },

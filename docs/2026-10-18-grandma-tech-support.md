@@ -2,25 +2,25 @@
 
 ## Overview
 
-A short, funny browser game about being Grandma's tech support. The player lands on a
+A short, funny browser game about being Grandma’s tech support. The player lands on a
 playful, **fictional** Windows 95-style desktop (an homage, not a copy of a real OS) and
-must find Grandma's email among three overlapping browser windows — without falling for a
+must find Grandma’s email among three overlapping browser windows — without falling for a
 fake virus warning or the misleading buttons on pop-ups.
 
 - **Genre:** comedy point-and-click / puzzle vignette
 - **Session length:** 2–5 minutes
 - **Tone:** warm, silly, grandma-flavored; nothing scary, nothing real
 - **Lose state:** none. Wrong clicks produce jokes and the player retries.
-- **Win condition:** open Grandma's inbox, dismiss its pop-up safely, open the email.
+- **Win condition:** open Grandma’s inbox, dismiss its pop-up safely, open the email.
 
 ## Core loop
 
-1. The desktop opens with three overlapping browser windows and Grandma's instruction:
-   > "Help me find my email, dear. It was open in the internet thing. Don't click
-   > anything that says it's urgent."
+1. The desktop opens with three overlapping browser windows and Grandma’s instruction:
+   > "Help me find my email, dear. It was open in the internet thing. Don’t click
+   > anything that says it’s urgent."
 2. The player clicks windows to raise them to the front and inspects titles/contents.
 3. Pop-ups inside the shopping and inbox windows offer big misleading buttons
-   (`Buy`, `Fix now!`, `Close`). Only the tiny `×` in the pop-up's title bar is safe.
+   (`Buy`, `Fix now!`, `Close`). Only the tiny `×` in the pop-up’s title bar is safe.
 4. Clicking a misleading button opens a Win95-style joke dialog. After clicking `OK`
    everything resets for another try (pop-up stays open; liar `Close` spawns extras).
 5. The player finds the inbox, dismisses its pop-up with the `×`, clicks the email, and
@@ -33,7 +33,7 @@ fake virus warning or the misleading buttons on pop-ups.
 | Window         | Title                             | Icon                   | Initial z-order | Popup        |
 | -------------- | --------------------------------- | ---------------------- | --------------- | ------------ |
 | Shopping       | `🔥 Bargain Barn — TODAY ONLY!!!` | `world.png`            | middle          | Yes (`deal`) |
-| Inbox (target) | `✉ Inbox (12) — Grandma's Mail`   | `mail.png`             | bottom          | Yes (`full`) |
+| Inbox (target) | `✉ Inbox (12) — Grandma’s Mail`   | `mail.png`             | bottom          | Yes (`full`) |
 | Fake warning   | `⚠ URGENT: VIRUS DETECTED ⚠`      | `password_manager.png` | top (tempting)  | No           |
 
 - Windows start at fixed, pairwise-overlapping positions (scaled to the viewport on
@@ -47,7 +47,7 @@ fake virus warning or the misleading buttons on pop-ups.
   `Shut Down...` — each closes the menu and shows a joke dialog. Its vertical side
   stripe brands the fictional OS as **Rainbows95**.
 - Desktop icons (single click selects, Win95 style): `My Computer`, `Recycle Bin`,
-  `My Documents`, `Sticky Notes`, `Calculator`, and the decoy `Grandma's Mail`. Selecting
+  `My Documents`, `Sticky Notes`, `Calculator`, and the decoy `Grandma’s Mail`. Selecting
   the decoy makes Grandma point the player back to "the internet thing".
 
 ### Pop-ups
@@ -60,19 +60,19 @@ that blocks the content underneath. Every pop-up has:
   also contain a liar `Close`; capped at 5 pop-ups per window)
 - A tiny real dismiss **`×`** in the title bar (the only safe way out)
 
-| Popup  | Window    | Message                                                     | Buttons             |
-| ------ | --------- | ----------------------------------------------------------- | ------------------- |
-| `deal` | Shopping  | "You are the 1,000,000th visitor! Claim your FREE toaster…" | `Buy`, `Close`      |
-| `full` | Inbox     | "Your mailbox is 99% FULL! Fix now to avoid EXPLOSION."     | `Fix now!`, `Close` |
-| `spam` | (spawned) | "Your prize is waiting! FREE mouse (animal not included)."  | `Claim`, `Close`    |
+| Popup  | Window    | Message                                                    | Buttons             |
+| ------ | --------- | ---------------------------------------------------------- | ------------------- |
+| `deal` | Shopping  | "You’re the 1,000,000th visitor! Claim your FREE toaster…" | `Buy`, `Close`      |
+| `full` | Inbox     | "Your mailbox is 99% FULL! Fix now to avoid EXPLOSION."    | `Fix now!`, `Close` |
+| `spam` | (spawned) | "Your prize is waiting! FREE mouse (animal not included)." | `Claim`, `Close`    |
 
 ### Fake virus warning
 
 Not a pop-up — a full window with a blinking red alert and two buttons:
 
-- `CLEAN MY COMPUTER NOW!` → "Your computer is now 400% more infected. Kidding — someone
-  just made this window in Paint."
-- `Maybe later` → "It'll still be urgent later, dear. It's very patient."
+- `CLEAN MY COMPUTER NOW!` → "Your computer is now 400% more infected. Just kidding,
+  someone made this in Paint."
+- `Maybe later` → "It’ll still be urgent later."
 
 ### Inbox
 
@@ -88,8 +88,8 @@ Toolbar pixels are decorative (not interactive). Email list:
 
 Amused thank-you from Grandma:
 
-> "You did it, dear! You found my email, and you didn't fall for the toaster. Tell your
-> grandfather the computer stays with me."
+> "You did it, my dear! You found my email, and you didn’t fall for the toaster. Tell
+> your grandfather the computer stays with me."
 
 Plus a `Play again` button that fully resets the game.
 
@@ -105,7 +105,7 @@ Plus a `Play again` button that fully resets the game.
   Every asset path is **relative** (never a leading `/`) so subpath deploys (GitHub
   Pages, itch.io) resolve correctly.
 - **App icon:** `public/logo.svg` — the waving four-pane flag with its pixel-dissolve
-  trail, adapted from the Windows 95 logo (a deliberate parody homage; the game's own
+  trail, adapted from the Windows 95 logo (a deliberate parody homage; the game’s own
   brand lives in the OS name "Rainbows95"). Flag-only, no wordmark, so it stays
   legible at favicon sizes.
 - **Motion:** CSS `@keyframes` only — popup scale-in, dialog wobble, win-screen pop,
@@ -123,7 +123,7 @@ Plus a `Play again` button that fully resets the game.
 - **Keyboard:** all interactive elements are real `<button>`s; window titles can be
   tabbed to and activated to raise; dialogs autofocus their primary button.
 - **Feedback:** wrong clicks open a modal `System Message` dialog ( `role="alertdialog"`,
-  `OK` dismisses); Grandma's speech bubble (`role="status"`) changes contextually.
+  `OK` dismisses); Grandma’s speech bubble (`role="status"`) changes contextually.
 
 ## Accessibility
 
@@ -139,7 +139,7 @@ Plus a `Play again` button that fully resets the game.
   React Compiler enabled (no `useMemo`/`useCallback`).
 - **Zero runtime dependencies** beyond React/Tailwind: dragging is hand-rolled pointer
   events; animations are CSS. (Motion was considered and rejected — its spring physics
-  fight the Win95 feel, it would weaken drag-clamp testability in jsdom, and the game's
+  fight the Win95 feel, it would weaken drag-clamp testability in jsdom, and the game’s
   animation surface is tiny.)
 
 ### Structure (concern-based)
