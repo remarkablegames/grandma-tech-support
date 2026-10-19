@@ -18,6 +18,7 @@ interface FakePlayer {
   volume: number;
   loop: boolean;
   play(): Promise<void> | void;
+  pause(): void;
 }
 
 function createHarness(existingStorage?: Map<string, string>) {
@@ -25,6 +26,7 @@ function createHarness(existingStorage?: Map<string, string>) {
   const players: FakePlayer[] = [];
   const sources: string[] = [];
   const playCalls: string[] = [];
+  const pauseCalls: string[] = [];
   let clock = 1000;
 
   const deps: AudioDeps = {
@@ -37,6 +39,9 @@ function createHarness(existingStorage?: Map<string, string>) {
           playCalls.push(src);
           return Promise.resolve();
         }),
+        pause: () => {
+          pauseCalls.push(src);
+        },
       };
       players.push(player);
       return player;
@@ -56,6 +61,7 @@ function createHarness(existingStorage?: Map<string, string>) {
     players,
     sources,
     playCalls,
+    pauseCalls,
     advance: (ms: number) => {
       clock += ms;
     },
@@ -253,6 +259,7 @@ describe('AudioService', () => {
     deps.createPlayer = () => ({
       volume: 0,
       loop: false,
+      pause: () => undefined,
       play: vi.fn(() =>
         Promise.reject(new Error('blocked by autoplay policy')),
       ),
@@ -269,6 +276,7 @@ describe('AudioService', () => {
     deps.createPlayer = () => ({
       volume: 0,
       loop: false,
+      pause: () => undefined,
       play: () => undefined,
     });
     const service = new AudioService(deps);
@@ -420,6 +428,7 @@ describe('music channel', () => {
     deps.createPlayer = () => ({
       volume: 0,
       loop: false,
+      pause: () => undefined,
       play: vi.fn(() =>
         Promise.reject(new Error('blocked by autoplay policy')),
       ),
@@ -436,6 +445,7 @@ describe('music channel', () => {
     deps.createPlayer = () => ({
       volume: 0,
       loop: false,
+      pause: () => undefined,
       play: () => undefined,
     });
     const service = new AudioService(deps);
@@ -443,6 +453,42 @@ describe('music channel', () => {
     expect(() => {
       service.startMusic();
     }).not.toThrow();
+  });
+
+  it('pauses the loop when the page goes away', () => {
+    const { deps, players, pauseCalls } = createHarness();
+    const service = new AudioService(deps);
+
+    service.startMusic();
+    service.pauseMusic();
+
+    expect(pauseCalls).toEqual(['music/title_theme.mp3']);
+    expect(players).toHaveLength(1);
+  });
+
+  it('resumes the loop from where it paused', () => {
+    const { deps, playCalls } = createHarness();
+    const service = new AudioService(deps);
+
+    service.startMusic();
+    service.pauseMusic();
+    service.startMusic();
+
+    expect(playCalls).toEqual([
+      'music/title_theme.mp3',
+      'music/title_theme.mp3',
+    ]);
+  });
+
+  it('tolerates pausing before the music ever starts', () => {
+    const { deps, players, pauseCalls } = createHarness();
+    const service = new AudioService(deps);
+
+    expect(() => {
+      service.pauseMusic();
+    }).not.toThrow();
+    expect(players).toHaveLength(0);
+    expect(pauseCalls).toHaveLength(0);
   });
 });
 

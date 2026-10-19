@@ -25,10 +25,11 @@ The safe little × plays no sound of its own — its pointer-down bubbles to the
 - **Background music.** `music/title_theme.mp3` loops for the whole session — one
   long-lived element with `loop = true`, created and preloaded when App mounts, with
   playback starting on the first user gesture (browsers gate autoplay: the mount
-  attempt plus a gesture retry, both rejections swallowed). Music is its own channel,
-  fully independent of Sounds — mute sets its gain to 0 so the loop keeps its position,
-  like a real mixer. If the MP3 loop point ever sounds like a seam (encoder delay),
-  upgrade to a Web Audio buffer loop.
+  attempt plus a gesture retry, both rejections swallowed). Hiding the tab pauses the
+  loop and returning resumes it from the same spot. Music is its own channel, fully
+  independent of Sounds — mute sets its gain to 0 so the loop keeps its position, like
+  a real mixer. If the MP3 loop point ever sounds like a seam (encoder delay), upgrade
+  to a Web Audio buffer loop.
 - **Volume Control popup.** The tray speaker icon (`windows_icons_32x32/sounds.png`)
   opens a mini Win95-style “Volume Control” panel above the tray with two side-by-side
   strips — Sounds and Music — each with a vertical fader (native `<input type="range">`

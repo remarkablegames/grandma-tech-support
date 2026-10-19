@@ -10,15 +10,17 @@ import { firePointer } from 'src/tests/firePointer';
 
 import { App } from '.';
 
-const { play, startMusic } = vi.hoisted(() => ({
+const { play, startMusic, pauseMusic } = vi.hoisted(() => ({
   play: vi.fn(),
   startMusic: vi.fn(),
+  pauseMusic: vi.fn(),
 }));
 
 vi.mock('src/services/audio', () => ({
   audio: {
     play,
     startMusic,
+    pauseMusic,
     getVolume: () => 100,
     isMuted: () => false,
     setVolume: vi.fn(),
@@ -59,6 +61,31 @@ describe('App component', () => {
     unmount();
     fireEvent.pointerDown(document);
     expect(startMusic).toHaveBeenCalledTimes(2);
+  });
+
+  it('pauses the theme while the tab is hidden and resumes on return', () => {
+    const setVisibility = (state: DocumentVisibilityState) => {
+      Object.defineProperty(document, 'visibilityState', {
+        configurable: true,
+        get: () => state,
+      });
+    };
+    const { unmount } = render(<App />);
+
+    setVisibility('hidden');
+    fireEvent(document, new Event('visibilitychange'));
+    expect(pauseMusic).toHaveBeenCalledTimes(1);
+
+    setVisibility('visible');
+    fireEvent(document, new Event('visibilitychange'));
+    expect(startMusic).toHaveBeenCalledTimes(2);
+
+    unmount();
+    setVisibility('hidden');
+    fireEvent(document, new Event('visibilitychange'));
+    expect(pauseMusic).toHaveBeenCalledTimes(1);
+
+    Reflect.deleteProperty(document, 'visibilityState');
   });
 
   it('shows the three overlapping browser windows', () => {

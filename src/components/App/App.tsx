@@ -26,13 +26,22 @@ export function App() {
       document.removeEventListener('pointerdown', startOnGesture);
       document.removeEventListener('keydown', startOnGesture);
     };
+    const handleVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        audio.pauseMusic();
+      } else {
+        audio.startMusic();
+      }
+    };
 
     document.addEventListener('pointerdown', startOnGesture);
     document.addEventListener('keydown', startOnGesture);
+    document.addEventListener('visibilitychange', handleVisibility);
 
     return () => {
       document.removeEventListener('pointerdown', startOnGesture);
       document.removeEventListener('keydown', startOnGesture);
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, []);
 

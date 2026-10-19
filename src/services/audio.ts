@@ -10,6 +10,7 @@ interface Player {
   volume: number;
   loop: boolean;
   play(): Promise<void> | void;
+  pause(): void;
 }
 
 interface ChannelSettings {
@@ -207,6 +208,13 @@ export class AudioService {
       }
     } catch {
       // Swallow creation failures (missing file, no audio device, jsdom, …).
+    }
+  }
+
+  pauseMusic(): void {
+    const player = this.musicPlayer;
+    if (player !== null) {
+      player.pause();
     }
   }
 
