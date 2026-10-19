@@ -54,19 +54,19 @@ export const WINDOW_META: WindowMeta[] = [
     id: 'shopping',
     title: '🔥 Bargain Barn — TODAY ONLY!!!',
     icon: `${ICONS}/world.png`,
-    url: 'http://www.bargain-barn.totally-real/sale.html',
+    url: 'http://www.bargain-barn.totally-real.com/sale.html',
   },
   {
     id: 'inbox',
     title: '✉ Inbox (12) — Grandma’s Mail',
     icon: `${ICONS}/mail.png`,
-    url: 'http://mail.grandma.example/inbox',
+    url: 'http://mail.grandma.com/inbox',
   },
   {
     id: 'virus',
     title: '⚠ URGENT: VIRUS DETECTED ⚠',
     icon: `${ICONS}/password_manager.png`,
-    url: 'http://www.totally-a-virus.example/alert',
+    url: 'http://www.totally-a-virus.com/alert',
   },
 ];
 
