@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 
-import { useCurrentTime } from './useCurrentTime';
+import { formatTime, useCurrentTime } from './useCurrentTime';
 
 describe('useCurrentTime hook', () => {
   beforeEach(() => {
@@ -13,10 +13,10 @@ describe('useCurrentTime hook', () => {
     vi.useRealTimers();
   });
 
-  it('reads the current time like the Win95 tray', () => {
+  it('shows the formatted time on mount', () => {
     const { result } = renderHook(() => useCurrentTime());
 
-    expect(result.current).toBe('3:46 PM');
+    expect(result.current).toBe(formatTime(new Date(2026, 9, 19, 15, 46, 59)));
   });
 
   it('ticks over when the minute changes', () => {
@@ -26,7 +26,7 @@ describe('useCurrentTime hook', () => {
       vi.advanceTimersByTime(1000);
     });
 
-    expect(result.current).toBe('3:47 PM');
+    expect(result.current).toBe(formatTime(new Date(2026, 9, 19, 15, 47, 0)));
   });
 
   it('clears the ticker when unmounted', () => {

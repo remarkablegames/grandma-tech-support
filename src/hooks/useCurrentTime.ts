@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 
 const TICK_MS = 1000;
 
-function formatTime(date: Date): string {
+export function formatTime(date: Date): string {
   // Modern ICU puts a narrow no-break space before AM/PM — show a plain one.
   return date
-    .toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+    .toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
     .replace(/[\u00A0\u202F]/g, ' ');
 }
 
