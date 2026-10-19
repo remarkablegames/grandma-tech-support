@@ -20,6 +20,10 @@ vi.mock('src/services/audio', () => ({
   },
 }));
 
+vi.mock('src/hooks/useCurrentTime', () => ({
+  useCurrentTime: () => '12:34 PM',
+}));
+
 const onStartToggle = vi.fn();
 const onWindowClick = vi.fn();
 
@@ -55,7 +59,7 @@ describe('Taskbar component', () => {
     expect(
       screen.getByRole('button', { name: 'Volume control' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('3:47 PM')).toBeInTheDocument();
+    expect(screen.getByText('12:34 PM')).toBeInTheDocument();
   });
 
   it('presses the button of the focused window only', () => {

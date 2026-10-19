@@ -32,6 +32,10 @@ vi.mock('src/services/audio', () => ({
   },
 }));
 
+vi.mock('src/hooks/useCurrentTime', () => ({
+  useCurrentTime: () => '12:34 PM',
+}));
+
 describe('App component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -115,7 +119,7 @@ describe('App component', () => {
     expect(
       screen.getByRole('button', { name: 'Volume control' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('3:47 PM')).toBeInTheDocument();
+    expect(screen.getByText('12:34 PM')).toBeInTheDocument();
     expect(
       screen.getByRole('dialog', { name: 'CONGRATULATIONS!!!' }),
     ).toBeInTheDocument();

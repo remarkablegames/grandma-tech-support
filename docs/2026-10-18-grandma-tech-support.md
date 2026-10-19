@@ -42,7 +42,8 @@ fake virus warning or the misleading buttons on pop-ups.
 - Title-bar window controls (`_`, `□`, `×`) are decorative and each tells a joke when
   clicked. Back/forward buttons joke too. The URL bar shows a fake address.
 - Taskbar: `Start` button (toggles the Start menu), one button per window (raises it,
-  pressed style for the focused window), tray with a clock reading `3:47 PM`.
+  pressed style for the focused window), tray with a live clock showing the current
+  time.
 - Start menu: `Programs`, `Documents`, `Settings`, `Find`, `Help`, `Run...`,
   `Shut Down...` — each closes the menu and shows a joke dialog. Its vertical side
   stripe brands the fictional OS as **Rainbows95**.

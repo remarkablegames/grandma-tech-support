@@ -1,3 +1,4 @@
+import { useCurrentTime } from 'src/hooks/useCurrentTime';
 import { audio } from 'src/services/audio';
 import type { WindowId, WindowMeta } from 'src/types/game';
 
@@ -18,6 +19,8 @@ export function Taskbar({
   onStartToggle,
   onWindowClick,
 }: TaskbarProps) {
+  const time = useCurrentTime();
+
   return (
     <div className="bg-win-face win-outset absolute inset-x-0 bottom-0 z-40 flex h-10 items-center gap-1 px-1">
       <button
@@ -78,7 +81,7 @@ export function Taskbar({
           draggable={false}
           className="pixelated size-4"
         />
-        3:47 PM
+        {time}
       </div>
     </div>
   );
