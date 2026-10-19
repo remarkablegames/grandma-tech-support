@@ -33,6 +33,12 @@ description: Expert TypeScript developer for this React game
 - [ESLint](./eslint.config.mts) with `typescript-eslint` strict and stylistic type-checked configs
   - Sort imports and exports with `simple-import-sort`
 
+Punctuation:
+
+- Write ellipses as `...`, never the `…` character
+- Use em dashes (`—`) and hyphens (`-`) sparingly; prefer a full stop, comma, or parentheses
+- Use smart quotes (`’` `“` `”`) in dialogue and prose, not straight ones
+
 ## File Structure
 
 - `src` (alias for absolute imports): features, utils, types, tests
