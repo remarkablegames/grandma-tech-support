@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { VolumeControl } from '.';
 
 const {
+  play,
   getVolume,
   isMuted,
   setMuted,
@@ -13,6 +14,7 @@ const {
   setMusicMuted,
   setMusicVolume,
 } = vi.hoisted(() => ({
+  play: vi.fn(),
   getVolume: vi.fn(() => 100),
   isMuted: vi.fn(() => false),
   setMuted: vi.fn(),
@@ -25,7 +27,7 @@ const {
 
 vi.mock('src/services/audio', () => ({
   audio: {
-    play: vi.fn(),
+    play,
     getVolume,
     isMuted,
     setVolume,
@@ -72,6 +74,18 @@ describe('VolumeControl component', () => {
     expect(
       screen.getByRole('checkbox', { name: 'Music Mute' }),
     ).not.toBeChecked();
+  });
+
+  it('ticks like every other plain button on open and close', async () => {
+    const user = userEvent.setup();
+    render(<VolumeControl />);
+
+    const button = screen.getByRole('button', { name: 'Volume control' });
+    await user.click(button);
+    expect(play).toHaveBeenCalledWith('click');
+
+    await user.click(button);
+    expect(play).toHaveBeenCalledTimes(2);
   });
 
   it('focuses the fader when opened', async () => {

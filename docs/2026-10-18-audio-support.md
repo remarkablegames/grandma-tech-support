@@ -7,12 +7,12 @@ Four sparse interface sounds — short MP3s from [Kenney's Interface Sounds](htt
 pack (CC0) — plus a looped background theme (`music/title_theme.mp3`). Joke dialogs
 stay silent; text does the comedy.
 
-| Event                                                                                                                                                | SFX key | File                                    |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | --------------------------------------- |
-| Plain button tick — window raise (pointer-down, safe × included), taskbar switch, Start, Start menu items, desktop icons, joke-dialog OK, Play again | `click` | `interface_sounds/click.mp3`            |
-| Liar “Close” opens extra spam pop-ups                                                                                                                | `open`  | `interface_sounds/drop_004.mp3`         |
-| Misleading pop-up button (“Fix now!”, “Buy”, “Claim”)                                                                                                | `error` | `interface_sounds/back_001.mp3`         |
-| Win — email found                                                                                                                                    | `win`   | `interface_sounds/confirmation_004.mp3` |
+| Event                                                                                                                                                              | SFX key | File                                    |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- | --------------------------------------- |
+| Plain button tick — window raise (pointer-down, safe × included), taskbar switch, Start, Start menu items, desktop icons, tray speaker, joke-dialog OK, Play again | `click` | `interface_sounds/click.mp3`            |
+| Liar “Close” opens extra spam pop-ups                                                                                                                              | `open`  | `interface_sounds/drop_004.mp3`         |
+| Misleading pop-up button (“Fix now!”, “Buy”, “Claim”)                                                                                                              | `error` | `interface_sounds/back_001.mp3`         |
+| Win — email found                                                                                                                                                  | `win`   | `interface_sounds/confirmation_004.mp3` |
 
 The safe little × plays no sound of its own — its pointer-down bubbles to the window’s
 `click` tick.

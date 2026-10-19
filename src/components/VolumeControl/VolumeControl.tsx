@@ -135,6 +135,7 @@ export function VolumeControl() {
         aria-expanded={open}
         aria-label={anyMuted ? 'Volume control (muted)' : 'Volume control'}
         onClick={() => {
+          audio.play('click');
           setOpen((wasOpen) => !wasOpen);
         }}
         className="win-button flex items-center px-1.5 py-1"
