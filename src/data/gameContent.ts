@@ -1,6 +1,7 @@
 import type {
   DesktopIconConfig,
   EmailConfig,
+  IconWindowConfig,
   OpenPopup,
   PopupConfig,
   PopupId,
@@ -117,20 +118,89 @@ export const BASE_WINDOW_POSITIONS = {
 
 export const BASE_VIEWPORT = { width: 1024, height: 768 } as const;
 
+// Every desktop icon window opens here; each additional window cascades from it.
+export const ICON_WINDOW_BASE_POSITION = { x: 150, y: 100 } as const;
+
+export const ICON_WINDOWS: IconWindowConfig[] = [
+  {
+    id: 'computer',
+    title: 'My Computer',
+    kind: 'list',
+    rows: [
+      { icon: `${ICONS}/flop_drive.png`, label: '3½ Floppy (A:)' },
+      {
+        icon: `${ICONS}/drive.png`,
+        label: 'Hard disk (C:)',
+        hint: 'mostly toasters',
+      },
+      { icon: `${ICONS}/cd_drive.png`, label: 'CD-ROM (D:)', hint: '1 song' },
+    ],
+  },
+  {
+    id: 'recycle',
+    title: 'Recycle Bin',
+    kind: 'list',
+    rows: [
+      { icon: `${ICONS}/text_file.png`, label: 'untitled_final_v2.doc' },
+      { icon: `${ICONS}/program.png`, label: 'toaster_7_install.exe' },
+      { icon: `${ICONS}/image_file.png`, label: 'do_not_open.jpg' },
+    ],
+  },
+  {
+    id: 'documents',
+    title: 'My Documents',
+    kind: 'list',
+    rows: [
+      { icon: `${ICONS}/text_file.png`, label: 'untitled' },
+      { icon: `${ICONS}/text_file.png`, label: 'untitled (2)' },
+      { icon: `${ICONS}/text_file.png`, label: 'untitled (3)' },
+      { icon: `${ICONS}/text_file.png`, label: 'asdf' },
+    ],
+  },
+  {
+    id: 'notes',
+    title: 'Sticky Notes',
+    kind: 'note',
+    lines: ['THE PASSWORD', '(it’s on the other note)'],
+  },
+  {
+    id: 'calculator',
+    title: 'Calculator',
+    kind: 'calculator',
+  },
+];
+
 export const DESKTOP_ICONS: DesktopIconConfig[] = [
-  { id: 'computer', label: 'My Computer', icon: `${ICONS}/this_computer.png` },
+  {
+    id: 'computer',
+    label: 'My Computer',
+    icon: `${ICONS}/this_computer.png`,
+    windowId: 'computer',
+  },
   {
     id: 'recycle',
     label: 'Recycle Bin',
     icon: `${ICONS}/recycle_bin_empty.png`,
+    windowId: 'recycle',
   },
   {
     id: 'documents',
     label: 'My Documents',
     icon: `${ICONS}/folder_closed.png`,
+    windowId: 'documents',
   },
-  { id: 'notes', label: 'Sticky Notes', icon: `${ICONS}/sticky_note.png` },
-  { id: 'calculator', label: 'Calculator', icon: `${ICONS}/calculator.png` },
+  {
+    id: 'notes',
+    label: 'Sticky Notes',
+    icon: `${ICONS}/sticky_note.png`,
+    windowId: 'notes',
+  },
+  {
+    id: 'calculator',
+    label: 'Calculator',
+    icon: `${ICONS}/calculator.png`,
+    windowId: 'calculator',
+  },
   {
     id: 'mail',
     label: 'Grandma’s Mail',

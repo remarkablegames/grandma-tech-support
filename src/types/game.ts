@@ -47,7 +47,40 @@ export interface DesktopIconConfig {
   label: string;
   icon: string;
   decoy?: boolean;
+  windowId?: IconWindowId;
 }
+
+export type IconWindowId =
+  'computer' | 'recycle' | 'documents' | 'notes' | 'calculator';
+
+export interface IconWindowRow {
+  icon?: string;
+  label: string;
+  hint?: string;
+}
+
+export interface ListIconWindow {
+  id: IconWindowId;
+  title: string;
+  kind: 'list';
+  rows: IconWindowRow[];
+}
+
+export interface NoteIconWindow {
+  id: 'notes';
+  title: string;
+  kind: 'note';
+  lines: string[];
+}
+
+export interface CalculatorIconWindow {
+  id: 'calculator';
+  title: string;
+  kind: 'calculator';
+}
+
+export type IconWindowConfig =
+  ListIconWindow | NoteIconWindow | CalculatorIconWindow;
 
 export interface EmailBase {
   id: string;

@@ -1,0 +1,1 @@
+export { IconWindow } from './IconWindow';

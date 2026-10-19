@@ -39,6 +39,14 @@ describe('useGame hook', () => {
       inbox: false,
       virus: false,
     });
+    expect(result.current.iconZOrder).toEqual([]);
+    expect(result.current.openIconWindows).toEqual({
+      computer: false,
+      recycle: false,
+      documents: false,
+      notes: false,
+      calculator: false,
+    });
   });
 
   it('raises windows to the front', () => {
@@ -99,6 +107,68 @@ describe('useGame hook', () => {
       result.current.toggleMaximize('inbox');
     });
     expect(result.current.maximized.inbox).toBe(false);
+  });
+
+  it('opens, raises, moves, and closes desktop icon windows', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.openIconWindow('computer');
+    });
+    expect(result.current.openIconWindows.computer).toBe(true);
+    expect(result.current.iconZOrder).toEqual(['computer']);
+    expect(result.current.iconWindowPositions.computer).toEqual({
+      x: 150,
+      y: 100,
+    });
+
+    act(() => {
+      result.current.openIconWindow('notes');
+    });
+    expect(result.current.iconZOrder).toEqual(['computer', 'notes']);
+    expect(result.current.iconWindowPositions.notes).toEqual({
+      x: 174,
+      y: 124,
+    });
+
+    act(() => {
+      result.current.raiseIconWindow('computer');
+    });
+    expect(result.current.iconZOrder).toEqual(['notes', 'computer']);
+
+    act(() => {
+      result.current.moveIconWindow('computer', { x: 5, y: 6 });
+    });
+    expect(result.current.iconWindowPositions.computer).toEqual({
+      x: 5,
+      y: 6,
+    });
+
+    act(() => {
+      result.current.closeIconWindow('computer');
+    });
+    expect(result.current.openIconWindows.computer).toBe(false);
+    expect(result.current.iconZOrder).toEqual(['notes']);
+  });
+
+  it('keeps the position when re-opening an open icon window', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.openIconWindow('calculator');
+    });
+    act(() => {
+      result.current.moveIconWindow('calculator', { x: 40, y: 50 });
+    });
+    act(() => {
+      result.current.openIconWindow('calculator');
+    });
+
+    expect(result.current.iconWindowPositions.calculator).toEqual({
+      x: 40,
+      y: 50,
+    });
+    expect(result.current.iconZOrder).toEqual(['calculator']);
   });
 
   it('moves one window without touching the others', () => {
@@ -253,6 +323,9 @@ describe('useGame hook', () => {
       result.current.toggleMaximize('inbox');
     });
     act(() => {
+      result.current.openIconWindow('computer');
+    });
+    act(() => {
       result.current.popupAction('shopping', {
         label: 'Buy',
         message: JOKES.buyButton,
@@ -297,6 +370,12 @@ describe('useGame hook', () => {
       shopping: false,
       inbox: false,
       virus: false,
+    });
+    expect(result.current.openIconWindows.computer).toBe(false);
+    expect(result.current.iconZOrder).toEqual([]);
+    expect(result.current.iconWindowPositions.computer).toEqual({
+      x: 150,
+      y: 100,
     });
   });
 });

@@ -1,11 +1,17 @@
 import { useEffect } from 'react';
-import { DESKTOP_ICONS, START_ITEMS, WINDOW_META } from 'src/data/gameContent';
+import {
+  DESKTOP_ICONS,
+  ICON_WINDOWS,
+  START_ITEMS,
+  WINDOW_META,
+} from 'src/data/gameContent';
 import { useGame } from 'src/hooks/useGame';
 import { audio } from 'src/services/audio';
 
 import { BrowserWindow } from '../BrowserWindow';
 import { DesktopIcon } from '../DesktopIcon';
 import { GrandmaSpeech } from '../GrandmaSpeech';
+import { IconWindow } from '../IconWindow';
 import { InboxWindow } from '../InboxWindow';
 import { MessageDialog } from '../MessageDialog';
 import { Popups } from '../Popups';
@@ -48,14 +54,25 @@ export function App() {
   return (
     <div className="bg-win-desktop relative h-dvh w-full overflow-hidden select-none">
       <div className="absolute top-2 left-2 z-[5] flex flex-col gap-1">
-        {DESKTOP_ICONS.map((icon) => (
-          <DesktopIcon
-            key={icon.id}
-            icon={icon}
-            selected={game.selectedIcon === icon.id}
-            onSelect={game.selectIcon}
-          />
-        ))}
+        {DESKTOP_ICONS.map((icon) => {
+          const windowId = icon.windowId;
+
+          return (
+            <DesktopIcon
+              key={icon.id}
+              icon={icon}
+              selected={game.selectedIcon === icon.id}
+              onSelect={game.selectIcon}
+              onOpen={
+                windowId === undefined
+                  ? undefined
+                  : () => {
+                      game.openIconWindow(windowId);
+                    }
+              }
+            />
+          );
+        })}
       </div>
 
       {WINDOW_META.filter((meta) => !game.minimized[meta.id]).map((meta) => (
@@ -88,6 +105,26 @@ export function App() {
           />
         </BrowserWindow>
       ))}
+
+      {ICON_WINDOWS.filter((config) => game.openIconWindows[config.id]).map(
+        (config) => (
+          <IconWindow
+            key={config.id}
+            config={config}
+            position={game.iconWindowPositions[config.id]}
+            zIndex={15 + game.iconZOrder.indexOf(config.id)}
+            onFocus={() => {
+              game.raiseIconWindow(config.id);
+            }}
+            onMove={(position) => {
+              game.moveIconWindow(config.id, position);
+            }}
+            onClose={() => {
+              game.closeIconWindow(config.id);
+            }}
+          />
+        ),
+      )}
 
       <GrandmaSpeech line={game.grandmaLine} />
 

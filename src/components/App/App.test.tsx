@@ -305,6 +305,49 @@ describe('App component', () => {
       GRANDMA_LINES.mailDecoy,
     );
     expect(desktopMail).toHaveAttribute('aria-pressed', 'true');
+
+    await user.dblClick(desktopMail);
+    expect(screen.queryByRole('region', { name: 'Grandma’s Mail' })).toBeNull();
+  });
+
+  it('opens a desktop icon window on double-click and closes it', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.dblClick(screen.getByRole('button', { name: 'My Computer' }));
+
+    const iconWindow = screen.getByRole('region', { name: 'My Computer' });
+    expect(iconWindow).toBeInTheDocument();
+
+    await user.click(
+      within(iconWindow).getByRole('button', { name: 'Close My Computer' }),
+    );
+    expect(screen.queryByRole('region', { name: 'My Computer' })).toBeNull();
+  });
+
+  it('drags an icon window across the desktop', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.dblClick(screen.getByRole('button', { name: 'My Computer' }));
+
+    const region = screen.getByRole('region', { name: 'My Computer' });
+    const startLeft = Number.parseInt(region.style.left, 10);
+    const startTop = Number.parseInt(region.style.top, 10);
+
+    firePointer(within(region).getByText('My Computer'), 'pointerdown', {
+      clientX: startLeft,
+      clientY: startTop,
+    });
+    firePointer(window, 'pointermove', {
+      clientX: startLeft + 60,
+      clientY: startTop + 40,
+    });
+
+    expect(region.style.left).toBe(`${String(startLeft + 60)}px`);
+    expect(region.style.top).toBe(`${String(startTop + 40)}px`);
+
+    firePointer(window, 'pointerup');
   });
 
   it('does not reward clicking the urgent virus warning', async () => {

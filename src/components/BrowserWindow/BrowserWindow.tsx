@@ -1,10 +1,8 @@
-import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { JOKES } from 'src/data/gameContent';
 import { audio } from 'src/services/audio';
 import type { WindowId, WindowPosition } from 'src/types/game';
-
-const DRAG_VISIBLE_WIDTH = 150;
-const DRAG_VISIBLE_HEIGHT = 60;
+import { createWindowDrag } from 'src/utils/createWindowDrag';
 
 interface BrowserWindowProps {
   windowId: WindowId;
@@ -39,36 +37,13 @@ export function BrowserWindow({
   onJoke,
   children,
 }: BrowserWindowProps) {
-  const handleTitlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (maximized) {
-      return;
-    }
-
-    const originX = event.clientX - position.x;
-    const originY = event.clientY - position.y;
-
-    const handleMove = (moveEvent: PointerEvent) => {
-      const x = Math.min(
-        Math.max(moveEvent.clientX - originX, 0),
-        Math.max(window.innerWidth - DRAG_VISIBLE_WIDTH, 0),
-      );
-      const y = Math.min(
-        Math.max(moveEvent.clientY - originY, 0),
-        Math.max(window.innerHeight - DRAG_VISIBLE_HEIGHT, 0),
-      );
-      onMove(windowId, { x, y });
-    };
-
-    const handleEnd = () => {
-      window.removeEventListener('pointermove', handleMove);
-      window.removeEventListener('pointerup', handleEnd);
-      window.removeEventListener('pointercancel', handleEnd);
-    };
-
-    window.addEventListener('pointermove', handleMove);
-    window.addEventListener('pointerup', handleEnd);
-    window.addEventListener('pointercancel', handleEnd);
-  };
+  const startDrag = createWindowDrag({
+    position,
+    enabled: !maximized,
+    onMove: (nextPosition) => {
+      onMove(windowId, nextPosition);
+    },
+  });
 
   return (
     <section
@@ -86,7 +61,7 @@ export function BrowserWindow({
     >
       <div
         className={`flex touch-none items-center gap-1 px-1 py-1 ${isFront ? 'win-titlebar' : 'win-titlebar-inactive'}`}
-        onPointerDown={handleTitlePointerDown}
+        onPointerDown={startDrag}
       >
         <button
           type="button"

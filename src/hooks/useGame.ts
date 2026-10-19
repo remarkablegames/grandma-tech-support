@@ -3,12 +3,15 @@ import {
   BASE_VIEWPORT,
   BASE_WINDOW_POSITIONS,
   GRANDMA_LINES,
+  ICON_WINDOW_BASE_POSITION,
+  ICON_WINDOWS,
   INITIAL_POPUPS,
   MAX_POPUPS_PER_WINDOW,
 } from 'src/data/gameContent';
 import type {
   DesktopIconConfig,
   GamePhase,
+  IconWindowId,
   OpenPopup,
   PopupButtonConfig,
   PopupId,
@@ -24,6 +27,26 @@ const INITIAL_WINDOW_FLAGS: Record<WindowId, boolean> = {
   inbox: false,
   virus: false,
 };
+
+const ICON_WINDOW_CASCADE_STEP = 24;
+
+const INITIAL_ICON_WINDOW_FLAGS: Record<IconWindowId, boolean> = {
+  computer: false,
+  recycle: false,
+  documents: false,
+  notes: false,
+  calculator: false,
+};
+
+function getInitialIconWindowPositions(): Record<IconWindowId, WindowPosition> {
+  return {
+    computer: ICON_WINDOW_BASE_POSITION,
+    recycle: ICON_WINDOW_BASE_POSITION,
+    documents: ICON_WINDOW_BASE_POSITION,
+    notes: ICON_WINDOW_BASE_POSITION,
+    calculator: ICON_WINDOW_BASE_POSITION,
+  };
+}
 
 function scalePosition(
   position: WindowPosition,
@@ -62,6 +85,13 @@ export function useGame() {
     useState<Record<WindowId, boolean>>(INITIAL_WINDOW_FLAGS);
   const [maximized, setMaximized] =
     useState<Record<WindowId, boolean>>(INITIAL_WINDOW_FLAGS);
+  const [openIconWindows, setOpenIconWindows] = useState<
+    Record<IconWindowId, boolean>
+  >(INITIAL_ICON_WINDOW_FLAGS);
+  const [iconWindowPositions, setIconWindowPositions] = useState<
+    Record<IconWindowId, WindowPosition>
+  >(getInitialIconWindowPositions);
+  const [iconZOrder, setIconZOrder] = useState<IconWindowId[]>([]);
   const spamCounter = useRef(0);
 
   const raise = (windowId: WindowId) => {
@@ -87,6 +117,38 @@ export function useGame() {
       next[windowId] = position;
       return next;
     });
+  };
+
+  const raiseIconWindow = (windowId: IconWindowId) => {
+    setIconZOrder((prev) => [
+      ...prev.filter((id) => id !== windowId),
+      windowId,
+    ]);
+  };
+
+  const moveIconWindow = (windowId: IconWindowId, position: WindowPosition) => {
+    setIconWindowPositions((prev) => ({ ...prev, [windowId]: position }));
+  };
+
+  const openIconWindow = (windowId: IconWindowId) => {
+    if (!openIconWindows[windowId]) {
+      const openCount = ICON_WINDOWS.filter(
+        (config) => openIconWindows[config.id],
+      ).length;
+
+      moveIconWindow(windowId, {
+        x: ICON_WINDOW_BASE_POSITION.x + openCount * ICON_WINDOW_CASCADE_STEP,
+        y: ICON_WINDOW_BASE_POSITION.y + openCount * ICON_WINDOW_CASCADE_STEP,
+      });
+    }
+
+    setOpenIconWindows((prev) => ({ ...prev, [windowId]: true }));
+    raiseIconWindow(windowId);
+  };
+
+  const closeIconWindow = (windowId: IconWindowId) => {
+    setOpenIconWindows((prev) => ({ ...prev, [windowId]: false }));
+    setIconZOrder((prev) => prev.filter((id) => id !== windowId));
   };
 
   const showJoke = (joke: string) => {
@@ -144,6 +206,9 @@ export function useGame() {
     setStartOpen(false);
     setMinimized(INITIAL_WINDOW_FLAGS);
     setMaximized(INITIAL_WINDOW_FLAGS);
+    setOpenIconWindows(INITIAL_ICON_WINDOW_FLAGS);
+    setIconWindowPositions(getInitialIconWindowPositions());
+    setIconZOrder([]);
   };
 
   const selectIcon = (icon: DesktopIconConfig) => {
@@ -175,6 +240,9 @@ export function useGame() {
     positions,
     minimized,
     maximized,
+    openIconWindows,
+    iconWindowPositions,
+    iconZOrder,
     openPopups,
     message,
     grandmaLine,
@@ -185,6 +253,10 @@ export function useGame() {
     minimize,
     toggleMaximize,
     activateWindow,
+    openIconWindow,
+    closeIconWindow,
+    raiseIconWindow,
+    moveIconWindow,
     showJoke,
     dismissJoke,
     popupAction,
