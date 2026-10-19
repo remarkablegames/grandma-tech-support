@@ -125,7 +125,7 @@ describe('AudioService', () => {
     expect(JSON.parse(storage.get(STORAGE_KEY) ?? 'null')).toEqual({
       audio: {
         sfx: { volume: 100, muted: true },
-        music: { volume: 100, muted: false },
+        music: { volume: 75, muted: false },
       },
     });
     expect(service.isMuted()).toBe(true);
@@ -182,7 +182,7 @@ describe('AudioService', () => {
     expect(JSON.parse(first.storage.get(STORAGE_KEY) ?? 'null')).toEqual({
       audio: {
         sfx: { volume: 35, muted: true },
-        music: { volume: 100, muted: false },
+        music: { volume: 75, muted: false },
       },
     });
 
@@ -296,7 +296,7 @@ describe('music channel', () => {
 
     expect(sources).toEqual(['music/title_theme.mp3']);
     expect(players[0].loop).toBe(true);
-    expect(players[0].volume).toBe(1);
+    expect(players[0].volume).toBe(0.75);
     expect(playCalls).toEqual(['music/title_theme.mp3']);
   });
 
@@ -319,7 +319,7 @@ describe('music channel', () => {
     service.startMusic();
 
     expect(players).toHaveLength(1);
-    expect(players[0].volume).toBe(1);
+    expect(players[0].volume).toBe(0.75);
   });
 
   it('starts silently at zero gain while music is muted', () => {
@@ -376,7 +376,7 @@ describe('music channel', () => {
     const { deps } = createHarness(storage);
     const service = new AudioService(deps);
 
-    expect(service.getMusicVolume()).toBe(100);
+    expect(service.getMusicVolume()).toBe(75);
     expect(service.isMusicMuted()).toBe(false);
   });
 
@@ -387,7 +387,7 @@ describe('music channel', () => {
     const { deps } = createHarness(storage);
     const service = new AudioService(deps);
 
-    expect(service.getMusicVolume()).toBe(100);
+    expect(service.getMusicVolume()).toBe(75);
     expect(service.isMusicMuted()).toBe(true);
   });
 
@@ -507,7 +507,7 @@ describe('audio singleton', () => {
     expect(audio).toBeInstanceOf(AudioService);
     expect(audio.getVolume()).toBe(100);
     expect(audio.isMuted()).toBe(false);
-    expect(audio.getMusicVolume()).toBe(100);
+    expect(audio.getMusicVolume()).toBe(75);
     expect(audio.isMusicMuted()).toBe(false);
   });
 });

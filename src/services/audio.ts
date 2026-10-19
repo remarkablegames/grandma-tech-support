@@ -46,7 +46,7 @@ const THROTTLE_MS = 100;
 const STORAGE_KEY = 'org.remarkablegames.grandma-tech-support';
 const DEFAULT_SETTINGS: AudioSettings = {
   sfx: { volume: 100, muted: false },
-  music: { volume: 100, muted: false },
+  music: { volume: 75, muted: false },
 };
 
 export const browserAudioDeps: AudioDeps = {
