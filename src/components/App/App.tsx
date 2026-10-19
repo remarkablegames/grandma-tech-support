@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { DESKTOP_ICONS, START_ITEMS, WINDOW_META } from 'src/data/gameContent';
 import { useGame } from 'src/hooks/useGame';
+import { audio } from 'src/services/audio';
 
 import { BrowserWindow } from '../BrowserWindow';
 import { DesktopIcon } from '../DesktopIcon';
@@ -15,6 +17,24 @@ import { WinScreen } from '../WinScreen';
 
 export function App() {
   const game = useGame();
+
+  useEffect(() => {
+    audio.startMusic();
+
+    const startOnGesture = () => {
+      audio.startMusic();
+      document.removeEventListener('pointerdown', startOnGesture);
+      document.removeEventListener('keydown', startOnGesture);
+    };
+
+    document.addEventListener('pointerdown', startOnGesture);
+    document.addEventListener('keydown', startOnGesture);
+
+    return () => {
+      document.removeEventListener('pointerdown', startOnGesture);
+      document.removeEventListener('keydown', startOnGesture);
+    };
+  }, []);
 
   return (
     <div className="bg-win-desktop relative h-dvh w-full overflow-hidden select-none">

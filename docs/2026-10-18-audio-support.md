@@ -4,7 +4,8 @@ Companion spec to [Grandma Tech Support](./2026-10-18-grandma-tech-support.md):
 how sound works in Rainbows95.
 
 Four sparse interface sounds — short MP3s from [Kenney's Interface Sounds](https://kenney.nl/assets/interface-sounds)
-pack (CC0). Joke dialogs stay silent; text does the comedy.
+pack (CC0) — plus a looped background theme (`music/title_theme.mp3`). Joke dialogs
+stay silent; text does the comedy.
 
 | Event                                                                                                                                                | SFX key | File                                    |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | --------------------------------------- |
@@ -21,16 +22,24 @@ The safe little × plays no sound of its own — its pointer-down bubbles to the
   absorbs React StrictMode's double effects), swallowed autoplay rejections. The player
   factory, clock, and storage are injectable, so the suite runs against fakes — jsdom
   cannot decode or play audio.
+- **Background music.** `music/title_theme.mp3` loops for the whole session — one
+  long-lived element with `loop = true`, created and preloaded when App mounts, with
+  playback starting on the first user gesture (browsers gate autoplay: the mount
+  attempt plus a gesture retry, both rejections swallowed). Music is its own channel,
+  fully independent of Sounds — mute sets its gain to 0 so the loop keeps its position,
+  like a real mixer. If the MP3 loop point ever sounds like a seam (encoder delay),
+  upgrade to a Web Audio buffer loop.
 - **Volume Control popup.** The tray speaker icon (`windows_icons_32x32/sounds.png`)
-  opens a mini Win95-style “Volume Control” panel above the tray: one vertical “Sounds”
-  fader (native `<input type="range">` made vertical with CSS `writing-mode: vertical-rl`
-  and `direction: rtl`), a Mute checkbox, and a decorative 100/50/0 tick scale.
-  Click-outside or Escape closes it; muting dims the tray icon. A “Music” strip joins it
-  when the looped background track lands — per-channel Mute, like the real mixer.
-- **Persistence.** Volume (default 100) and mute (default unmuted) live under one
-  `localStorage` key — `org.remarkablegames.grandma-tech-support` — as a single JSON
-  document (`{"audio":{"sfx":{"volume":100,"muted":false}}}`): one atomic read/write
-  for the whole settings picture, trivial to inspect, reset, or export. Missing or
-  corrupt data falls back to defaults and self-heals on the next change.
+  opens a mini Win95-style “Volume Control” panel above the tray with two side-by-side
+  strips — Sounds and Music — each with a vertical fader (native `<input type="range">`
+  made vertical with CSS `writing-mode: vertical-rl` and `direction: rtl`), its own
+  Mute checkbox, and a decorative 100/50/0 tick scale. Click-outside or Escape closes
+  it; the tray icon dims whenever either channel is muted.
+- **Persistence.** Both channels live under one `localStorage` key —
+  `org.remarkablegames.grandma-tech-support` — as a single JSON document
+  (`{"audio":{"sfx":{"volume":100,"muted":false},"music":{"volume":100,"muted":false}}}`):
+  one atomic read/write for the whole settings picture, trivial to inspect, reset, or
+  export. Both channels default to 100, unmuted. Missing or corrupt data falls back to
+  defaults and self-heals on the next change.
 - All ~120 pack files ship until the playtest; afterward unused ones get pruned and this
   table locks to the final picks and levels.

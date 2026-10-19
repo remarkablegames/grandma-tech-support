@@ -13,6 +13,10 @@ vi.mock('src/services/audio', () => ({
     isMuted: () => false,
     setVolume: vi.fn(),
     setMuted: vi.fn(),
+    getMusicVolume: () => 100,
+    isMusicMuted: () => false,
+    setMusicVolume: vi.fn(),
+    setMusicMuted: vi.fn(),
   },
 }));
 

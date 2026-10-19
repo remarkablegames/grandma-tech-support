@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   DESKTOP_ICONS,
@@ -10,15 +10,23 @@ import { firePointer } from 'src/tests/firePointer';
 
 import { App } from '.';
 
-const { play } = vi.hoisted(() => ({ play: vi.fn() }));
+const { play, startMusic } = vi.hoisted(() => ({
+  play: vi.fn(),
+  startMusic: vi.fn(),
+}));
 
 vi.mock('src/services/audio', () => ({
   audio: {
     play,
+    startMusic,
     getVolume: () => 100,
     isMuted: () => false,
     setVolume: vi.fn(),
     setMuted: vi.fn(),
+    getMusicVolume: () => 100,
+    isMusicMuted: () => false,
+    setMusicVolume: vi.fn(),
+    setMusicMuted: vi.fn(),
   },
 }));
 
@@ -36,6 +44,21 @@ describe('App component', () => {
     expect(
       screen.queryByRole('dialog', { name: 'You found your email' }),
     ).toBeNull();
+  });
+
+  it('starts the looping theme on mount and retries on first gesture', () => {
+    const { unmount } = render(<App />);
+    expect(startMusic).toHaveBeenCalledTimes(1);
+
+    fireEvent.pointerDown(document);
+    expect(startMusic).toHaveBeenCalledTimes(2);
+
+    fireEvent.keyDown(document);
+    expect(startMusic).toHaveBeenCalledTimes(2);
+
+    unmount();
+    fireEvent.pointerDown(document);
+    expect(startMusic).toHaveBeenCalledTimes(2);
   });
 
   it('shows the three overlapping browser windows', () => {

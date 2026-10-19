@@ -6,14 +6,20 @@
 
 export type SfxName = 'click' | 'open' | 'error' | 'win';
 
-interface SfxPlayer {
+interface Player {
   volume: number;
+  loop: boolean;
   play(): Promise<void> | void;
 }
 
-interface AudioSettings {
+interface ChannelSettings {
   volume: number;
   muted: boolean;
+}
+
+interface AudioSettings {
+  sfx: ChannelSettings;
+  music: ChannelSettings;
 }
 
 interface StorageLike {
@@ -22,7 +28,7 @@ interface StorageLike {
 }
 
 export interface AudioDeps {
-  createPlayer: (src: string) => SfxPlayer;
+  createPlayer: (src: string) => Player;
   now: () => number;
   storage: StorageLike;
 }
@@ -34,9 +40,13 @@ const SFX_TRACKS: Record<SfxName, string> = {
   win: 'interface_sounds/confirmation_004.mp3',
 };
 
+const MUSIC_TRACK = 'music/title_theme.mp3';
 const THROTTLE_MS = 100;
 const STORAGE_KEY = 'org.remarkablegames.grandma-tech-support';
-const DEFAULT_SETTINGS: AudioSettings = { volume: 100, muted: false };
+const DEFAULT_SETTINGS: AudioSettings = {
+  sfx: { volume: 100, muted: false },
+  music: { volume: 100, muted: false },
+};
 
 export const browserAudioDeps: AudioDeps = {
   createPlayer: (src) => new Audio(src),
@@ -46,6 +56,19 @@ export const browserAudioDeps: AudioDeps = {
 
 function clampVolume(volume: number): number {
   return Math.min(100, Math.max(0, volume));
+}
+
+function readChannel(
+  channel: Partial<ChannelSettings> | undefined,
+  defaults: ChannelSettings,
+): ChannelSettings {
+  const volume = channel?.volume;
+  const muted = channel?.muted;
+
+  return {
+    volume: typeof volume === 'number' ? clampVolume(volume) : defaults.volume,
+    muted: typeof muted === 'boolean' ? muted : defaults.muted,
+  };
 }
 
 function readSettings(storage: StorageLike): AudioSettings {
@@ -62,17 +85,18 @@ function readSettings(storage: StorageLike): AudioSettings {
       return DEFAULT_SETTINGS;
     }
 
-    const sfx = (parsed as { audio?: { sfx?: Partial<AudioSettings> } }).audio
-      ?.sfx;
-    const volume = sfx?.volume;
-    const muted = sfx?.muted;
+    const audioDoc = (
+      parsed as {
+        audio?: {
+          sfx?: Partial<ChannelSettings>;
+          music?: Partial<ChannelSettings>;
+        };
+      }
+    ).audio;
 
     return {
-      volume:
-        typeof volume === 'number'
-          ? clampVolume(volume)
-          : DEFAULT_SETTINGS.volume,
-      muted: typeof muted === 'boolean' ? muted : DEFAULT_SETTINGS.muted,
+      sfx: readChannel(audioDoc?.sfx, DEFAULT_SETTINGS.sfx),
+      music: readChannel(audioDoc?.music, DEFAULT_SETTINGS.music),
     };
   } catch {
     return DEFAULT_SETTINGS;
@@ -84,12 +108,17 @@ export class AudioService {
   private readonly lastPlayed = new Map<string, number>();
   private volume: number;
   private muted: boolean;
+  private musicVolume: number;
+  private musicMuted: boolean;
+  private musicPlayer: Player | null = null;
 
   constructor(deps: AudioDeps) {
     this.deps = deps;
     const settings = readSettings(deps.storage);
-    this.volume = settings.volume;
-    this.muted = settings.muted;
+    this.volume = settings.sfx.volume;
+    this.muted = settings.sfx.muted;
+    this.musicVolume = settings.music.volume;
+    this.musicMuted = settings.music.muted;
   }
 
   getVolume(): number {
@@ -107,6 +136,26 @@ export class AudioService {
 
   setMuted(muted: boolean): void {
     this.muted = muted;
+    this.persist();
+  }
+
+  getMusicVolume(): number {
+    return this.musicVolume;
+  }
+
+  isMusicMuted(): boolean {
+    return this.musicMuted;
+  }
+
+  setMusicVolume(volume: number): void {
+    this.musicVolume = clampVolume(volume);
+    this.applyMusicVolume();
+    this.persist();
+  }
+
+  setMusicMuted(muted: boolean): void {
+    this.musicMuted = muted;
+    this.applyMusicVolume();
     this.persist();
   }
 
@@ -139,6 +188,39 @@ export class AudioService {
     }
   }
 
+  startMusic(): void {
+    try {
+      if (this.musicPlayer === null) {
+        const created = this.deps.createPlayer(MUSIC_TRACK);
+        created.loop = true;
+        this.musicPlayer = created;
+      }
+
+      const player = this.musicPlayer;
+      player.volume = this.musicGain();
+      const started = player.play();
+
+      if (started) {
+        started.catch(() => {
+          // Autoplay policy — App retries on the first user gesture.
+        });
+      }
+    } catch {
+      // Swallow creation failures (missing file, no audio device, jsdom, …).
+    }
+  }
+
+  private musicGain(): number {
+    return this.musicMuted ? 0 : this.musicVolume / 100;
+  }
+
+  private applyMusicVolume(): void {
+    const player = this.musicPlayer;
+    if (player !== null) {
+      player.volume = this.musicGain();
+    }
+  }
+
   private persist(): void {
     this.deps.storage.setItem(
       STORAGE_KEY,
@@ -147,6 +229,10 @@ export class AudioService {
           sfx: {
             volume: this.volume,
             muted: this.muted,
+          },
+          music: {
+            volume: this.musicVolume,
+            muted: this.musicMuted,
           },
         },
       }),

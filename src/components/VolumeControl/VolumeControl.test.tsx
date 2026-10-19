@@ -3,11 +3,24 @@ import userEvent from '@testing-library/user-event';
 
 import { VolumeControl } from '.';
 
-const { getVolume, isMuted, setMuted, setVolume } = vi.hoisted(() => ({
+const {
+  getVolume,
+  isMuted,
+  setMuted,
+  setVolume,
+  getMusicVolume,
+  isMusicMuted,
+  setMusicMuted,
+  setMusicVolume,
+} = vi.hoisted(() => ({
   getVolume: vi.fn(() => 100),
   isMuted: vi.fn(() => false),
   setMuted: vi.fn(),
   setVolume: vi.fn(),
+  getMusicVolume: vi.fn(() => 100),
+  isMusicMuted: vi.fn(() => false),
+  setMusicMuted: vi.fn(),
+  setMusicVolume: vi.fn(),
 }));
 
 vi.mock('src/services/audio', () => ({
@@ -17,6 +30,10 @@ vi.mock('src/services/audio', () => ({
     isMuted,
     setVolume,
     setMuted,
+    getMusicVolume,
+    isMusicMuted,
+    setMusicVolume,
+    setMusicMuted,
   },
 }));
 
@@ -34,7 +51,7 @@ describe('VolumeControl component', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('opens a Volume Control panel with a Sounds fader and Mute', async () => {
+  it('opens a Volume Control panel with Sounds and Music strips', async () => {
     const user = userEvent.setup();
     render(<VolumeControl />);
 
@@ -46,7 +63,15 @@ describe('VolumeControl component', () => {
     expect(screen.getByRole('slider', { name: 'Sounds volume' })).toHaveValue(
       '100',
     );
-    expect(screen.getByRole('checkbox', { name: 'Mute' })).not.toBeChecked();
+    expect(screen.getByRole('slider', { name: 'Music volume' })).toHaveValue(
+      '100',
+    );
+    expect(
+      screen.getByRole('checkbox', { name: 'Sounds Mute' }),
+    ).not.toBeChecked();
+    expect(
+      screen.getByRole('checkbox', { name: 'Music Mute' }),
+    ).not.toBeChecked();
   });
 
   it('focuses the fader when opened', async () => {
@@ -107,12 +132,27 @@ describe('VolumeControl component', () => {
     );
   });
 
+  it('applies music fader changes to the audio service', async () => {
+    const user = userEvent.setup();
+    render(<VolumeControl />);
+    await user.click(screen.getByRole('button', { name: 'Volume control' }));
+
+    fireEvent.change(screen.getByRole('slider', { name: 'Music volume' }), {
+      target: { value: '40' },
+    });
+
+    expect(setMusicVolume).toHaveBeenCalledWith(40);
+    expect(screen.getByRole('slider', { name: 'Music volume' })).toHaveValue(
+      '40',
+    );
+  });
+
   it('mutes and unmutes through the checkbox', async () => {
     const user = userEvent.setup();
     render(<VolumeControl />);
     await user.click(screen.getByRole('button', { name: 'Volume control' }));
 
-    const mute = screen.getByRole('checkbox', { name: 'Mute' });
+    const mute = screen.getByRole('checkbox', { name: 'Sounds Mute' });
     await user.click(mute);
     expect(setMuted).toHaveBeenCalledWith(true);
 
@@ -120,8 +160,31 @@ describe('VolumeControl component', () => {
     expect(setMuted).toHaveBeenCalledWith(false);
   });
 
+  it('mutes the music channel through its checkbox', async () => {
+    const user = userEvent.setup();
+    render(<VolumeControl />);
+    await user.click(screen.getByRole('button', { name: 'Volume control' }));
+
+    const mute = screen.getByRole('checkbox', { name: 'Music Mute' });
+    await user.click(mute);
+    expect(setMusicMuted).toHaveBeenCalledWith(true);
+
+    await user.click(mute);
+    expect(setMusicMuted).toHaveBeenCalledWith(false);
+  });
+
   it('reflects a muted start state on the tray button', () => {
     isMuted.mockReturnValueOnce(true);
+
+    render(<VolumeControl />);
+
+    expect(
+      screen.getByRole('button', { name: 'Volume control (muted)' }),
+    ).toBeInTheDocument();
+  });
+
+  it('dims the tray when only the music channel is muted', () => {
+    isMusicMuted.mockReturnValueOnce(true);
 
     render(<VolumeControl />);
 
@@ -138,6 +201,18 @@ describe('VolumeControl component', () => {
     await user.click(screen.getByRole('button', { name: 'Volume control' }));
 
     expect(screen.getByRole('slider', { name: 'Sounds volume' })).toHaveValue(
+      '60',
+    );
+  });
+
+  it('starts the music fader from the stored volume', async () => {
+    getMusicVolume.mockReturnValueOnce(60);
+    const user = userEvent.setup();
+    render(<VolumeControl />);
+
+    await user.click(screen.getByRole('button', { name: 'Volume control' }));
+
+    expect(screen.getByRole('slider', { name: 'Music volume' })).toHaveValue(
       '60',
     );
   });
