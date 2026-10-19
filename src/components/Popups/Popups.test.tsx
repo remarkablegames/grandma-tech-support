@@ -5,6 +5,18 @@ import type { OpenPopup } from 'src/types/game';
 
 import { Popups } from '.';
 
+const { play } = vi.hoisted(() => ({ play: vi.fn() }));
+
+vi.mock('src/services/audio', () => ({
+  audio: {
+    play,
+    getVolume: () => 100,
+    isMuted: () => false,
+    setVolume: vi.fn(),
+    setMuted: vi.fn(),
+  },
+}));
+
 const onDismiss = vi.fn();
 const onAction = vi.fn();
 
@@ -65,6 +77,23 @@ describe('Popups component', () => {
       'inbox',
       POPUP_CONFIGS.full.buttons[0],
     );
+    expect(play).toHaveBeenCalledWith('error');
+  });
+
+  it('plays an open sound when a liar Close spawns popups', async () => {
+    const user = userEvent.setup();
+    render(
+      <Popups
+        windowId="inbox"
+        popups={INITIAL_POPUPS}
+        onDismiss={onDismiss}
+        onAction={onAction}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Close' }));
+
+    expect(play).toHaveBeenCalledWith('open');
   });
 
   it('stacks several popups in one window', () => {

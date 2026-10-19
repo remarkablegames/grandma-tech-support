@@ -1,4 +1,5 @@
 import { POPUP_CONFIGS } from 'src/data/gameContent';
+import { audio } from 'src/services/audio';
 import type {
   OpenPopup,
   PopupButtonConfig,
@@ -34,6 +35,7 @@ export function Popups({ windowId, popups, onDismiss, onAction }: PopupsProps) {
             onDismiss(popup.key, popup.popupId);
           }}
           onAction={(button) => {
+            audio.play(button.spawns ? 'open' : 'error');
             onAction(windowId, button);
           }}
         />

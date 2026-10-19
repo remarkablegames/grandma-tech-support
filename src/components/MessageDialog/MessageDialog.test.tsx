@@ -3,6 +3,18 @@ import userEvent from '@testing-library/user-event';
 
 import { MessageDialog } from '.';
 
+const { play } = vi.hoisted(() => ({ play: vi.fn() }));
+
+vi.mock('src/services/audio', () => ({
+  audio: {
+    play,
+    getVolume: () => 100,
+    isMuted: () => false,
+    setVolume: vi.fn(),
+    setMuted: vi.fn(),
+  },
+}));
+
 const onDismiss = vi.fn();
 
 describe('MessageDialog component', () => {
@@ -21,5 +33,6 @@ describe('MessageDialog component', () => {
 
     await user.click(screen.getByRole('button', { name: 'OK' }));
     expect(onDismiss).toHaveBeenCalledTimes(1);
+    expect(play).toHaveBeenCalledWith('click');
   });
 });

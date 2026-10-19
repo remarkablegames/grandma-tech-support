@@ -1,4 +1,7 @@
+import { audio } from 'src/services/audio';
 import type { WindowId, WindowMeta } from 'src/types/game';
+
+import { VolumeControl } from '../VolumeControl';
 
 interface TaskbarProps {
   windows: WindowMeta[];
@@ -21,7 +24,10 @@ export function Taskbar({
         type="button"
         aria-haspopup="menu"
         aria-expanded={startOpen}
-        onClick={onStartToggle}
+        onClick={() => {
+          audio.play('click');
+          onStartToggle();
+        }}
         className="win-button flex shrink-0 items-center gap-1.5 px-2 py-1.5 text-sm font-bold text-black"
       >
         <img
@@ -43,6 +49,7 @@ export function Taskbar({
           type="button"
           aria-label={`Switch to ${meta.title}`}
           onClick={() => {
+            audio.play('click');
             onWindowClick(meta.id);
           }}
           className={`flex max-w-44 min-w-0 flex-1 items-center gap-1.5 px-2 py-1.5 text-xs text-black ${
@@ -61,7 +68,8 @@ export function Taskbar({
         </button>
       ))}
 
-      <div className="win-inset ml-auto flex shrink-0 items-center gap-1.5 px-2 py-1.5 text-xs text-black">
+      <div className="win-inset ml-auto flex shrink-0 items-center gap-1.5 px-1.5 py-1 text-xs text-black">
+        <VolumeControl />
         <img
           src="windows_icons_32x32/clock.png"
           alt=""

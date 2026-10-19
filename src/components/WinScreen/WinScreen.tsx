@@ -1,10 +1,16 @@
+import { useEffect } from 'react';
 import { GRANDMA_LINES } from 'src/data/gameContent';
+import { audio } from 'src/services/audio';
 
 interface WinScreenProps {
   onPlayAgain: () => void;
 }
 
 export function WinScreen({ onPlayAgain }: WinScreenProps) {
+  useEffect(() => {
+    audio.play('win');
+  }, []);
+
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div
@@ -29,7 +35,10 @@ export function WinScreen({ onPlayAgain }: WinScreenProps) {
           <p className="text-sm leading-snug text-black">{GRANDMA_LINES.win}</p>
           <button
             type="button"
-            onClick={onPlayAgain}
+            onClick={() => {
+              audio.play('click');
+              onPlayAgain();
+            }}
             className="win-button px-5 py-2 text-sm font-bold text-black"
           >
             Play again

@@ -135,6 +135,45 @@
   background: linear-gradient(90deg, var(--color-win-shadow), #b5b5b5);
 }
 
+/* Vertical Win95 volume fader built on the native range input. */
+@utility win-fader {
+  appearance: none;
+  writing-mode: vertical-rl;
+  direction: rtl;
+  width: 14px;
+  height: 96px;
+  background-color: var(--color-win-shadow);
+  box-shadow:
+    inset 1px 1px 0 var(--color-win-dark),
+    inset -1px -1px 0 var(--color-win-light);
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 12px;
+    background-color: var(--color-win-face);
+    box-shadow:
+      inset -1px -1px 0 var(--color-win-dark),
+      inset 1px 1px 0 var(--color-win-light),
+      inset -2px -2px 0 var(--color-win-shadow),
+      inset 2px 2px 0 var(--color-win-highlight);
+  }
+
+  &::-moz-range-thumb {
+    width: 14px;
+    height: 12px;
+    border: none;
+    border-radius: 0;
+    background-color: var(--color-win-face);
+    box-shadow:
+      inset -1px -1px 0 var(--color-win-dark),
+      inset 1px 1px 0 var(--color-win-light),
+      inset -2px -2px 0 var(--color-win-shadow),
+      inset 2px 2px 0 var(--color-win-highlight);
+  }
+}
+
 @utility pixelated {
   image-rendering: pixelated;
 }

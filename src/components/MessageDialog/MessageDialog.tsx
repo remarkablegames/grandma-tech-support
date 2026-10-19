@@ -1,3 +1,5 @@
+import { audio } from 'src/services/audio';
+
 interface MessageDialogProps {
   message: string;
   onDismiss: () => void;
@@ -27,7 +29,10 @@ export function MessageDialog({ message, onDismiss }: MessageDialogProps) {
           <button
             type="button"
             autoFocus
-            onClick={onDismiss}
+            onClick={() => {
+              audio.play('click');
+              onDismiss();
+            }}
             className="win-button min-w-24 px-4 py-1.5 text-sm font-bold text-black"
           >
             OK

@@ -10,7 +10,23 @@ import { firePointer } from 'src/tests/firePointer';
 
 import { App } from '.';
 
+const { play } = vi.hoisted(() => ({ play: vi.fn() }));
+
+vi.mock('src/services/audio', () => ({
+  audio: {
+    play,
+    getVolume: () => 100,
+    isMuted: () => false,
+    setVolume: vi.fn(),
+    setMuted: vi.fn(),
+  },
+}));
+
 describe('App component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('greets with grandma’s instructions', () => {
     render(<App />);
 
@@ -46,6 +62,9 @@ describe('App component', () => {
       ).toBeInTheDocument();
     });
     expect(screen.getByRole('button', { name: 'Start' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Volume control' }),
+    ).toBeInTheDocument();
     expect(screen.getByText('3:47 PM')).toBeInTheDocument();
     expect(
       screen.getByRole('dialog', { name: 'CONGRATULATIONS!!!' }),
@@ -62,6 +81,7 @@ describe('App component', () => {
     await user.click(
       screen.getByRole('button', { name: WINDOW_META[0].title }),
     );
+    expect(play).toHaveBeenCalledWith('click');
     expect(
       screen.getByRole('button', { name: `Switch to ${WINDOW_META[0].title}` })
         .className,
@@ -85,6 +105,7 @@ describe('App component', () => {
     render(<App />);
 
     await user.click(screen.getByRole('button', { name: 'Fix now!' }));
+    expect(play).toHaveBeenCalledWith('error');
     expect(
       screen.getByRole('alertdialog', { name: 'System Message' }),
     ).toHaveTextContent(JOKES.fixNow);
@@ -102,6 +123,7 @@ describe('App component', () => {
     render(<App />);
 
     await user.click(screen.getAllByRole('button', { name: 'Close' })[0]);
+    expect(play).toHaveBeenCalledWith('open');
     expect(
       screen.getByRole('alertdialog', { name: 'System Message' }),
     ).toHaveTextContent(JOKES.liarClose);
@@ -117,6 +139,7 @@ describe('App component', () => {
 
     // The safe little X — not the liar Close button.
     await user.click(screen.getAllByRole('button', { name: 'Close popup' })[1]);
+    expect(play).toHaveBeenCalledWith('click');
     expect(
       screen.queryByRole('dialog', { name: 'Your mailbox is FULL' }),
     ).toBeNull();
@@ -125,6 +148,7 @@ describe('App component', () => {
     );
 
     await user.click(screen.getByRole('button', { name: /The Grandkids/ }));
+    expect(play).toHaveBeenCalledWith('win');
     expect(
       screen.getByRole('dialog', { name: 'You found your email' }),
     ).toBeInTheDocument();

@@ -4,6 +4,18 @@ import type { DesktopIconConfig } from 'src/types/game';
 
 import { DesktopIcon } from '.';
 
+const { play } = vi.hoisted(() => ({ play: vi.fn() }));
+
+vi.mock('src/services/audio', () => ({
+  audio: {
+    play,
+    getVolume: () => 100,
+    isMuted: () => false,
+    setVolume: vi.fn(),
+    setMuted: vi.fn(),
+  },
+}));
+
 const onSelect = vi.fn();
 
 const icon: DesktopIconConfig = {
@@ -33,6 +45,7 @@ describe('DesktopIcon component', () => {
 
     await user.click(screen.getByRole('button', { name: 'Sticky Notes' }));
     expect(onSelect).toHaveBeenCalledWith(icon);
+    expect(play).toHaveBeenCalledWith('click');
 
     rerender(<DesktopIcon icon={icon} selected onSelect={onSelect} />);
     expect(

@@ -1,3 +1,4 @@
+import { audio } from 'src/services/audio';
 import type { DesktopIconConfig } from 'src/types/game';
 
 interface DesktopIconProps {
@@ -12,6 +13,7 @@ export function DesktopIcon({ icon, selected, onSelect }: DesktopIconProps) {
       type="button"
       aria-pressed={selected}
       onClick={() => {
+        audio.play('click');
         onSelect(icon);
       }}
       className="flex w-20 flex-col items-center gap-1 p-1"

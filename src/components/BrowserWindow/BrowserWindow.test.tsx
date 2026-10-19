@@ -5,6 +5,18 @@ import { firePointer } from 'src/tests/firePointer';
 
 import { BrowserWindow } from '.';
 
+const { play } = vi.hoisted(() => ({ play: vi.fn() }));
+
+vi.mock('src/services/audio', () => ({
+  audio: {
+    play,
+    getVolume: () => 100,
+    isMuted: () => false,
+    setVolume: vi.fn(),
+    setMuted: vi.fn(),
+  },
+}));
+
 const onFocus = vi.fn();
 const onMove = vi.fn();
 const onJoke = vi.fn();
@@ -81,6 +93,7 @@ describe('BrowserWindow component', () => {
 
     firePointer(screen.getByText('http://example.test/page'), 'pointerdown');
     expect(onFocus).toHaveBeenCalledWith('inbox');
+    expect(play).toHaveBeenCalledWith('click');
   });
 
   it('tells jokes from the decorative chrome buttons', async () => {

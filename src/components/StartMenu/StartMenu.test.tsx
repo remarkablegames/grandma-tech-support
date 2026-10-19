@@ -4,6 +4,18 @@ import { START_ITEMS } from 'src/data/gameContent';
 
 import { StartMenu } from '.';
 
+const { play } = vi.hoisted(() => ({ play: vi.fn() }));
+
+vi.mock('src/services/audio', () => ({
+  audio: {
+    play,
+    getVolume: () => 100,
+    isMuted: () => false,
+    setVolume: vi.fn(),
+    setMuted: vi.fn(),
+  },
+}));
+
 const onSelect = vi.fn();
 
 describe('StartMenu component', () => {
@@ -32,5 +44,6 @@ describe('StartMenu component', () => {
     expect(onSelect).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'help' }),
     );
+    expect(play).toHaveBeenCalledWith('click');
   });
 });

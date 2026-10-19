@@ -1,3 +1,4 @@
+import { audio } from 'src/services/audio';
 import type { StartMenuItem } from 'src/types/game';
 
 interface StartMenuProps {
@@ -28,6 +29,7 @@ export function StartMenu({ items, onSelect }: StartMenuProps) {
             type="button"
             role="menuitem"
             onClick={() => {
+              audio.play('click');
               onSelect(item);
             }}
             className="hover:bg-win-navy flex w-full items-center gap-2 px-2 py-1.5 text-left text-sm text-black hover:text-white"

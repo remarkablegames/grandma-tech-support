@@ -4,6 +4,16 @@ import { JOKES } from 'src/data/gameContent';
 
 import { ShoppingWindow } from '.';
 
+vi.mock('src/services/audio', () => ({
+  audio: {
+    play: vi.fn(),
+    getVolume: () => 100,
+    isMuted: () => false,
+    setVolume: vi.fn(),
+    setMuted: vi.fn(),
+  },
+}));
+
 const onJoke = vi.fn();
 
 describe('ShoppingWindow component', () => {

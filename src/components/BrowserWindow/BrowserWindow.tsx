@@ -1,5 +1,6 @@
 import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react';
 import { JOKES } from 'src/data/gameContent';
+import { audio } from 'src/services/audio';
 import type { WindowId, WindowPosition } from 'src/types/game';
 
 const DRAG_VISIBLE_WIDTH = 150;
@@ -65,6 +66,7 @@ export function BrowserWindow({
       className="bg-win-face win-outset absolute w-[min(92vw,440px)] p-[3px]"
       style={{ left: position.x, top: position.y, zIndex }}
       onPointerDown={() => {
+        audio.play('click');
         onFocus(windowId);
       }}
     >
