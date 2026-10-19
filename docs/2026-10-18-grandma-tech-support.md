@@ -51,7 +51,9 @@ fake virus warning or the misleading buttons on pop-ups.
   stripe brands the fictional OS as **Rainbows95**.
 - Desktop icons (single click selects, Win95 style): `My Computer`, `Recycle Bin`,
   `My Documents`, `Sticky Notes`, `Calculator`, and the decoy `Grandma’s Mail`. Selecting
-  the decoy makes Grandma point the player back to "the internet thing".
+  the decoy makes Grandma point the player back to "the internet thing". Double-clicking
+  the five real icons opens floating mini-windows — see
+  [icon-windows](./2026-10-19-icon-windows.md); the decoy stays deliberately broken.
 
 ### Pop-ups
 
@@ -151,7 +153,8 @@ Plus a `Play again` button that fully resets the game.
 src/
 ├── components/
 │   ├── App/             composition root, owns all game state via useGame
-│   ├── DesktopIcon/     32px icon + label, selectable
+│   ├── DesktopIcon/     32px icon + label, selectable, double-click opens
+│   ├── IconWindow/      floating mini-window (list/note/calculator bodies)
 │   ├── BrowserWindow/   window chrome + raise + drag + browser toolbar
 │   ├── Popups/          filters pop-ups for a window, renders backdrop + stack
 │   ├── Popup/           single pop-up dialog (liar buttons + real ×)
@@ -165,6 +168,7 @@ src/
 │   ├── StartMenu/       joke menu items
 │   └── WinScreen/       victory overlay + Play again
 ├── hooks/useGame.ts     z-order, positions, pop-ups, dialogs, phase, menu state
+├── utils/createWindowDrag.ts shared title-bar pointer-drag for both window kinds
 ├── services/audio.ts    SFX over HTMLAudioElement, volume/mute + localStorage
 ├── data/gameContent.ts  every title, URL, joke, popup config, email, menu item
 ├── types/game.ts        WindowId, PopupId, configs, phases (excluded from coverage)
@@ -181,6 +185,9 @@ src/
 - `message: string | null` — joke dialog contents.
 - `grandmaLine: string` — intro → "little X" line on safe dismiss → decoy-mail line.
 - `selectedIcon`, `startOpen` — desktop/menu state.
+- `openIconWindows`, `iconWindowPositions`, `iconZOrder` — desktop mini-windows;
+  `openIconWindow` cascades the default position per open window, `playAgain` closes
+  them all.
 - `phase: 'playing' | 'won'` — set by opening the target email; `playAgain()` resets all.
 
 ## Sound
