@@ -7,6 +7,7 @@ import {
 } from 'src/data/gameContent';
 import { useGame } from 'src/hooks/useGame';
 import { audio } from 'src/services/audio';
+import type { IconTaskbarItem } from 'src/types/game';
 
 import { BrowserWindow } from '../BrowserWindow';
 import { DesktopIcon } from '../DesktopIcon';
@@ -23,6 +24,20 @@ import { WinScreen } from '../WinScreen';
 
 export function App() {
   const game = useGame();
+
+  // Open icon windows in raise order, so the active one sits rightmost,
+  // closest to the tray — Win95 taskbar style.
+  const iconTaskbarItems: IconTaskbarItem[] = ICON_WINDOWS.filter(
+    (config) => game.openIconWindows[config.id],
+  )
+    .sort(
+      (a, b) => game.iconZOrder.indexOf(a.id) - game.iconZOrder.indexOf(b.id),
+    )
+    .map((config) => ({
+      id: config.id,
+      title: config.title,
+      icon: config.icon,
+    }));
 
   useEffect(() => {
     audio.startMusic();
@@ -106,34 +121,41 @@ export function App() {
         </BrowserWindow>
       ))}
 
-      {ICON_WINDOWS.filter((config) => game.openIconWindows[config.id]).map(
-        (config) => (
-          <IconWindow
-            key={config.id}
-            config={config}
-            position={game.iconWindowPositions[config.id]}
-            zIndex={15 + game.iconZOrder.indexOf(config.id)}
-            onFocus={() => {
-              game.raiseIconWindow(config.id);
-            }}
-            onMove={(position) => {
-              game.moveIconWindow(config.id, position);
-            }}
-            onClose={() => {
-              game.closeIconWindow(config.id);
-            }}
-          />
-        ),
-      )}
+      {ICON_WINDOWS.filter(
+        (config) =>
+          game.openIconWindows[config.id] && !game.iconMinimized[config.id],
+      ).map((config) => (
+        <IconWindow
+          key={config.id}
+          config={config}
+          position={game.iconWindowPositions[config.id]}
+          zIndex={15 + game.iconZOrder.indexOf(config.id)}
+          onFocus={() => {
+            game.raiseIconWindow(config.id);
+          }}
+          onMove={(position) => {
+            game.moveIconWindow(config.id, position);
+          }}
+          onMinimize={() => {
+            game.minimizeIconWindow(config.id);
+          }}
+          onClose={() => {
+            game.closeIconWindow(config.id);
+          }}
+        />
+      ))}
 
       <GrandmaSpeech line={game.grandmaLine} />
 
       <Taskbar
         windows={WINDOW_META}
+        iconWindows={iconTaskbarItems}
         focusedId={game.focusedId}
+        focusedIconId={game.iconFocusedId}
         startOpen={game.startOpen}
         onStartToggle={game.toggleStart}
         onWindowClick={game.activateWindow}
+        onIconWindowClick={game.activateIconWindow}
       />
 
       {game.startOpen && (

@@ -62,6 +62,7 @@ export interface IconWindowRow {
 export interface ListIconWindow {
   id: IconWindowId;
   title: string;
+  icon: string;
   kind: 'list';
   rows: IconWindowRow[];
 }
@@ -69,6 +70,7 @@ export interface ListIconWindow {
 export interface NoteIconWindow {
   id: 'notes';
   title: string;
+  icon: string;
   kind: 'note';
   lines: string[];
 }
@@ -76,11 +78,18 @@ export interface NoteIconWindow {
 export interface CalculatorIconWindow {
   id: 'calculator';
   title: string;
+  icon: string;
   kind: 'calculator';
 }
 
 export type IconWindowConfig =
   ListIconWindow | NoteIconWindow | CalculatorIconWindow;
+
+export interface IconTaskbarItem {
+  id: IconWindowId;
+  title: string;
+  icon: string;
+}
 
 export interface EmailBase {
   id: string;

@@ -125,6 +125,7 @@ export const ICON_WINDOWS: IconWindowConfig[] = [
   {
     id: 'computer',
     title: 'My Computer',
+    icon: `${ICONS}/this_computer.png`,
     kind: 'list',
     rows: [
       { icon: `${ICONS}/flop_drive.png`, label: '3½ Floppy (A:)' },
@@ -139,6 +140,7 @@ export const ICON_WINDOWS: IconWindowConfig[] = [
   {
     id: 'recycle',
     title: 'Recycle Bin',
+    icon: `${ICONS}/recycle_bin_empty.png`,
     kind: 'list',
     rows: [
       { icon: `${ICONS}/text_file.png`, label: 'untitled_final_v2.doc' },
@@ -149,6 +151,7 @@ export const ICON_WINDOWS: IconWindowConfig[] = [
   {
     id: 'documents',
     title: 'My Documents',
+    icon: `${ICONS}/folder_closed.png`,
     kind: 'list',
     rows: [
       { icon: `${ICONS}/text_file.png`, label: 'untitled' },
@@ -160,12 +163,14 @@ export const ICON_WINDOWS: IconWindowConfig[] = [
   {
     id: 'notes',
     title: 'Sticky Notes',
+    icon: `${ICONS}/sticky_note.png`,
     kind: 'note',
     lines: ['THE PASSWORD', '(it’s on the other note)'],
   },
   {
     id: 'calculator',
     title: 'Calculator',
+    icon: `${ICONS}/calculator.png`,
     kind: 'calculator',
   },
 ];

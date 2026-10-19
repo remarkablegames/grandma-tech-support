@@ -154,7 +154,7 @@ describe('App component', () => {
     ).toContain('win-inset');
   });
 
-  it('minimizes a window to the taskbar and restores it from there', async () => {
+  it('minimizes a window to the taskbar and toggles it from there', async () => {
     const user = userEvent.setup();
     render(<App />);
     const meta = WINDOW_META[2];
@@ -173,6 +173,12 @@ describe('App component', () => {
     expect(
       screen.getByRole('region', { name: meta.title }),
     ).toBeInTheDocument();
+
+    // Now it's the focused window, so its taskbar button minimizes again.
+    await user.click(
+      screen.getByRole('button', { name: `Switch to ${meta.title}` }),
+    );
+    expect(screen.queryByRole('region', { name: meta.title })).toBeNull();
   });
 
   it('fills the desktop when maximized and restores back in place', async () => {
@@ -406,5 +412,58 @@ describe('App component', () => {
     expect(region.style.top).toBe(`${String(startTop + 90)}px`);
 
     firePointer(window, 'pointerup');
+  });
+
+  it('minimizes an icon window and toggles it from the taskbar', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.dblClick(screen.getByRole('button', { name: 'My Computer' }));
+
+    // The title-bar minimize button hides it but keeps its taskbar button.
+    const region = screen.getByRole('region', { name: 'My Computer' });
+    await user.click(
+      within(region).getByRole('button', { name: 'Minimize My Computer' }),
+    );
+    expect(screen.queryByRole('region', { name: 'My Computer' })).toBeNull();
+
+    const taskbarButton = screen.getByRole('button', {
+      name: 'Switch to My Computer',
+    });
+    await user.click(taskbarButton);
+    expect(
+      screen.getByRole('region', { name: 'My Computer' }),
+    ).toBeInTheDocument();
+
+    // Focused window's button minimizes again (Win95 toggle).
+    await user.click(taskbarButton);
+    expect(screen.queryByRole('region', { name: 'My Computer' })).toBeNull();
+
+    // Double-clicking the desktop icon restores it.
+    await user.dblClick(screen.getByRole('button', { name: 'My Computer' }));
+    expect(
+      screen.getByRole('region', { name: 'My Computer' }),
+    ).toBeInTheDocument();
+  });
+
+  it('orders icon taskbar buttons by raise order', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.dblClick(screen.getByRole('button', { name: 'My Computer' }));
+    await user.dblClick(screen.getByRole('button', { name: 'Sticky Notes' }));
+
+    // Raising My Computer moves its taskbar button to the rightmost slot.
+    await user.click(
+      screen.getByRole('button', { name: 'Switch to My Computer' }),
+    );
+
+    const iconButtons = screen
+      .getAllByRole('button', {
+        name: /^Switch to (My Computer|Sticky Notes)$/,
+      })
+      .map((button) => button.textContent);
+
+    expect(iconButtons).toEqual(['Sticky Notes', 'My Computer']);
   });
 });

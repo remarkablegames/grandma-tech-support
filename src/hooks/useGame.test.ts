@@ -40,6 +40,14 @@ describe('useGame hook', () => {
       virus: false,
     });
     expect(result.current.iconZOrder).toEqual([]);
+    expect(result.current.iconFocusedId).toBeUndefined();
+    expect(result.current.iconMinimized).toEqual({
+      computer: false,
+      recycle: false,
+      documents: false,
+      notes: false,
+      calculator: false,
+    });
     expect(result.current.openIconWindows).toEqual({
       computer: false,
       recycle: false,
@@ -169,6 +177,64 @@ describe('useGame hook', () => {
       y: 50,
     });
     expect(result.current.iconZOrder).toEqual(['calculator']);
+  });
+
+  it('minimizes icon windows and toggles them from the taskbar', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.openIconWindow('computer');
+    });
+    act(() => {
+      result.current.openIconWindow('notes');
+    });
+    expect(result.current.iconFocusedId).toBe('notes');
+
+    // The focused window's taskbar button minimizes it (Win95 toggle).
+    act(() => {
+      result.current.activateIconWindow('notes');
+    });
+    expect(result.current.iconMinimized.notes).toBe(true);
+    expect(result.current.iconFocusedId).toBe('computer');
+
+    // Clicking it again restores and raises it.
+    act(() => {
+      result.current.activateIconWindow('notes');
+    });
+    expect(result.current.iconMinimized.notes).toBe(false);
+    expect(result.current.iconFocusedId).toBe('notes');
+
+    // The title-bar minimize button hands focus to the next window.
+    act(() => {
+      result.current.minimizeIconWindow('computer');
+    });
+    expect(result.current.iconFocusedId).toBe('notes');
+
+    // Double-clicking the desktop icon restores a minimized window.
+    act(() => {
+      result.current.openIconWindow('computer');
+    });
+    expect(result.current.iconMinimized.computer).toBe(false);
+    expect(result.current.iconFocusedId).toBe('computer');
+  });
+
+  it('toggles the focused browser window from its taskbar button', () => {
+    const { result } = renderHook(() => useGame());
+
+    // 'virus' is on top of the initial z-order, so it starts focused.
+    expect(result.current.focusedId).toBe('virus');
+
+    act(() => {
+      result.current.activateWindow('virus');
+    });
+    expect(result.current.minimized.virus).toBe(true);
+    expect(result.current.focusedId).toBe('shopping');
+
+    act(() => {
+      result.current.activateWindow('virus');
+    });
+    expect(result.current.minimized.virus).toBe(false);
+    expect(result.current.focusedId).toBe('virus');
   });
 
   it('moves one window without touching the others', () => {
@@ -341,6 +407,9 @@ describe('useGame hook', () => {
       result.current.selectIcon(DESKTOP_ICONS[0]);
     });
     act(() => {
+      result.current.minimizeIconWindow('computer');
+    });
+    act(() => {
       result.current.openEmail();
     });
     expect(result.current.phase).toBe('won');
@@ -373,6 +442,8 @@ describe('useGame hook', () => {
     });
     expect(result.current.openIconWindows.computer).toBe(false);
     expect(result.current.iconZOrder).toEqual([]);
+    expect(result.current.iconFocusedId).toBeUndefined();
+    expect(result.current.iconMinimized.computer).toBe(false);
     expect(result.current.iconWindowPositions.computer).toEqual({
       x: 150,
       y: 100,

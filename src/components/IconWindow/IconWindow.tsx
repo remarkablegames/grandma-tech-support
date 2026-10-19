@@ -120,6 +120,7 @@ interface IconWindowProps {
   zIndex: number;
   onFocus: () => void;
   onMove: (position: WindowPosition) => void;
+  onMinimize: () => void;
   onClose: () => void;
 }
 
@@ -129,6 +130,7 @@ export function IconWindow({
   zIndex,
   onFocus,
   onMove,
+  onMinimize,
   onClose,
 }: IconWindowProps) {
   const startDrag = createWindowDrag({ position, onMove });
@@ -150,14 +152,24 @@ export function IconWindow({
         <span className="min-w-0 flex-1 truncate text-xs font-bold text-white">
           {config.title}
         </span>
-        <button
-          type="button"
-          aria-label={`Close ${config.title}`}
-          onClick={onClose}
-          className="win-button h-4 w-5 text-[9px] leading-none"
-        >
-          ✕
-        </button>
+        <div className="flex shrink-0 items-center gap-px">
+          <button
+            type="button"
+            aria-label={`Minimize ${config.title}`}
+            onClick={onMinimize}
+            className="win-button h-4 w-5 text-[8px] leading-none"
+          >
+            –
+          </button>
+          <button
+            type="button"
+            aria-label={`Close ${config.title}`}
+            onClick={onClose}
+            className="win-button h-4 w-5 text-[9px] leading-none"
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
       <IconWindowContent config={config} />

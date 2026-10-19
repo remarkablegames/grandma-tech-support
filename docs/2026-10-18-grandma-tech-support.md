@@ -53,7 +53,8 @@ fake virus warning or the misleading buttons on pop-ups.
   `My Documents`, `Sticky Notes`, `Calculator`, and the decoy `Grandma’s Mail`. Selecting
   the decoy makes Grandma point the player back to "the internet thing". Double-clicking
   the five real icons opens floating mini-windows — see
-  [icon-windows](./2026-10-19-icon-windows.md); the decoy stays deliberately broken.
+  [icon-windows](./2026-10-19-desktop-icon-windows.md); the decoy stays deliberately
+  broken.
 
 ### Pop-ups
 
@@ -185,9 +186,11 @@ src/
 - `message: string | null` — joke dialog contents.
 - `grandmaLine: string` — intro → "little X" line on safe dismiss → decoy-mail line.
 - `selectedIcon`, `startOpen` — desktop/menu state.
-- `openIconWindows`, `iconWindowPositions`, `iconZOrder` — desktop mini-windows;
-  `openIconWindow` cascades the default position per open window, `playAgain` closes
-  them all.
+- `openIconWindows`, `iconWindowPositions`, `iconZOrder`, `iconMinimized` — desktop
+  mini-windows; `openIconWindow` cascades the default position per open window,
+  `iconFocusedId` is the top visible one, and `playAgain` closes them all.
+- **Taskbar toggle:** clicking a taskbar button for the active window (browser or icon)
+  minimizes it; any other button restores and activates.
 - `phase: 'playing' | 'won'` — set by opening the target email; `playAgain()` resets all.
 
 ## Sound

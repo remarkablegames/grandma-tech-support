@@ -92,7 +92,18 @@ export function useGame() {
     Record<IconWindowId, WindowPosition>
   >(getInitialIconWindowPositions);
   const [iconZOrder, setIconZOrder] = useState<IconWindowId[]>([]);
+  const [iconMinimized, setIconMinimized] = useState<
+    Record<IconWindowId, boolean>
+  >(INITIAL_ICON_WINDOW_FLAGS);
   const spamCounter = useRef(0);
+
+  // A minimized window can't hold focus, so the top visible window is active.
+  const focusedId: WindowId | undefined = zOrder
+    .filter((id) => !minimized[id])
+    .at(-1);
+  const iconFocusedId: IconWindowId | undefined = iconZOrder
+    .filter((id) => !iconMinimized[id])
+    .at(-1);
 
   const raise = (windowId: WindowId) => {
     setZOrder((prev) => [...prev.filter((id) => id !== windowId), windowId]);
@@ -106,7 +117,14 @@ export function useGame() {
     setMaximized((prev) => ({ ...prev, [windowId]: !prev[windowId] }));
   };
 
+  // Win95 taskbar toggle: the active window's button minimizes it, any
+  // other button restores and activates.
   const activateWindow = (windowId: WindowId) => {
+    if (windowId === focusedId) {
+      minimize(windowId);
+      return;
+    }
+
     setMinimized((prev) => ({ ...prev, [windowId]: false }));
     raise(windowId);
   };
@@ -126,6 +144,20 @@ export function useGame() {
     ]);
   };
 
+  const minimizeIconWindow = (windowId: IconWindowId) => {
+    setIconMinimized((prev) => ({ ...prev, [windowId]: true }));
+  };
+
+  const activateIconWindow = (windowId: IconWindowId) => {
+    if (windowId === iconFocusedId) {
+      minimizeIconWindow(windowId);
+      return;
+    }
+
+    setIconMinimized((prev) => ({ ...prev, [windowId]: false }));
+    raiseIconWindow(windowId);
+  };
+
   const moveIconWindow = (windowId: IconWindowId, position: WindowPosition) => {
     setIconWindowPositions((prev) => ({ ...prev, [windowId]: position }));
   };
@@ -143,6 +175,7 @@ export function useGame() {
     }
 
     setOpenIconWindows((prev) => ({ ...prev, [windowId]: true }));
+    setIconMinimized((prev) => ({ ...prev, [windowId]: false }));
     raiseIconWindow(windowId);
   };
 
@@ -209,6 +242,7 @@ export function useGame() {
     setOpenIconWindows(INITIAL_ICON_WINDOW_FLAGS);
     setIconWindowPositions(getInitialIconWindowPositions());
     setIconZOrder([]);
+    setIconMinimized(INITIAL_ICON_WINDOW_FLAGS);
   };
 
   const selectIcon = (icon: DesktopIconConfig) => {
@@ -228,11 +262,6 @@ export function useGame() {
     setMessage(item.message);
   };
 
-  // A minimized window can't hold focus, so the top visible window is active.
-  const focusedId: WindowId | undefined = zOrder
-    .filter((id) => !minimized[id])
-    .at(-1);
-
   return {
     phase,
     focusedId,
@@ -243,6 +272,8 @@ export function useGame() {
     openIconWindows,
     iconWindowPositions,
     iconZOrder,
+    iconMinimized,
+    iconFocusedId,
     openPopups,
     message,
     grandmaLine,
@@ -257,6 +288,8 @@ export function useGame() {
     closeIconWindow,
     raiseIconWindow,
     moveIconWindow,
+    minimizeIconWindow,
+    activateIconWindow,
     showJoke,
     dismissJoke,
     popupAction,

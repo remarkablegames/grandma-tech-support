@@ -16,6 +16,7 @@ vi.mock('src/services/audio', () => ({
 const listConfig: IconWindowConfig = {
   id: 'computer',
   title: 'My Computer',
+  icon: 'windows_icons_32x32/this_computer.png',
   kind: 'list',
   rows: [
     { label: '3½ Floppy (A:)' },
@@ -29,6 +30,7 @@ const listConfig: IconWindowConfig = {
 
 const onFocus = vi.fn();
 const onMove = vi.fn();
+const onMinimize = vi.fn();
 const onClose = vi.fn();
 
 function renderIconWindow(config: IconWindowConfig = listConfig) {
@@ -39,6 +41,7 @@ function renderIconWindow(config: IconWindowConfig = listConfig) {
       zIndex={15}
       onFocus={onFocus}
       onMove={onMove}
+      onMinimize={onMinimize}
       onClose={onClose}
     />,
   );
@@ -64,6 +67,7 @@ describe('IconWindow component', () => {
     renderIconWindow({
       id: 'notes',
       title: 'Sticky Notes',
+      icon: 'windows_icons_32x32/sticky_note.png',
       kind: 'note',
       lines: ['THE PASSWORD', '(it’s on the other note)'],
     });
@@ -77,6 +81,7 @@ describe('IconWindow component', () => {
     renderIconWindow({
       id: 'calculator',
       title: 'Calculator',
+      icon: 'windows_icons_32x32/calculator.png',
       kind: 'calculator',
     });
 
@@ -98,6 +103,18 @@ describe('IconWindow component', () => {
     await user.click(screen.getByRole('button', { name: 'Close My Computer' }));
 
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('minimizes through the title-bar –', async () => {
+    const user = userEvent.setup();
+    renderIconWindow();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Minimize My Computer' }),
+    );
+
+    expect(onMinimize).toHaveBeenCalledTimes(1);
+    expect(onClose).not.toHaveBeenCalled();
   });
 
   it('raises on pointerdown with a click tick', () => {
