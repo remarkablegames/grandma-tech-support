@@ -35,8 +35,10 @@ Grandma's "broken since 2000" redirect line.
 - **Input.** Mouse double-click opens; keyboard activation (`Enter`/`Space` on the
   focused icon — keyboard clicks carry `detail === 0`) opens directly, matching Windows'
   "select then Enter"; two taps inside ~400 ms cover touch. Single click keeps selecting,
-  unchanged. Openable file rows (`opens` in the row config) use the same gesture, shared
-  through the `useDoubleClickOpen` hook; plain rows stay inert.
+  unchanged. Folder rows follow the same idiom: a single click highlights the row (navy
+  fill, `aria-pressed`, hint text flips to white), and openable rows (`opens` in the row
+  config) open on the same double-click gesture, shared through the `useDoubleClickOpen`
+  hook. Plain rows only select, nothing opens.
 - **Sound.** No new SFX: the double-click's two ticks collapse into one audible `click`
   through the audio service's ~100 ms per-track throttle, and window interactions tick
   like every other plain button. The calculator keys and the scanner's scan button tick

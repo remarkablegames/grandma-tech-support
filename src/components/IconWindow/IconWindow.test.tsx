@@ -86,6 +86,36 @@ describe('IconWindow component', () => {
 
     expect(onOpenWindow).toHaveBeenCalledWith('other-note');
     expect(onOpenWindow).toHaveBeenCalledTimes(1);
+    expect(
+      screen.getByRole('button', { name: 'the_other_note.txt' }),
+    ).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('selects a row on a single click, like a desktop icon', async () => {
+    const user = userEvent.setup();
+    renderIconWindow();
+
+    await user.click(screen.getByText('3½ Floppy (A:)'));
+    expect(
+      screen.getByRole('button', { name: '3½ Floppy (A:)' }),
+    ).toHaveAttribute('aria-pressed', 'true');
+
+    await user.click(screen.getByRole('button', { name: /Hard disk/ }));
+    expect(
+      screen.getByRole('button', { name: '3½ Floppy (A:)' }),
+    ).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: /Hard disk/ })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+
+    const fileRow = screen.getByRole('button', { name: 'the_other_note.txt' });
+    await user.click(fileRow);
+    expect(fileRow).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /Hard disk/ })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
   });
 
   it('opens a file row with Enter right away', async () => {

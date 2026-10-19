@@ -5,6 +5,7 @@ import type {
   IconWindowConfig,
   IconWindowId,
   IconWindowRow,
+  ListIconWindow,
   WindowPosition,
 } from 'src/types/game';
 import { createWindowDrag } from 'src/utils/createWindowDrag';
@@ -140,9 +141,13 @@ function Scanner({ onScanComplete }: { onScanComplete: () => void }) {
 // double-click (or Enter) opens the referenced window.
 function IconRow({
   row,
+  selected,
+  onSelect,
   onOpenWindow,
 }: {
   row: IconWindowRow;
+  selected: boolean;
+  onSelect: () => void;
   onOpenWindow: (windowId: IconWindowId) => void;
 }) {
   const opens = row.opens;
@@ -168,27 +173,61 @@ function IconRow({
       )}
       <span className="truncate">{row.label}</span>
       {row.hint !== undefined && (
-        <span className="text-win-shadow ml-auto shrink-0 pl-2 text-[10px]">
+        <span
+          className={`ml-auto shrink-0 pl-2 text-[10px] ${
+            selected ? 'text-white' : 'text-win-shadow'
+          }`}
+        >
           {row.hint}
         </span>
       )}
     </>
   );
 
-  if (opens === undefined) {
-    return <li className="flex items-center gap-1.5 px-1 py-0.5">{content}</li>;
-  }
-
   return (
     <li>
       <button
         type="button"
-        onClick={handleOpen}
-        className="flex w-full items-center gap-1.5 px-1 py-0.5 text-left"
+        aria-pressed={selected}
+        onClick={(event) => {
+          onSelect();
+          handleOpen(event);
+        }}
+        className={`flex w-full items-center gap-1.5 px-1 py-0.5 text-left ${
+          selected ? 'bg-win-navy text-white' : ''
+        }`}
       >
         {content}
       </button>
     </li>
+  );
+}
+
+// Folder rows highlight on a single click, exactly like desktop icons;
+// rows with an `opens` target open on top of that selection.
+function IconList({
+  config,
+  onOpenWindow,
+}: {
+  config: ListIconWindow;
+  onOpenWindow: (windowId: IconWindowId) => void;
+}) {
+  const [selectedRow, setSelectedRow] = useState<number | null>(null);
+
+  return (
+    <ul className="win-inset h-40 overflow-y-auto bg-white p-1 text-xs text-black">
+      {config.rows.map((row, index) => (
+        <IconRow
+          key={`${row.label}-${String(index)}`}
+          row={row}
+          selected={selectedRow === index}
+          onSelect={() => {
+            setSelectedRow(index);
+          }}
+          onOpenWindow={onOpenWindow}
+        />
+      ))}
+    </ul>
   );
 }
 
@@ -203,17 +242,7 @@ function IconWindowContent({
 }) {
   switch (config.kind) {
     case 'list':
-      return (
-        <ul className="win-inset h-40 overflow-y-auto bg-white p-1 text-xs text-black">
-          {config.rows.map((row, index) => (
-            <IconRow
-              key={`${row.label}-${String(index)}`}
-              row={row}
-              onOpenWindow={onOpenWindow}
-            />
-          ))}
-        </ul>
-      );
+      return <IconList config={config} onOpenWindow={onOpenWindow} />;
     case 'note':
       return (
         <div className="win-inset h-40 bg-white p-2 text-xs text-black">
