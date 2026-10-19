@@ -4,27 +4,33 @@
 
 A short, funny browser game about being Grandma’s tech support. The player lands on a
 playful, **fictional** Windows 95-style desktop (an homage, not a copy of a real OS) and
-must find Grandma’s email among three overlapping browser windows — without falling for a
-fake virus warning or the misleading buttons on pop-ups.
+works through a chain of four silly tasks (log in, find the email, order a toaster,
+defuse a pop-up storm) while dodging fake warnings and misleading buttons.
 
 - **Genre:** comedy point-and-click / puzzle vignette
-- **Session length:** 2–5 minutes
+- **Session length:** 8–10 minutes for the full four-task chain
 - **Tone:** warm, silly, grandma-flavored; nothing scary, nothing real
 - **Lose state:** none. Wrong clicks produce jokes and the player retries.
-- **Win condition:** open Grandma’s inbox, dismiss its pop-up safely, open the email.
+- **Win condition:** complete all four tasks — log in, open the email, order the
+  toaster, run the scanner. Each task ends in a Win95 dialog; the fourth ends in the
+  final screen. See [missions](./2026-10-19-missions.md).
 
 ## Core loop
 
-1. The desktop opens with three overlapping browser windows and Grandma’s instruction:
-   > "Help me find my email, dear. It was open in the internet thing. Don’t click
-   > anything that says it’s urgent."
-2. The player clicks windows to raise them to the front and inspects titles/contents.
+1. The desktop opens with three overlapping browser windows and Grandma’s instruction —
+   the current task, in her own words:
+   > "I need to check my email, dear. The internet thing wants a password first. I
+   > wrote it on a note somewhere. Don’t click anything that says it’s urgent."
+2. The player clicks windows to raise them to the front and inspects titles/contents,
+   digging through desktop icon windows for clues (the password lives on "the other
+   note" in My Documents).
 3. Pop-ups inside the shopping and inbox windows offer big misleading buttons
    (`Buy`, `Fix now!`, `Close`). Only the tiny `×` in the pop-up’s title bar is safe.
 4. Clicking a misleading button opens a Win95-style joke dialog. After clicking `OK`
    everything resets for another try (pop-up stays open; liar `Close` spawns extras).
-5. The player finds the inbox, dismisses its pop-up with the `×`, clicks the email, and
-   wins. Grandma delivers a short, amused thank-you.
+5. Each completed task opens a `Next task` dialog with a line from Grandma; the tasks
+   escalate into a pop-up storm that the scanner window sweeps away. The last task ends
+   in the final screen and `Play again`, which resets the whole evening.
 
 ## Desktop contents
 
@@ -50,9 +56,9 @@ fake virus warning or the misleading buttons on pop-ups.
   `Shut Down...` — each closes the menu and shows a joke dialog. Its vertical side
   stripe brands the fictional OS as **Rainbows95**.
 - Desktop icons (single click selects, Win95 style): `My Computer`, `Recycle Bin`,
-  `My Documents`, `Sticky Notes`, `Calculator`, and the decoy `Grandma’s Mail`. Selecting
-  the decoy makes Grandma point the player back to "the internet thing". Double-clicking
-  the five real icons opens floating mini-windows — see
+  `My Documents`, `Sticky Notes`, `Calculator`, `Virus Shield 95`, and the decoy
+  `Grandma’s Mail`. Selecting the decoy makes Grandma point the player back to "the
+  internet thing". Double-clicking the six real icons opens floating mini-windows — see
   [icon-windows](./2026-10-19-desktop-icon-windows.md); the decoy stays deliberately
   broken.
 
@@ -66,11 +72,11 @@ that blocks the content underneath. Every pop-up has:
   also contain a liar `Close`; capped at 5 pop-ups per window)
 - A tiny real dismiss **`×`** in the title bar (the only safe way out)
 
-| Popup  | Window    | Message                                                    | Buttons             |
-| ------ | --------- | ---------------------------------------------------------- | ------------------- |
-| `deal` | Shopping  | "You’re the 1,000,000th visitor! Claim your FREE toaster…" | `Buy`, `Close`      |
-| `full` | Inbox     | "Your mailbox is 99% FULL! Fix now to avoid EXPLOSION."    | `Fix now!`, `Close` |
-| `spam` | (spawned) | "Your prize is waiting! FREE mouse (animal not included)." | `Claim`, `Close`    |
+| Popup  | Window    | Message                                                                            | Buttons             |
+| ------ | --------- | ---------------------------------------------------------------------------------- | ------------------- |
+| `deal` | Shopping  | "You’re the 1,000,000th visitor! Claim your FREE toaster (shipping not included)." | `Buy`, `Close`      |
+| `full` | Inbox     | "Your mailbox is 99% FULL! Fix now to avoid EXPLOSION."                            | `Fix now!`, `Close` |
+| `spam` | (spawned) | "Your prize is waiting! FREE mouse (animal not included)."                         | `Claim`, `Close`    |
 
 ### Fake virus warning
 
@@ -90,14 +96,16 @@ Toolbar pixels are decorative (not interactive). Email list:
 | Your Grandson  | `FW: FW: photos of the dog` | Joke dialog |
 | Windows Update | `Important!!`               | Joke dialog |
 
-### Win screen
+### Task and win screens
 
-Amused thank-you from Grandma:
+Every task ends in the same Win95 dialog, dressed with the task's title, message, and
+icon: `Next task` for tasks 1–3, `Computer saved!` and `Play again` for the fourth.
+Each one plays the `win` jingle. The final screen's closing line from Grandma:
 
-> "You did it, my dear! You found my email, and you didn’t fall for the toaster. Tell
-> your grandfather the computer stays with me."
+> "You saved it, my dear! The computer stays with me. Tell your grandfather it was a
+> close call."
 
-Plus a `Play again` button that fully resets the game.
+`Play again` fully resets the game, including the log-on gate.
 
 ## Visual spec
 
@@ -127,14 +135,15 @@ Plus a `Play again` button that fully resets the game.
   era). Clamped to `[0, innerWidth - 150] × [0, innerHeight - 60]` so windows can never
   escape the desktop. Listeners attach to `window` for the duration of the drag.
 - **Keyboard:** all interactive elements are real `<button>`s; window titles can be
-  tabbed to and activated to raise; dialogs autofocus their primary button.
+  tabbed to and activated to raise; openable file rows activate the same way; dialogs
+  autofocus their primary button.
 - **Feedback:** wrong clicks open a modal `System Message` dialog ( `role="alertdialog"`,
   `OK` dismisses); Grandma’s speech bubble (`role="status"`) changes contextually.
 
 ## Accessibility
 
 - Semantic buttons everywhere; fake window chrome buttons carry real labels
-  (`Minimize …`, `Maximize …`, `Close …`).
+  (`Minimize <title>`, `Maximize <title>`, `Close <title>`).
 - Pop-up dismiss buttons are named `Close popup`, distinct from the liar `Close`.
 - Decorative pixels (backdrop, icon glyphs) are `aria-hidden` or `alt=""`.
 - Reduced-motion media query disables animations.
@@ -155,24 +164,25 @@ src/
 ├── components/
 │   ├── App/             composition root, owns all game state via useGame
 │   ├── DesktopIcon/     32px icon + label, selectable, double-click opens
-│   ├── IconWindow/      floating mini-window (list/note/calculator bodies)
+│   ├── IconWindow/      floating mini-window (list/note/calculator/scanner bodies)
 │   ├── BrowserWindow/   window chrome + raise + drag + browser toolbar
 │   ├── Popups/          filters pop-ups for a window, renders backdrop + stack
 │   ├── Popup/           single pop-up dialog (liar buttons + real ×)
 │   ├── MessageDialog/   Win95 joke dialog (OK)
 │   ├── ShoppingWindow/  ad-crusted sale page (joke tiles)
-│   ├── InboxWindow/     toolbar pixels + email list
+│   ├── InboxWindow/     log-on gate + toolbar pixels + email list
 │   ├── VirusWindow/     blinking red alert + two joke buttons
 │   ├── GrandmaSpeech/   speech bubble, context-aware
 │   ├── Taskbar/         Start button + window buttons + tray (clock, volume)
 │   ├── VolumeControl/   tray speaker → Win95 vertical-fader volume popup
 │   ├── StartMenu/       joke menu items
-│   └── WinScreen/       victory overlay + Play again
-├── hooks/useGame.ts     z-order, positions, pop-ups, dialogs, phase, menu state
+│   └── WinScreen/       prop-driven task/win overlay
+├── hooks/useDoubleClickOpen.ts shared double-click/Enter open gesture
+├── hooks/useGame.ts     z-order, positions, pop-ups, dialogs, mission chain, menu state
 ├── utils/createWindowDrag.ts shared title-bar pointer-drag for both window kinds
 ├── services/audio.ts    SFX over HTMLAudioElement, volume/mute + localStorage
-├── data/gameContent.ts  every title, URL, joke, popup config, email, menu item
-├── types/game.ts        WindowId, PopupId, configs, phases (excluded from coverage)
+├── data/gameContent.ts  every title, URL, joke, popup config, email, menu item, objective
+├── types/game.ts        WindowId, PopupId, configs, phases, mission types (excluded from coverage)
 └── style.css            Win95 @theme tokens, outset/inset utilities, keyframes
 ```
 
@@ -184,14 +194,17 @@ src/
 - `openPopups: OpenPopup[]` — `{ key, popupId, windowId }`; liar `Close` appends
   `spam` entries via a `useRef` counter for unique keys, capped at 5 per window.
 - `message: string | null` — joke dialog contents.
-- `grandmaLine: string` — intro → "little X" line on safe dismiss → decoy-mail line.
+- `grandmaLine: string` — intro → task instructions → "little X" line on safe
+  dismiss → decoy-mail line.
 - `selectedIcon`, `startOpen` — desktop/menu state.
 - `openIconWindows`, `iconWindowPositions`, `iconZOrder`, `iconMinimized` — desktop
   mini-windows; `openIconWindow` cascades the default position per open window,
   `iconFocusedId` is the top visible one, and `playAgain` closes them all.
 - **Taskbar toggle:** clicking a taskbar button for the active window (browser or icon)
   minimizes it; any other button restores and activates.
-- `phase: 'playing' | 'won'` — set by opening the target email; `playAgain()` resets all.
+- `phase: 'playing' | 'taskDone' | 'won'` — set by completing the current task;
+  `objectiveIndex` tracks the chain, `loggedIn` gates the inbox, `stormTriggered`
+  remembers the task-3 ad storm, and `playAgain()` resets all of it.
 
 ## Sound
 
