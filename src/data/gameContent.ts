@@ -25,8 +25,6 @@ export const JOKES = {
   cleanNow:
     'Your computer is now 400% more infected. Just kidding, someone made this in Paint.',
   maybeLater: 'It’ll still be urgent later.',
-  minimize: 'It’s already as small as it gets.',
-  maximize: 'It can’t get any larger.',
   windowClose: 'That one’s never worked, it’s purely decorative.',
   goBack: 'There’s nowhere to go back to. The internet only goes forward.',
   goForward: 'Forward is where the pop-ups live.',

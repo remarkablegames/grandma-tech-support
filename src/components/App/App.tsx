@@ -58,7 +58,7 @@ export function App() {
         ))}
       </div>
 
-      {WINDOW_META.map((meta) => (
+      {WINDOW_META.filter((meta) => !game.minimized[meta.id]).map((meta) => (
         <BrowserWindow
           key={meta.id}
           windowId={meta.id}
@@ -67,9 +67,12 @@ export function App() {
           url={meta.url}
           position={game.positions[meta.id]}
           isFront={game.focusedId === meta.id}
+          maximized={game.maximized[meta.id]}
           zIndex={10 + game.zOrder.indexOf(meta.id)}
           onFocus={game.raise}
           onMove={game.moveWindow}
+          onMinimize={game.minimize}
+          onToggleMaximize={game.toggleMaximize}
           onJoke={game.showJoke}
         >
           {meta.id === 'shopping' && <ShoppingWindow onJoke={game.showJoke} />}
@@ -93,7 +96,7 @@ export function App() {
         focusedId={game.focusedId}
         startOpen={game.startOpen}
         onStartToggle={game.toggleStart}
-        onWindowClick={game.raise}
+        onWindowClick={game.activateWindow}
       />
 
       {game.startOpen && (

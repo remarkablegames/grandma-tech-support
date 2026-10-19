@@ -6,7 +6,7 @@ import { VolumeControl } from '../VolumeControl';
 
 interface TaskbarProps {
   windows: WindowMeta[];
-  focusedId: WindowId;
+  focusedId: WindowId | undefined;
   startOpen: boolean;
   onStartToggle: () => void;
   onWindowClick: (windowId: WindowId) => void;

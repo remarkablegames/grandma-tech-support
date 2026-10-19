@@ -19,6 +19,12 @@ import type {
 
 const INITIAL_Z_ORDER: WindowId[] = ['inbox', 'shopping', 'virus'];
 
+const INITIAL_WINDOW_FLAGS: Record<WindowId, boolean> = {
+  shopping: false,
+  inbox: false,
+  virus: false,
+};
+
 function scalePosition(
   position: WindowPosition,
   scale: number,
@@ -52,10 +58,27 @@ export function useGame() {
   const [grandmaLine, setGrandmaLine] = useState<string>(GRANDMA_LINES.intro);
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [startOpen, setStartOpen] = useState(false);
+  const [minimized, setMinimized] =
+    useState<Record<WindowId, boolean>>(INITIAL_WINDOW_FLAGS);
+  const [maximized, setMaximized] =
+    useState<Record<WindowId, boolean>>(INITIAL_WINDOW_FLAGS);
   const spamCounter = useRef(0);
 
   const raise = (windowId: WindowId) => {
     setZOrder((prev) => [...prev.filter((id) => id !== windowId), windowId]);
+  };
+
+  const minimize = (windowId: WindowId) => {
+    setMinimized((prev) => ({ ...prev, [windowId]: true }));
+  };
+
+  const toggleMaximize = (windowId: WindowId) => {
+    setMaximized((prev) => ({ ...prev, [windowId]: !prev[windowId] }));
+  };
+
+  const activateWindow = (windowId: WindowId) => {
+    setMinimized((prev) => ({ ...prev, [windowId]: false }));
+    raise(windowId);
   };
 
   const moveWindow = (windowId: WindowId, position: WindowPosition) => {
@@ -119,6 +142,8 @@ export function useGame() {
     setGrandmaLine(GRANDMA_LINES.intro);
     setSelectedIcon(null);
     setStartOpen(false);
+    setMinimized(INITIAL_WINDOW_FLAGS);
+    setMaximized(INITIAL_WINDOW_FLAGS);
   };
 
   const selectIcon = (icon: DesktopIconConfig) => {
@@ -138,13 +163,18 @@ export function useGame() {
     setMessage(item.message);
   };
 
-  const focusedId = zOrder[zOrder.length - 1];
+  // A minimized window can't hold focus, so the top visible window is active.
+  const focusedId: WindowId | undefined = zOrder
+    .filter((id) => !minimized[id])
+    .at(-1);
 
   return {
     phase,
     focusedId,
     zOrder,
     positions,
+    minimized,
+    maximized,
     openPopups,
     message,
     grandmaLine,
@@ -152,6 +182,9 @@ export function useGame() {
     startOpen,
     raise,
     moveWindow,
+    minimize,
+    toggleMaximize,
+    activateWindow,
     showJoke,
     dismissJoke,
     popupAction,

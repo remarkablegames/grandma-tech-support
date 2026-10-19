@@ -29,6 +29,16 @@ describe('useGame hook', () => {
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.intro);
     expect(result.current.selectedIcon).toBeNull();
     expect(result.current.startOpen).toBe(false);
+    expect(result.current.minimized).toEqual({
+      shopping: false,
+      inbox: false,
+      virus: false,
+    });
+    expect(result.current.maximized).toEqual({
+      shopping: false,
+      inbox: false,
+      virus: false,
+    });
   });
 
   it('raises windows to the front', () => {
@@ -46,6 +56,49 @@ describe('useGame hook', () => {
     expect(result.current.focusedId).toBe('shopping');
     expect(result.current.zOrder).toHaveLength(3);
     expect(new Set(result.current.zOrder).size).toBe(3);
+  });
+
+  it('minimizes a window and hands focus to the one behind', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.minimize('virus');
+    });
+    expect(result.current.minimized.virus).toBe(true);
+    expect(result.current.focusedId).toBe('shopping');
+
+    act(() => {
+      result.current.activateWindow('virus');
+    });
+    expect(result.current.minimized.virus).toBe(false);
+    expect(result.current.focusedId).toBe('virus');
+  });
+
+  it('has no focused window once every window is minimized', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.minimize('shopping');
+      result.current.minimize('inbox');
+      result.current.minimize('virus');
+    });
+
+    expect(result.current.focusedId).toBeUndefined();
+  });
+
+  it('toggles maximize one window at a time', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.toggleMaximize('inbox');
+    });
+    expect(result.current.maximized.inbox).toBe(true);
+    expect(result.current.maximized.virus).toBe(false);
+
+    act(() => {
+      result.current.toggleMaximize('inbox');
+    });
+    expect(result.current.maximized.inbox).toBe(false);
   });
 
   it('moves one window without touching the others', () => {
@@ -194,6 +247,12 @@ describe('useGame hook', () => {
       result.current.moveWindow('inbox', { x: 1, y: 2 });
     });
     act(() => {
+      result.current.minimize('shopping');
+    });
+    act(() => {
+      result.current.toggleMaximize('inbox');
+    });
+    act(() => {
       result.current.popupAction('shopping', {
         label: 'Buy',
         message: JOKES.buyButton,
@@ -229,5 +288,15 @@ describe('useGame hook', () => {
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.intro);
     expect(result.current.selectedIcon).toBeNull();
     expect(result.current.startOpen).toBe(false);
+    expect(result.current.minimized).toEqual({
+      shopping: false,
+      inbox: false,
+      virus: false,
+    });
+    expect(result.current.maximized).toEqual({
+      shopping: false,
+      inbox: false,
+      virus: false,
+    });
   });
 });

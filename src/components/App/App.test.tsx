@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   DESKTOP_ICONS,
@@ -152,6 +152,52 @@ describe('App component', () => {
       screen.getByRole('button', { name: `Switch to ${WINDOW_META[1].title}` })
         .className,
     ).toContain('win-inset');
+  });
+
+  it('minimizes a window to the taskbar and restores it from there', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const meta = WINDOW_META[2];
+
+    await user.click(
+      within(screen.getByRole('region', { name: meta.title })).getByRole(
+        'button',
+        { name: `Minimize ${meta.title}` },
+      ),
+    );
+    expect(screen.queryByRole('region', { name: meta.title })).toBeNull();
+
+    await user.click(
+      screen.getByRole('button', { name: `Switch to ${meta.title}` }),
+    );
+    expect(
+      screen.getByRole('region', { name: meta.title }),
+    ).toBeInTheDocument();
+  });
+
+  it('fills the desktop when maximized and restores back in place', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const meta = WINDOW_META[2];
+
+    await user.click(
+      within(screen.getByRole('region', { name: meta.title })).getByRole(
+        'button',
+        { name: `Maximize ${meta.title}` },
+      ),
+    );
+
+    const maximized = screen.getByRole('region', { name: meta.title });
+    expect(maximized.className).toContain('inset-x-0');
+    expect(maximized.style.left).toBe('');
+
+    await user.click(
+      within(maximized).getByRole('button', { name: `Restore ${meta.title}` }),
+    );
+
+    const restored = screen.getByRole('region', { name: meta.title });
+    expect(restored.className).not.toContain('inset-x-0');
+    expect(restored.style.left).toBe('430px');
   });
 
   it('jokes about misleading buttons and lets the player retry', async () => {

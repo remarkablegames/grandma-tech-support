@@ -13,9 +13,12 @@ interface BrowserWindowProps {
   url: string;
   position: WindowPosition;
   isFront: boolean;
+  maximized: boolean;
   zIndex: number;
   onFocus: (windowId: WindowId) => void;
   onMove: (windowId: WindowId, position: WindowPosition) => void;
+  onMinimize: (windowId: WindowId) => void;
+  onToggleMaximize: (windowId: WindowId) => void;
   onJoke: (joke: string) => void;
   children: ReactNode;
 }
@@ -27,13 +30,20 @@ export function BrowserWindow({
   url,
   position,
   isFront,
+  maximized,
   zIndex,
   onFocus,
   onMove,
+  onMinimize,
+  onToggleMaximize,
   onJoke,
   children,
 }: BrowserWindowProps) {
   const handleTitlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (maximized) {
+      return;
+    }
+
     const originX = event.clientX - position.x;
     const originY = event.clientY - position.y;
 
@@ -63,8 +73,12 @@ export function BrowserWindow({
   return (
     <section
       aria-label={title}
-      className="bg-win-face win-outset absolute w-[min(92vw,440px)] p-[3px]"
-      style={{ left: position.x, top: position.y, zIndex }}
+      className={`bg-win-face win-outset absolute flex flex-col p-[3px] ${
+        maximized ? 'inset-x-0 top-0 bottom-10' : 'w-[min(92vw,440px)]'
+      }`}
+      style={
+        maximized ? { zIndex } : { left: position.x, top: position.y, zIndex }
+      }
       onPointerDown={() => {
         audio.play('click');
         onFocus(windowId);
@@ -97,7 +111,7 @@ export function BrowserWindow({
             type="button"
             aria-label={`Minimize ${title}`}
             onClick={() => {
-              onJoke(JOKES.minimize);
+              onMinimize(windowId);
             }}
             className="win-button h-4 w-5 text-[8px] leading-none"
           >
@@ -105,13 +119,13 @@ export function BrowserWindow({
           </button>
           <button
             type="button"
-            aria-label={`Maximize ${title}`}
+            aria-label={maximized ? `Restore ${title}` : `Maximize ${title}`}
             onClick={() => {
-              onJoke(JOKES.maximize);
+              onToggleMaximize(windowId);
             }}
             className="win-button h-4 w-5 text-[8px] leading-none"
           >
-            □
+            {maximized ? '▣' : '□'}
           </button>
           <button
             type="button"
@@ -152,7 +166,11 @@ export function BrowserWindow({
         </div>
       </div>
 
-      <div className="relative h-[280px] overflow-hidden bg-white">
+      <div
+        className={`relative overflow-hidden bg-white ${
+          maximized ? 'flex-1' : 'h-[280px]'
+        }`}
+      >
         {children}
       </div>
     </section>

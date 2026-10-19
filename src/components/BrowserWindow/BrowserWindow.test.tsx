@@ -19,9 +19,11 @@ vi.mock('src/services/audio', () => ({
 
 const onFocus = vi.fn();
 const onMove = vi.fn();
+const onMinimize = vi.fn();
+const onToggleMaximize = vi.fn();
 const onJoke = vi.fn();
 
-function renderWindow(isFront: boolean) {
+function renderWindow(isFront: boolean, maximized = false) {
   return render(
     <BrowserWindow
       windowId="inbox"
@@ -30,9 +32,12 @@ function renderWindow(isFront: boolean) {
       url="http://example.test/page"
       position={{ x: 100, y: 50 }}
       isFront={isFront}
+      maximized={maximized}
       zIndex={10}
       onFocus={onFocus}
       onMove={onMove}
+      onMinimize={onMinimize}
+      onToggleMaximize={onToggleMaximize}
       onJoke={onJoke}
     >
       <p>Window body</p>
@@ -100,16 +105,6 @@ describe('BrowserWindow component', () => {
     const user = userEvent.setup();
     renderWindow(true);
 
-    await user.click(
-      screen.getByRole('button', { name: 'Minimize Test Window' }),
-    );
-    expect(onJoke).toHaveBeenLastCalledWith(JOKES.minimize);
-
-    await user.click(
-      screen.getByRole('button', { name: 'Maximize Test Window' }),
-    );
-    expect(onJoke).toHaveBeenLastCalledWith(JOKES.maximize);
-
     await user.click(screen.getByRole('button', { name: 'Close Test Window' }));
     expect(onJoke).toHaveBeenLastCalledWith(JOKES.windowClose);
 
@@ -122,6 +117,67 @@ describe('BrowserWindow component', () => {
       screen.getByRole('button', { name: 'Forward in Test Window' }),
     );
     expect(onJoke).toHaveBeenLastCalledWith(JOKES.goForward);
+  });
+
+  it('minimizes from the title bar', async () => {
+    const user = userEvent.setup();
+    renderWindow(true);
+
+    await user.click(
+      screen.getByRole('button', { name: 'Minimize Test Window' }),
+    );
+
+    expect(onMinimize).toHaveBeenCalledWith('inbox');
+    expect(onJoke).not.toHaveBeenCalled();
+  });
+
+  it('maximizes from the title bar', async () => {
+    const user = userEvent.setup();
+    renderWindow(true);
+
+    await user.click(
+      screen.getByRole('button', { name: 'Maximize Test Window' }),
+    );
+
+    expect(onToggleMaximize).toHaveBeenCalledWith('inbox');
+    expect(onJoke).not.toHaveBeenCalled();
+  });
+
+  it('becomes a restore button when maximized', async () => {
+    const user = userEvent.setup();
+    renderWindow(true, true);
+
+    const restore = screen.getByRole('button', { name: 'Restore Test Window' });
+    expect(restore).toHaveTextContent('▣');
+
+    await user.click(restore);
+
+    expect(onToggleMaximize).toHaveBeenCalledWith('inbox');
+  });
+
+  it('fills the desktop above the taskbar when maximized', () => {
+    renderWindow(true, true);
+
+    const frame = screen.getByRole('region', { name: 'Test Window' });
+    expect(frame.className).toContain('inset-x-0');
+    expect(frame.className).toContain('top-0');
+    expect(frame.className).toContain('bottom-10');
+    expect(frame.className).not.toContain('w-[min(92vw,440px)]');
+    expect(frame.style.left).toBe('');
+    expect(frame.style.top).toBe('');
+    expect(frame.style.zIndex).toBe('10');
+    expect(screen.getByText('Window body').parentElement).toHaveClass('flex-1');
+  });
+
+  it('does not drag while maximized', () => {
+    renderWindow(true, true);
+    const titleButton = screen.getByRole('button', { name: 'Test Window' });
+
+    firePointer(titleButton, 'pointerdown', { clientX: 100, clientY: 50 });
+    firePointer(window, 'pointermove', { clientX: 300, clientY: 200 });
+
+    expect(onMove).not.toHaveBeenCalled();
+    expect(onFocus).toHaveBeenCalledWith('inbox');
   });
 
   it('drags by the title bar, clamped to the viewport', () => {

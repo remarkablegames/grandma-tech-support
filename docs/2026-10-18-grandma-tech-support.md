@@ -39,11 +39,13 @@ fake virus warning or the misleading buttons on pop-ups.
 - Windows start at fixed, pairwise-overlapping positions (scaled to the viewport on
   mount) and can be **dragged by the title bar** with a pointer (mouse/touch/pen).
 - Clicking anywhere on a window raises it (`z-order` re-stack).
-- Title-bar window controls (`_`, `□`, `×`) are decorative and each tells a joke when
-  clicked. Back/forward buttons joke too. The URL bar shows a fake address.
-- Taskbar: `Start` button (toggles the Start menu), one button per window (raises it,
-  pressed style for the focused window), tray with a live clock showing the current
-  time in the player’s locale.
+- Title-bar window controls: minimize (`–`) hides the window, maximize (`□`) fills the
+  desktop above the taskbar (drag is disabled while maximized and the button becomes a
+  restore `▣`), and close (`×`) tells a joke — it’s purely decorative. Back/forward
+  buttons joke too. The URL bar shows a fake address.
+- Taskbar: `Start` button (toggles the Start menu), one button per window (restores a
+  minimized window or else raises it, pressed style for the focused window), tray with
+  a live clock showing the current time in the player’s locale.
 - Start menu: `Programs`, `Documents`, `Settings`, `Find`, `Help`, `Run...`,
   `Shut Down...` — each closes the menu and shows a joke dialog. Its vertical side
   stripe brands the fictional OS as **Rainbows95**.
