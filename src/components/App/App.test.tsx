@@ -4,6 +4,7 @@ import {
   DESKTOP_ICONS,
   GRANDMA_LINES,
   JOKES,
+  OBJECTIVES,
   WINDOW_META,
 } from 'src/data/gameContent';
 import { firePointer } from 'src/tests/firePointer';
@@ -48,7 +49,7 @@ describe('App component', () => {
     expect(screen.queryByRole('menu')).toBeNull();
     expect(screen.queryByRole('alertdialog')).toBeNull();
     expect(
-      screen.queryByRole('dialog', { name: 'You found your email' }),
+      screen.queryByRole('dialog', { name: OBJECTIVES[0].doneTitle }),
     ).toBeNull();
   });
 
@@ -239,12 +240,30 @@ describe('App component', () => {
     expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
   });
 
-  it('wins by safely dismissing the popup and opening the email', async () => {
+  it('logs in, dismisses the popup, and opens the email', async () => {
     const user = userEvent.setup();
     render(<App />);
 
+    // Task 1 — the password lives on the other note.
+    await user.type(screen.getByLabelText('Password'), 'password');
+    await user.click(screen.getByRole('button', { name: 'Log in' }));
+    expect(play).toHaveBeenCalledWith('win');
+    expect(
+      screen.getByRole('dialog', { name: OBJECTIVES[0].doneTitle }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(OBJECTIVES[0].doneMessage)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Next task' }));
+    expect(
+      screen.queryByRole('dialog', { name: OBJECTIVES[0].doneTitle }),
+    ).toBeNull();
+
     // The safe little X — not the liar Close button.
-    await user.click(screen.getAllByRole('button', { name: 'Close popup' })[1]);
+    await user.click(
+      within(
+        screen.getByRole('dialog', { name: 'Your mailbox is FULL' }),
+      ).getByRole('button', { name: 'Close popup' }),
+    );
     expect(play).toHaveBeenCalledWith('click');
     expect(
       screen.queryByRole('dialog', { name: 'Your mailbox is FULL' }),
@@ -253,19 +272,21 @@ describe('App component', () => {
       GRANDMA_LINES.correctClose,
     );
 
+    // Task 2 — the real email wins; task 3 waits behind "Next task".
     await user.click(screen.getByRole('button', { name: /The Grandkids/ }));
     expect(play).toHaveBeenCalledWith('win');
     expect(
-      screen.getByRole('dialog', { name: 'You found your email' }),
+      screen.getByRole('dialog', { name: OBJECTIVES[1].doneTitle }),
     ).toBeInTheDocument();
     expect(screen.getByText(GRANDMA_LINES.win)).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Play again' }));
+    await user.click(screen.getByRole('button', { name: 'Next task' }));
     expect(
-      screen.queryByRole('dialog', { name: 'You found your email' }),
+      screen.queryByRole('dialog', { name: OBJECTIVES[1].doneTitle }),
     ).toBeNull();
-    expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
-    expect(screen.getAllByRole('dialog')).toHaveLength(2);
+    expect(screen.getByRole('status')).toHaveTextContent(
+      OBJECTIVES[2].instruction,
+    );
   });
 
   it('wires page, chrome, and product jokes through to the dialog', async () => {
@@ -298,6 +319,11 @@ describe('App component', () => {
     const user = userEvent.setup();
     render(<App />);
 
+    // Get past the log-on gate first.
+    await user.type(screen.getByLabelText('Password'), 'password');
+    await user.click(screen.getByRole('button', { name: 'Log in' }));
+    await user.click(screen.getByRole('button', { name: 'Next task' }));
+
     await user.click(screen.getAllByRole('button', { name: 'Close popup' })[1]);
     await user.click(screen.getByRole('button', { name: /photos of the dog/ }));
     expect(
@@ -314,7 +340,7 @@ describe('App component', () => {
 
     await user.dblClick(desktopMail);
     expect(screen.queryByRole('region', { name: 'Grandma’s Mail' })).toBeNull();
-  });
+  }, 15000);
 
   it('opens a desktop icon window on double-click and closes it', async () => {
     const user = userEvent.setup();
@@ -370,7 +396,7 @@ describe('App component', () => {
 
     expect(screen.queryByRole('alertdialog')).toBeNull();
     expect(
-      screen.queryByRole('dialog', { name: 'You found your email' }),
+      screen.queryByRole('dialog', { name: OBJECTIVES[0].doneTitle }),
     ).toBeNull();
     expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
   });
@@ -384,7 +410,7 @@ describe('App component', () => {
       screen.getByRole('menu', { name: 'Start menu' }),
     ).toBeInTheDocument();
 
-    await user.click(screen.getByRole('menuitem', { name: 'Shut Down…' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Shut Down...' }));
     expect(
       screen.getByRole('alertdialog', { name: 'System Message' }),
     ).toHaveTextContent(JOKES.startShutDown);
@@ -466,4 +492,102 @@ describe('App component', () => {
 
     expect(iconButtons).toEqual(['Sticky Notes', 'My Computer']);
   });
+
+  it('plays through the whole mission chain', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Task 1 — the sticky note points at the other note.
+    await user.dblClick(screen.getByRole('button', { name: 'Sticky Notes' }));
+    expect(
+      within(screen.getByRole('region', { name: 'Sticky Notes' })).getByText(
+        '(it’s on the other note)',
+      ),
+    ).toBeInTheDocument();
+
+    await user.dblClick(screen.getByRole('button', { name: 'My Documents' }));
+    await user.dblClick(
+      within(screen.getByRole('region', { name: 'My Documents' })).getByRole(
+        'button',
+        { name: 'the_other_note.txt' },
+      ),
+    );
+    const notepad = await screen.findByRole('region', {
+      name: 'the_other_note.txt — Notepad',
+    });
+    expect(
+      within(notepad).getByText('the password is “password”.'),
+    ).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText('Password'), 'password');
+    await user.click(screen.getByRole('button', { name: 'Log in' }));
+    expect(
+      screen.getByRole('dialog', { name: OBJECTIVES[0].doneTitle }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Next task' }));
+
+    // Task 2 — the email list replaces the log-on form.
+    expect(screen.queryByRole('button', { name: 'Log in' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: /The Grandkids/ }));
+    expect(
+      screen.getByRole('dialog', { name: OBJECTIVES[1].doneTitle }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Next task' }));
+
+    // Task 3 — the first click jokes and storms the whole desktop...
+    await user.click(screen.getAllByRole('button', { name: /Toaster/ })[0]);
+    expect(
+      screen.getByRole('alertdialog', { name: 'System Message' }),
+    ).toHaveTextContent(JOKES.toasterTile);
+    await user.click(screen.getByRole('button', { name: 'OK' }));
+
+    // ...and clearing every pop-up lets the next click through.
+    let closeButtons = screen.getAllByRole('button', { name: 'Close popup' });
+    while (closeButtons.length > 0) {
+      await user.click(closeButtons[0]);
+      closeButtons = screen.queryAllByRole('button', { name: 'Close popup' });
+    }
+
+    await user.click(screen.getAllByRole('button', { name: /Toaster/ })[0]);
+    expect(
+      screen.getByRole('dialog', { name: OBJECTIVES[2].doneTitle }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Next task' }));
+
+    // Task 4 — spam floods everything; the shield program sweeps it away.
+    expect(screen.getAllByRole('button', { name: 'Close popup' })).toHaveLength(
+      9,
+    );
+    await user.dblClick(screen.getByRole('button', { name: 'Virus Shield' }));
+    const scanner = screen.getByRole('region', { name: 'Virus Shield' });
+    await user.click(within(scanner).getByRole('button', { name: 'Scan' }));
+    expect(within(scanner).getByText(/Scanning C:/)).toBeInTheDocument();
+
+    expect(
+      await screen.findByText(
+        '1 threat quarantined: toaster_7_install.exe',
+        {},
+        { timeout: 3000 },
+      ),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole(
+        'dialog',
+        { name: OBJECTIVES[3].doneTitle },
+        { timeout: 3000 },
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryAllByRole('button', { name: 'Close popup' }),
+    ).toHaveLength(0);
+
+    // Play again puts the whole evening back how it started.
+    await user.click(screen.getByRole('button', { name: 'Play again' }));
+    expect(screen.getByLabelText('Password')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
+    expect(screen.queryByRole('region', { name: 'Sticky Notes' })).toBeNull();
+    expect(screen.getAllByRole('button', { name: 'Close popup' })).toHaveLength(
+      2,
+    );
+  }, 20000);
 });

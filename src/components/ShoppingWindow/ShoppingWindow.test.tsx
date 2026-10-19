@@ -14,7 +14,7 @@ vi.mock('src/services/audio', () => ({
   },
 }));
 
-const onJoke = vi.fn();
+const onBuy = vi.fn();
 
 describe('ShoppingWindow component', () => {
   beforeEach(() => {
@@ -22,20 +22,20 @@ describe('ShoppingWindow component', () => {
   });
 
   it('renders the sale page', () => {
-    render(<ShoppingWindow onJoke={onJoke} />);
+    render(<ShoppingWindow onBuy={onBuy} />);
 
     expect(screen.getByText(/MEGA SALE/)).toBeInTheDocument();
     expect(screen.getByText(/visitor #1,000,000/)).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /Toaster/ })).toHaveLength(3);
   });
 
-  it('tells a toaster joke when a product is clicked', async () => {
+  it('passes the product joke along when a product is clicked', async () => {
     const user = userEvent.setup();
-    render(<ShoppingWindow onJoke={onJoke} />);
+    render(<ShoppingWindow onBuy={onBuy} />);
 
     const firstProduct = screen.getAllByRole('button', { name: /Toaster/ })[0];
     await user.click(firstProduct);
 
-    expect(onJoke).toHaveBeenCalledWith(JOKES.toasterTile);
+    expect(onBuy).toHaveBeenCalledWith(JOKES.toasterTile);
   });
 });

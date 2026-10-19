@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import {
   DESKTOP_ICONS,
   ICON_WINDOWS,
+  OBJECTIVES,
   START_ITEMS,
   WINDOW_META,
 } from 'src/data/gameContent';
@@ -24,6 +25,11 @@ import { WinScreen } from '../WinScreen';
 
 export function App() {
   const game = useGame();
+
+  // The current mission: its instruction is grandma's line, and its title,
+  // message, and icon dress the task-complete dialog.
+  const objective = OBJECTIVES[game.objectiveIndex];
+  const isFinalTask = game.phase === 'won';
 
   // Open icon windows in raise order, so the active one sits rightmost,
   // closest to the tray — Win95 taskbar style.
@@ -107,9 +113,14 @@ export function App() {
           onToggleMaximize={game.toggleMaximize}
           onJoke={game.showJoke}
         >
-          {meta.id === 'shopping' && <ShoppingWindow onJoke={game.showJoke} />}
+          {meta.id === 'shopping' && <ShoppingWindow onBuy={game.buyToaster} />}
           {meta.id === 'inbox' && (
-            <InboxWindow onJoke={game.showJoke} onOpenEmail={game.openEmail} />
+            <InboxWindow
+              loggedIn={game.loggedIn}
+              onLogin={game.login}
+              onJoke={game.showJoke}
+              onOpenEmail={game.openEmail}
+            />
           )}
           {meta.id === 'virus' && <VirusWindow onJoke={game.showJoke} />}
           <Popups
@@ -142,6 +153,8 @@ export function App() {
           onClose={() => {
             game.closeIconWindow(config.id);
           }}
+          onOpenWindow={game.openIconWindow}
+          onScanComplete={game.completeScan}
         />
       ))}
 
@@ -166,7 +179,15 @@ export function App() {
         <MessageDialog message={game.message} onDismiss={game.dismissJoke} />
       )}
 
-      {game.phase === 'won' && <WinScreen onPlayAgain={game.playAgain} />}
+      {game.phase !== 'playing' && (
+        <WinScreen
+          title={objective.doneTitle}
+          message={objective.doneMessage}
+          icon={objective.icon}
+          buttonLabel={isFinalTask ? 'Play again' : 'Next task'}
+          onConfirm={isFinalTask ? game.playAgain : game.nextObjective}
+        />
+      )}
     </div>
   );
 }

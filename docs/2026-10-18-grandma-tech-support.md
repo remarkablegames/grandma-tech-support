@@ -56,7 +56,7 @@ defuse a pop-up storm) while dodging fake warnings and misleading buttons.
   `Shut Down...` — each closes the menu and shows a joke dialog. Its vertical side
   stripe brands the fictional OS as **Rainbows95**.
 - Desktop icons (single click selects, Win95 style): `My Computer`, `Recycle Bin`,
-  `My Documents`, `Sticky Notes`, `Calculator`, `Virus Shield 95`, and the decoy
+  `My Documents`, `Sticky Notes`, `Calculator`, `Virus Shield`, and the decoy
   `Grandma’s Mail`. Selecting the decoy makes Grandma point the player back to "the
   internet thing". Double-clicking the six real icons opens floating mini-windows — see
   [icon-windows](./2026-10-19-desktop-icon-windows.md); the decoy stays deliberately

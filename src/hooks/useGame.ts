@@ -2,19 +2,25 @@ import { useRef, useState } from 'react';
 import {
   BASE_VIEWPORT,
   BASE_WINDOW_POSITIONS,
+  BUY_STORM,
   GRANDMA_LINES,
   ICON_WINDOW_BASE_POSITION,
   ICON_WINDOWS,
   INITIAL_POPUPS,
+  JOKES,
+  MAIL_PASSWORD,
   MAX_POPUPS_PER_WINDOW,
+  OBJECTIVES,
 } from 'src/data/gameContent';
 import type {
   DesktopIconConfig,
   GamePhase,
   IconWindowId,
+  ObjectiveEvent,
   OpenPopup,
   PopupButtonConfig,
   PopupId,
+  PopupSpawn,
   StartMenuItem,
   WindowId,
   WindowPosition,
@@ -36,6 +42,8 @@ const INITIAL_ICON_WINDOW_FLAGS: Record<IconWindowId, boolean> = {
   documents: false,
   notes: false,
   calculator: false,
+  scanner: false,
+  'other-note': false,
 };
 
 function getInitialIconWindowPositions(): Record<IconWindowId, WindowPosition> {
@@ -45,6 +53,8 @@ function getInitialIconWindowPositions(): Record<IconWindowId, WindowPosition> {
     documents: ICON_WINDOW_BASE_POSITION,
     notes: ICON_WINDOW_BASE_POSITION,
     calculator: ICON_WINDOW_BASE_POSITION,
+    scanner: ICON_WINDOW_BASE_POSITION,
+    'other-note': ICON_WINDOW_BASE_POSITION,
   };
 }
 
@@ -95,6 +105,13 @@ export function useGame() {
   const [iconMinimized, setIconMinimized] = useState<
     Record<IconWindowId, boolean>
   >(INITIAL_ICON_WINDOW_FLAGS);
+
+  // The mission chain: which task is active, whether the mail gate is open,
+  // and whether the task-3 ad storm has been unleashed yet.
+  const [objectiveIndex, setObjectiveIndex] = useState(0);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [stormTriggered, setStormTriggered] = useState(false);
+
   const spamCounter = useRef(0);
 
   // A minimized window can't hold focus, so the top visible window is active.
@@ -184,6 +201,103 @@ export function useGame() {
     setIconZOrder((prev) => prev.filter((id) => id !== windowId));
   };
 
+  const onCurrentObjective = (event: ObjectiveEvent): boolean =>
+    OBJECTIVES[objectiveIndex].completesOn === event;
+
+  // Finishing a task clears any joke dialog and pauses on the interstitial
+  // screen — except the last task, which ends the game.
+  const completeObjective = (event: ObjectiveEvent): boolean => {
+    if (phase !== 'playing' || !onCurrentObjective(event)) {
+      return false;
+    }
+
+    setMessage(null);
+    setPhase(objectiveIndex === OBJECTIVES.length - 1 ? 'won' : 'taskDone');
+    return true;
+  };
+
+  // Objective storms land on top of whatever is already open, capped at
+  // MAX_POPUPS_PER_WINDOW per window.
+  const addSpawns = (spawns: PopupSpawn[] | undefined) => {
+    if (spawns === undefined) {
+      return;
+    }
+
+    setOpenPopups((prev) => {
+      const next = [...prev];
+
+      for (const spawn of spawns) {
+        const used = next.filter(
+          (popup) => popup.windowId === spawn.windowId,
+        ).length;
+        const amount = Math.min(
+          spawn.count,
+          Math.max(MAX_POPUPS_PER_WINDOW - used, 0),
+        );
+
+        for (let i = 0; i < amount; i += 1) {
+          spamCounter.current += 1;
+          next.push({
+            key: `spam-${String(spamCounter.current)}`,
+            popupId: spawn.popupId,
+            windowId: spawn.windowId,
+          });
+        }
+      }
+
+      return next;
+    });
+  };
+
+  const nextObjective = () => {
+    const next = objectiveIndex + 1;
+
+    setObjectiveIndex(next);
+    setPhase('playing');
+    setMessage(null);
+    setGrandmaLine(OBJECTIVES[next].instruction);
+    addSpawns(OBJECTIVES[next].spawn);
+  };
+
+  // Only the password from the other note opens the mail gate.
+  const login = (password: string): boolean => {
+    if (password !== MAIL_PASSWORD) {
+      return false;
+    }
+
+    setLoggedIn(true);
+    completeObjective('logged-in');
+    return true;
+  };
+
+  const buyToaster = (joke: string) => {
+    if (!onCurrentObjective('order-placed')) {
+      setMessage(joke);
+      return;
+    }
+
+    if (!stormTriggered) {
+      setStormTriggered(true);
+      setMessage(joke);
+      addSpawns(BUY_STORM);
+      return;
+    }
+
+    if (openPopups.length > 0) {
+      setMessage(JOKES.buyBlocked);
+      return;
+    }
+
+    completeObjective('order-placed');
+  };
+
+  // A completed scan sweeps the whole desktop's pop-ups away.
+  const completeScan = () => {
+    if (completeObjective('scan-complete')) {
+      setOpenPopups([]);
+    }
+  };
+
   const showJoke = (joke: string) => {
     setMessage(joke);
   };
@@ -224,7 +338,7 @@ export function useGame() {
   };
 
   const openEmail = () => {
-    setPhase('won');
+    completeObjective('email-opened');
   };
 
   const playAgain = () => {
@@ -243,6 +357,9 @@ export function useGame() {
     setIconWindowPositions(getInitialIconWindowPositions());
     setIconZOrder([]);
     setIconMinimized(INITIAL_ICON_WINDOW_FLAGS);
+    setObjectiveIndex(0);
+    setLoggedIn(false);
+    setStormTriggered(false);
   };
 
   const selectIcon = (icon: DesktopIconConfig) => {
@@ -264,6 +381,9 @@ export function useGame() {
 
   return {
     phase,
+    objectiveIndex,
+    loggedIn,
+    stormTriggered,
     focusedId,
     zOrder,
     positions,
@@ -295,6 +415,10 @@ export function useGame() {
     popupAction,
     dismissPopup,
     openEmail,
+    login,
+    buyToaster,
+    completeScan,
+    nextObjective,
     playAgain,
     selectIcon,
     toggleStart,

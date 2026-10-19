@@ -9,14 +9,14 @@ seven desktop icons open a floating mini-window; the decoy `Grandma’s Mail` st
 deliberately broken — double-clicking it opens nothing (that's the joke), backed by
 Grandma's "broken since 2000" redirect line.
 
-| Icon              | Window contents                                                                                                                               |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `My Computer`     | drive list: `3½ Floppy (A:)`, `Hard disk (C:)` — hint "mostly toasters", `CD-ROM (D:)` — hint "1 song"                                        |
-| `Recycle Bin`     | "deleted" files: `untitled_final_v2.doc`, `toaster_7_install.exe`, `do_not_open.jpg`                                                          |
-| `My Documents`    | folder residue: `untitled`, `untitled (2)`, `untitled (3)`, `asdf`, plus the openable `the_other_note.txt` (Notepad window with the password) |
-| `Sticky Notes`    | the note itself: "THE PASSWORD" — "(it's on the other note)"                                                                                  |
-| `Calculator`      | clickable keypad; the display accepts digits, but every `=` shows **47**                                                                      |
-| `Virus Shield 95` | task 4’s scanner: idle → `Scanning C:\` → “1 threat quarantined: toaster_7_install.exe”; one scan sweeps the whole pop-up storm               |
+| Icon           | Window contents                                                                                                                               |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `My Computer`  | drive list: `3½ Floppy (A:)`, `Hard disk (C:)` — hint "mostly toasters", `CD-ROM (D:)` — hint "1 song"                                        |
+| `Recycle Bin`  | "deleted" files: `untitled_final_v2.doc`, `toaster_7_install.exe`, `do_not_open.jpg`                                                          |
+| `My Documents` | folder residue: `untitled`, `untitled (2)`, `untitled (3)`, `asdf`, plus the openable `the_other_note.txt` (Notepad window with the password) |
+| `Sticky Notes` | the note itself: "THE PASSWORD" — "(it's on the other note)"                                                                                  |
+| `Calculator`   | clickable keypad; the display accepts digits, but every `=` shows **47**                                                                      |
+| `Virus Shield` | task 4’s scanner: idle → `Scanning C:\` → “1 threat quarantined: toaster_7_install.exe”; one scan sweeps the whole pop-up storm               |
 
 - **Window behavior.** Mini-chrome: navy titlebar, title, and **working** `–` (minimize)
   and `×` (close) buttons — unlike the browser chrome's decorative close, these are our

@@ -2,9 +2,11 @@ import type {
   DesktopIconConfig,
   EmailConfig,
   IconWindowConfig,
+  ObjectiveConfig,
   OpenPopup,
   PopupConfig,
   PopupId,
+  PopupSpawn,
   ProductConfig,
   StartMenuItem,
   WindowMeta,
@@ -31,6 +33,10 @@ export const JOKES = {
   goForward: 'Forward is where the pop-ups live.',
   emailDog: 'Forty-seven pictures of the same dog.',
   emailUpdate: 'That’s the update that broke the internet in year 2000.',
+  emailPrize: 'You’ve been selected for a free toaster. Everyone has, dear.',
+  emailWire:
+    'That’s not your grandson, dear. Your grandson can’t spell “wire”.',
+  buyBlocked: 'The page is buried in pop-ups, dear. Close them all first.',
   startPrograms: 'There are 47 programs. 46 of them are Solitaire.',
   startDocuments: 'They’re all called “untitled_final_v2”.',
   startSettings: 'Everything’s set to “don’t touch”.',
@@ -42,13 +48,71 @@ export const JOKES = {
 
 export const GRANDMA_LINES = {
   intro:
-    'Help me find my email, dear. It was open in the internet thing. Don’t click anything that says it’s urgent.',
+    'I need to check my email, dear. The internet thing wants a password first. I wrote it on a note somewhere. Don’t click anything that says it’s urgent.',
   correctClose:
     'That’s it! The little X in the corner. Never trust a big button.',
   mailDecoy:
     'That one’s been broken since 2000. Your email’s in the internet thing.',
   win: 'You did it, my dear! You found my email, and you didn’t fall for the toaster. Tell your grandfather the computer stays with me.',
+  wrongPassword: 'Incorrect password.',
+  saved:
+    'You saved it, my dear! The computer stays with me. Tell your grandfather it was a close call.',
 } as const;
+
+// The password the mail log-on form expects — it lives on the other note.
+export const MAIL_PASSWORD = 'password';
+
+// The four-task mission chain. Each entry completes on its event; when the
+// next task starts, its instruction becomes grandma's line and its `spawn`
+// pop-ups land on top of whatever is already open.
+export const OBJECTIVES: ObjectiveConfig[] = [
+  {
+    instruction: GRANDMA_LINES.intro,
+    doneTitle: 'Task 1 of 4 complete',
+    doneMessage:
+      'That’s it, dear! I’m in. Now find the real email, not the ones offering you toasters.',
+    icon: `${ICONS}/sticky_note.png`,
+    completesOn: 'logged-in',
+  },
+  {
+    instruction:
+      'Open my mail, dear, the one from the grandkids. The other ones are nonsense.',
+    doneTitle: 'Task 2 of 4 complete',
+    doneMessage: GRANDMA_LINES.win,
+    icon: `${ICONS}/mail.png`,
+    completesOn: 'email-opened',
+    spawn: [{ windowId: 'shopping', popupId: 'spam', count: 2 }],
+  },
+  {
+    instruction:
+      'Would you order me a toaster, dear? The burning shopping page.',
+    doneTitle: 'Task 3 of 4 complete',
+    doneMessage:
+      'Ordered! ...though I may have clicked something while we waited, dear.',
+    icon: `${ICONS}/world.png`,
+    completesOn: 'order-placed',
+  },
+  {
+    instruction:
+      'The whole screen is yelling, dear! Don’t touch the urgent ones. Use the shield program on the desktop!',
+    doneTitle: 'Computer saved!',
+    doneMessage: GRANDMA_LINES.saved,
+    icon: `${ICONS}/password_manager.png`,
+    completesOn: 'scan-complete',
+    spawn: [
+      { windowId: 'shopping', popupId: 'spam', count: 3 },
+      { windowId: 'inbox', popupId: 'spam', count: 3 },
+      { windowId: 'virus', popupId: 'spam', count: 3 },
+    ],
+  },
+];
+
+// The first toaster click of task 3 unleashes this storm.
+export const BUY_STORM: PopupSpawn[] = [
+  { windowId: 'shopping', popupId: 'spam', count: 3 },
+  { windowId: 'inbox', popupId: 'spam', count: 3 },
+  { windowId: 'virus', popupId: 'spam', count: 3 },
+];
 
 export const WINDOW_META: WindowMeta[] = [
   {
@@ -158,6 +222,11 @@ export const ICON_WINDOWS: IconWindowConfig[] = [
       { icon: `${ICONS}/text_file.png`, label: 'untitled (2)' },
       { icon: `${ICONS}/text_file.png`, label: 'untitled (3)' },
       { icon: `${ICONS}/text_file.png`, label: 'asdf' },
+      {
+        icon: `${ICONS}/text_file.png`,
+        label: 'the_other_note.txt',
+        opens: 'other-note',
+      },
     ],
   },
   {
@@ -168,10 +237,23 @@ export const ICON_WINDOWS: IconWindowConfig[] = [
     lines: ['THE PASSWORD', '(it’s on the other note)'],
   },
   {
+    id: 'other-note',
+    title: 'the_other_note.txt — Notepad',
+    icon: `${ICONS}/text_file.png`,
+    kind: 'note',
+    lines: ['THE OTHER NOTE', 'the password is “password”.'],
+  },
+  {
     id: 'calculator',
     title: 'Calculator',
     icon: `${ICONS}/calculator.png`,
     kind: 'calculator',
+  },
+  {
+    id: 'scanner',
+    title: 'Virus Shield',
+    icon: `${ICONS}/search.png`,
+    kind: 'scanner',
   },
 ];
 
@@ -212,6 +294,12 @@ export const DESKTOP_ICONS: DesktopIconConfig[] = [
     icon: `${ICONS}/mail.png`,
     decoy: true,
   },
+  {
+    id: 'scanner',
+    label: 'Virus Shield',
+    icon: `${ICONS}/search.png`,
+    windowId: 'scanner',
+  },
 ];
 
 export const EMAILS: EmailConfig[] = [
@@ -237,6 +325,22 @@ export const EMAILS: EmailConfig[] = [
     date: 'Tue',
     target: false,
     joke: JOKES.emailUpdate,
+  },
+  {
+    id: 'prize',
+    from: 'PRIZE DEPARTMENT',
+    subject: 'FINAL NOTICE: your toaster awaits',
+    date: 'Today',
+    target: false,
+    joke: JOKES.emailPrize,
+  },
+  {
+    id: 'wire',
+    from: 'Your Grandson (?)',
+    subject: 'URGENT: grandma send $500',
+    date: 'Today',
+    target: false,
+    joke: JOKES.emailWire,
   },
 ];
 
@@ -294,13 +398,13 @@ export const START_ITEMS: StartMenuItem[] = [
   },
   {
     id: 'run',
-    label: 'Run…',
+    label: 'Run...',
     icon: `${ICONS}/script_file.png`,
     message: JOKES.startRun,
   },
   {
     id: 'shutdown',
-    label: 'Shut Down…',
+    label: 'Shut Down...',
     icon: `${ICONS}/password_manager.png`,
     message: JOKES.startShutDown,
   },

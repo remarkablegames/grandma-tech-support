@@ -25,13 +25,23 @@ const listConfig: IconWindowConfig = {
       label: 'Hard disk (C:)',
       hint: '2.1 GB',
     },
+    { label: 'the_other_note.txt', opens: 'other-note' },
   ],
+};
+
+const scannerConfig: IconWindowConfig = {
+  id: 'scanner',
+  title: 'Virus Shield',
+  icon: 'windows_icons_32x32/search.png',
+  kind: 'scanner',
 };
 
 const onFocus = vi.fn();
 const onMove = vi.fn();
 const onMinimize = vi.fn();
 const onClose = vi.fn();
+const onOpenWindow = vi.fn();
+const onScanComplete = vi.fn();
 
 function renderIconWindow(config: IconWindowConfig = listConfig) {
   return render(
@@ -43,6 +53,8 @@ function renderIconWindow(config: IconWindowConfig = listConfig) {
       onMove={onMove}
       onMinimize={onMinimize}
       onClose={onClose}
+      onOpenWindow={onOpenWindow}
+      onScanComplete={onScanComplete}
     />,
   );
 }
@@ -61,6 +73,41 @@ describe('IconWindow component', () => {
     expect(screen.getByText('3½ Floppy (A:)')).toBeInTheDocument();
     expect(screen.getByText('Hard disk (C:)')).toBeInTheDocument();
     expect(screen.getByText('2.1 GB')).toBeInTheDocument();
+    expect(screen.getByText('the_other_note.txt')).toBeInTheDocument();
+  });
+
+  it('opens a file row on a quick double-click', async () => {
+    const user = userEvent.setup();
+    renderIconWindow();
+
+    await user.dblClick(
+      screen.getByRole('button', { name: 'the_other_note.txt' }),
+    );
+
+    expect(onOpenWindow).toHaveBeenCalledWith('other-note');
+    expect(onOpenWindow).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens a file row with Enter right away', async () => {
+    const user = userEvent.setup();
+    renderIconWindow();
+
+    screen.getByRole('button', { name: 'the_other_note.txt' }).focus();
+    await user.keyboard('{Enter}');
+
+    expect(onOpenWindow).toHaveBeenCalledWith('other-note');
+  });
+
+  it('leaves plain rows and lone clicks alone', async () => {
+    const user = userEvent.setup();
+    renderIconWindow();
+
+    await user.click(screen.getByText('3½ Floppy (A:)'));
+    await user.click(
+      screen.getByRole('button', { name: 'the_other_note.txt' }),
+    );
+
+    expect(onOpenWindow).not.toHaveBeenCalled();
   });
 
   it('renders the sticky note contents', () => {
@@ -94,6 +141,29 @@ describe('IconWindow component', () => {
 
     await user.click(screen.getByRole('button', { name: 'C' }));
     expect(screen.getByLabelText('Calculator display')).toHaveTextContent('0');
+  });
+
+  it('scans for a few ticks, reports the toaster, and can scan again', async () => {
+    const user = userEvent.setup();
+    renderIconWindow(scannerConfig);
+
+    expect(screen.getByText('Ready to scan C:\\')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Scan' }));
+    expect(screen.getByText(/Scanning C:/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Scan' })).toBeDisabled();
+
+    expect(
+      await screen.findByText(
+        '1 threat quarantined: toaster_7_install.exe',
+        {},
+        { timeout: 3000 },
+      ),
+    ).toBeInTheDocument();
+    expect(onScanComplete).toHaveBeenCalledTimes(1);
+
+    await user.click(screen.getByRole('button', { name: 'Scan again' }));
+    expect(screen.getByText(/Scanning C:/)).toBeInTheDocument();
   });
 
   it('closes through the title-bar ×', async () => {

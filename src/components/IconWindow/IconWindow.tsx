@@ -1,6 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useDoubleClickOpen } from 'src/hooks/useDoubleClickOpen';
 import { audio } from 'src/services/audio';
-import type { IconWindowConfig, WindowPosition } from 'src/types/game';
+import type {
+  IconWindowConfig,
+  IconWindowId,
+  IconWindowRow,
+  WindowPosition,
+} from 'src/types/game';
 import { createWindowDrag } from 'src/utils/createWindowDrag';
 
 const CALCULATOR_KEYS = [
@@ -23,6 +29,8 @@ const CALCULATOR_KEYS = [
 ];
 
 const CALCULATOR_LIMIT = '47';
+
+const SCAN_MS = 600;
 
 // Grandma's calculator accepts digits just fine, but every sum ends the same way.
 function Calculator() {
@@ -69,33 +77,140 @@ function Calculator() {
   );
 }
 
-function IconWindowContent({ config }: { config: IconWindowConfig }) {
+type ScanPhase = 'idle' | 'scanning' | 'done';
+
+// Grandma's shield program: one scan, one sweep of whatever is popping
+// over the windows. The result is always the same suspect.
+function Scanner({ onScanComplete }: { onScanComplete: () => void }) {
+  const [scanPhase, setScanPhase] = useState<ScanPhase>('idle');
+
+  useEffect(() => {
+    if (scanPhase !== 'scanning') {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setScanPhase('done');
+    }, SCAN_MS);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [scanPhase]);
+
+  // Announce through game state only after the sweep settles; the handler
+  // is idempotent, so re-renders during "done" can't double-complete.
+  useEffect(() => {
+    if (scanPhase === 'done') {
+      onScanComplete();
+    }
+  }, [onScanComplete, scanPhase]);
+
+  return (
+    <div className="p-2 text-xs text-black">
+      <div
+        aria-live="polite"
+        className="win-inset mb-2 flex h-14 flex-col justify-center bg-white px-2"
+      >
+        {scanPhase === 'idle' && <p>Ready to scan C:\</p>}
+        {scanPhase === 'scanning' && (
+          <p className="animate-blink font-bold">Scanning C:\ ...</p>
+        )}
+        {scanPhase === 'done' && (
+          <p className="font-bold">
+            1 threat quarantined: toaster_7_install.exe
+          </p>
+        )}
+      </div>
+      <button
+        type="button"
+        disabled={scanPhase === 'scanning'}
+        onClick={() => {
+          setScanPhase('scanning');
+        }}
+        className="win-button disabled:text-win-shadow w-full px-2 py-1.5 font-bold text-black"
+      >
+        {scanPhase === 'done' ? 'Scan again' : 'Scan'}
+      </button>
+    </div>
+  );
+}
+
+// Rows with an `opens` target behave like Windows Explorer files: quick
+// double-click (or Enter) opens the referenced window.
+function IconRow({
+  row,
+  onOpenWindow,
+}: {
+  row: IconWindowRow;
+  onOpenWindow: (windowId: IconWindowId) => void;
+}) {
+  const opens = row.opens;
+  const handleOpen = useDoubleClickOpen(
+    opens === undefined
+      ? undefined
+      : () => {
+          onOpenWindow(opens);
+        },
+  );
+
+  const content = (
+    <>
+      {row.icon !== undefined && (
+        <img
+          src={row.icon}
+          alt=""
+          width={16}
+          height={16}
+          draggable={false}
+          className="pixelated size-4 shrink-0"
+        />
+      )}
+      <span className="truncate">{row.label}</span>
+      {row.hint !== undefined && (
+        <span className="text-win-shadow ml-auto shrink-0 pl-2 text-[10px]">
+          {row.hint}
+        </span>
+      )}
+    </>
+  );
+
+  if (opens === undefined) {
+    return <li className="flex items-center gap-1.5 px-1 py-0.5">{content}</li>;
+  }
+
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={handleOpen}
+        className="flex w-full items-center gap-1.5 px-1 py-0.5 text-left"
+      >
+        {content}
+      </button>
+    </li>
+  );
+}
+
+function IconWindowContent({
+  config,
+  onOpenWindow,
+  onScanComplete,
+}: {
+  config: IconWindowConfig;
+  onOpenWindow: (windowId: IconWindowId) => void;
+  onScanComplete: () => void;
+}) {
   switch (config.kind) {
     case 'list':
       return (
         <ul className="win-inset h-40 overflow-y-auto bg-white p-1 text-xs text-black">
           {config.rows.map((row, index) => (
-            <li
+            <IconRow
               key={`${row.label}-${String(index)}`}
-              className="flex items-center gap-1.5 px-1 py-0.5"
-            >
-              {row.icon !== undefined && (
-                <img
-                  src={row.icon}
-                  alt=""
-                  width={16}
-                  height={16}
-                  draggable={false}
-                  className="pixelated size-4 shrink-0"
-                />
-              )}
-              <span className="truncate">{row.label}</span>
-              {row.hint !== undefined && (
-                <span className="text-win-shadow ml-auto shrink-0 pl-2 text-[10px]">
-                  {row.hint}
-                </span>
-              )}
-            </li>
+              row={row}
+              onOpenWindow={onOpenWindow}
+            />
           ))}
         </ul>
       );
@@ -111,6 +226,8 @@ function IconWindowContent({ config }: { config: IconWindowConfig }) {
       );
     case 'calculator':
       return <Calculator />;
+    case 'scanner':
+      return <Scanner onScanComplete={onScanComplete} />;
   }
 }
 
@@ -122,6 +239,8 @@ interface IconWindowProps {
   onMove: (position: WindowPosition) => void;
   onMinimize: () => void;
   onClose: () => void;
+  onOpenWindow: (windowId: IconWindowId) => void;
+  onScanComplete: () => void;
 }
 
 export function IconWindow({
@@ -132,6 +251,8 @@ export function IconWindow({
   onMove,
   onMinimize,
   onClose,
+  onOpenWindow,
+  onScanComplete,
 }: IconWindowProps) {
   const startDrag = createWindowDrag({ position, onMove });
 
@@ -172,7 +293,11 @@ export function IconWindow({
         </div>
       </div>
 
-      <IconWindowContent config={config} />
+      <IconWindowContent
+        config={config}
+        onOpenWindow={onOpenWindow}
+        onScanComplete={onScanComplete}
+      />
     </section>
   );
 }

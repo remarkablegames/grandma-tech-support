@@ -185,7 +185,7 @@ export class AudioService {
         });
       }
     } catch {
-      // Swallow creation failures (missing file, no audio device, jsdom, …).
+      // Swallow creation failures (missing file, no audio device, jsdom, ...).
     }
   }
 
@@ -207,7 +207,7 @@ export class AudioService {
         });
       }
     } catch {
-      // Swallow creation failures (missing file, no audio device, jsdom, …).
+      // Swallow creation failures (missing file, no audio device, jsdom, ...).
     }
   }
 

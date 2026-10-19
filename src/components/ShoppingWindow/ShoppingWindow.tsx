@@ -1,10 +1,10 @@
 import { PRODUCTS } from 'src/data/gameContent';
 
 interface ShoppingWindowProps {
-  onJoke: (joke: string) => void;
+  onBuy: (joke: string) => void;
 }
 
-export function ShoppingWindow({ onJoke }: ShoppingWindowProps) {
+export function ShoppingWindow({ onBuy }: ShoppingWindowProps) {
   return (
     <div className="h-full overflow-y-auto bg-[#fffbe6] p-2 text-xs text-black">
       <p
@@ -20,7 +20,7 @@ export function ShoppingWindow({ onJoke }: ShoppingWindowProps) {
             key={product.id}
             type="button"
             onClick={() => {
-              onJoke(product.joke);
+              onBuy(product.joke);
             }}
             className="win-button flex flex-col items-center gap-1 p-2 text-center text-black"
           >
