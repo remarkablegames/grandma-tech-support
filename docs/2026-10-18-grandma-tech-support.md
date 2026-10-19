@@ -157,10 +157,12 @@ src/
 │   ├── InboxWindow/     toolbar pixels + email list
 │   ├── VirusWindow/     blinking red alert + two joke buttons
 │   ├── GrandmaSpeech/   speech bubble, context-aware
-│   ├── Taskbar/         Start button + window buttons + tray clock
+│   ├── Taskbar/         Start button + window buttons + tray (clock, volume)
+│   ├── VolumeControl/   tray speaker → Win95 vertical-fader volume popup
 │   ├── StartMenu/       joke menu items
 │   └── WinScreen/       victory overlay + Play again
 ├── hooks/useGame.ts     z-order, positions, pop-ups, dialogs, phase, menu state
+├── services/audio.ts    SFX over HTMLAudioElement, volume/mute + localStorage
 ├── data/gameContent.ts  every title, URL, joke, popup config, email, menu item
 ├── types/game.ts        WindowId, PopupId, configs, phases (excluded from coverage)
 └── style.css            Win95 @theme tokens, outset/inset utilities, keyframes
@@ -178,8 +180,13 @@ src/
 - `selectedIcon`, `startOpen` — desktop/menu state.
 - `phase: 'playing' | 'won'` — set by opening the target email; `playAgain()` resets all.
 
+## Sound
+
+Interface sound design — the four SFX events, the tray Volume Control popup, and the
+BGM plan — lives in [audio-support](./2026-10-18-audio-support.md).
+
 ## Out of scope
 
 - Real network requests, real e-mail, real OS behavior
-- Sound, save games, difficulty modes, scoring/lose states
+- Save games, difficulty modes, scoring/lose states
 - Mobile-first layout (playable, but designed for desktop browsers)

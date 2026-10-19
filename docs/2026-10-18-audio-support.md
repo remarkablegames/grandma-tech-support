@@ -1,0 +1,36 @@
+# Audio support
+
+Companion spec to [Grandma Tech Support](./2026-10-18-grandma-tech-support.md):
+how sound works in Rainbows95.
+
+Four sparse interface sounds — short MP3s from [Kenney's Interface Sounds](https://kenney.nl/assets/interface-sounds)
+pack (CC0). Joke dialogs stay silent; text does the comedy.
+
+| Event                                                                                                                                                | SFX key | File                                    |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | --------------------------------------- |
+| Plain button tick — window raise (pointer-down, safe × included), taskbar switch, Start, Start menu items, desktop icons, joke-dialog OK, Play again | `click` | `interface_sounds/click.mp3`            |
+| Liar “Close” opens extra spam pop-ups                                                                                                                | `open`  | `interface_sounds/drop_004.mp3`         |
+| Misleading pop-up button (“Fix now!”, “Buy”, “Claim”)                                                                                                | `error` | `interface_sounds/back_001.mp3`         |
+| Win — email found                                                                                                                                    | `win`   | `interface_sounds/confirmation_004.mp3` |
+
+The safe little × plays no sound of its own — its pointer-down bubbles to the window’s
+`click` tick.
+
+- **Zero audio libraries.** `src/services/audio.ts` drives `HTMLAudioElement` directly:
+  one fresh element per play (overlap-safe), a ~100 ms per-track throttle (which also
+  absorbs React StrictMode's double effects), swallowed autoplay rejections. The player
+  factory, clock, and storage are injectable, so the suite runs against fakes — jsdom
+  cannot decode or play audio.
+- **Volume Control popup.** The tray speaker icon (`windows_icons_32x32/sounds.png`)
+  opens a mini Win95-style “Volume Control” panel above the tray: one vertical “Sounds”
+  fader (native `<input type="range">` made vertical with CSS `writing-mode: vertical-rl`
+  and `direction: rtl`), a Mute checkbox, and a decorative 100/50/0 tick scale.
+  Click-outside or Escape closes it; muting dims the tray icon. A “Music” strip joins it
+  when the looped background track lands — per-channel Mute, like the real mixer.
+- **Persistence.** Volume (default 100) and mute (default unmuted) live under one
+  `localStorage` key — `org.remarkablegames.grandma-tech-support` — as a single JSON
+  document (`{"audio":{"sfx":{"volume":100,"muted":false}}}`): one atomic read/write
+  for the whole settings picture, trivial to inspect, reset, or export. Missing or
+  corrupt data falls back to defaults and self-heals on the next change.
+- All ~120 pack files ship until the playtest; afterward unused ones get pruned and this
+  table locks to the final picks and levels.
