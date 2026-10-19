@@ -18,8 +18,6 @@ Or download for desktop:
 
 ## Credits
 
-### Art
-
 - [𝕎𝕚𝕟𝕕𝕠𝕨𝕤 𝟡𝟝 ~𝓒𝓪𝓵𝓶𝓲𝓷𝓰~ Icon Pack](https://aconfuseddragon.itch.io/windows-95-calming)
 - [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds)
 
