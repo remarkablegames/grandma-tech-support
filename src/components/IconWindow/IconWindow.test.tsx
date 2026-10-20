@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { firePointer } from 'src/tests/firePointer';
 import type { IconWindowConfig } from 'src/types/game';
@@ -190,7 +190,11 @@ describe('IconWindow component', () => {
         { timeout: 3000 },
       ),
     ).toBeInTheDocument();
-    expect(onScanComplete).toHaveBeenCalledTimes(1);
+    // The completion callback fires from a passive effect after the result
+    // renders, so wait for it instead of racing React's effect flush.
+    await waitFor(() => {
+      expect(onScanComplete).toHaveBeenCalledTimes(1);
+    });
 
     await user.click(screen.getByRole('button', { name: 'Scan again' }));
     expect(screen.getByText(/Scanning C:/)).toBeInTheDocument();
