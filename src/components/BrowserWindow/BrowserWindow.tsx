@@ -17,6 +17,7 @@ interface BrowserWindowProps {
   onMove: (windowId: WindowId, position: WindowPosition) => void;
   onMinimize: (windowId: WindowId) => void;
   onToggleMaximize: (windowId: WindowId) => void;
+  onClose: (windowId: WindowId) => void;
   onJoke: (joke: string) => void;
   children: ReactNode;
 }
@@ -34,6 +35,7 @@ export function BrowserWindow({
   onMove,
   onMinimize,
   onToggleMaximize,
+  onClose,
   onJoke,
   children,
 }: BrowserWindowProps) {
@@ -106,7 +108,7 @@ export function BrowserWindow({
             type="button"
             aria-label={`Close ${title}`}
             onClick={() => {
-              onJoke(JOKES.windowClose);
+              onClose(windowId);
             }}
             className="win-button h-4 w-5 text-[9px] leading-none"
           >

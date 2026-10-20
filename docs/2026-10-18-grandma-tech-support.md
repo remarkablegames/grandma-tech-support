@@ -17,44 +17,50 @@ defuse a pop-up storm) while dodging fake warnings and misleading buttons.
 
 ## Core loop
 
-1. The desktop opens with three overlapping browser windows and Grandma’s instruction —
-   the current task, in her own words:
-   > "I need to check my email, dear. The internet thing wants a password first. I
-   > wrote it on a note somewhere. Don’t click anything that says it’s urgent."
-2. The player clicks windows to raise them to the front and inspects titles/contents,
-   digging through desktop icon windows for clues (the password lives on "the other
-   note" in My Documents).
-3. Pop-ups inside the shopping and inbox windows offer big misleading buttons
-   (`Buy`, `Fix now!`, `Close`). Only the tiny `×` in the pop-up’s title bar is safe.
+1. The desktop opens blank — desktop icons, taskbar, and Grandma’s instruction, the
+   current task, in her own words:
+   > "I need to check my email, dear. The internet thing lives under the Start button.
+   > It wants a password first. I wrote it on a note somewhere.
+2. The player launches the Inbox from the Start menu, digs through desktop icon windows
+   for clues (the password lives on "the other note" in My Documents), and logs in.
+3. Logging in springs the whole desktop back open: Shopping, Virus, and Inbox pile up
+   with pop-ups whose big misleading buttons (`Buy`, `Fix now!`, `Close`) are traps.
+   Only the tiny `×` in the pop-up’s title bar is safe.
 4. Clicking a misleading button opens a Win95-style joke dialog. After clicking `OK`
    everything resets for another try (pop-up stays open; liar `Close` spawns extras).
 5. Each completed task opens a `Next task` dialog with a line from Grandma; the tasks
-   escalate into a pop-up storm that the scanner window sweeps away. The last task ends
-   in the final screen and `Play again`, which resets the whole evening.
+   escalate into a pop-up storm that the scanner program sweeps away. The last task
+   ends in the final screen and `Play again`, which resets the whole evening back to
+   the blank desktop.
 
 ## Desktop contents
 
 ### Windows (all three are browser windows: title bar + back/forward/URL chrome)
 
-| Window         | Title                             | Icon                   | Initial z-order | Popup        |
-| -------------- | --------------------------------- | ---------------------- | --------------- | ------------ |
-| Shopping       | `🔥 Bargain Barn — TODAY ONLY!!!` | `world.png`            | middle          | Yes (`deal`) |
-| Inbox (target) | `✉ Inbox (12) — Grandma’s Mail`   | `mail.png`             | bottom          | Yes (`full`) |
-| Fake warning   | `⚠ URGENT: VIRUS DETECTED ⚠`      | `password_manager.png` | top (tempting)  | No           |
+| Window         | Title                             | Icon                   | Launch                         | Pop-up storm |
+| -------------- | --------------------------------- | ---------------------- | ------------------------------ | ------------ |
+| Shopping       | `🔥 Bargain Barn — TODAY ONLY!!!` | `world.png`            | Start → Internet; task 2       | tasks 3–4    |
+| Inbox (target) | `✉ Inbox (12) — Grandma’s Mail`   | `mail.png`             | Start → Inbox; task 2          | tasks 3–4    |
+| Fake warning   | `⚠ URGENT: VIRUS DETECTED ⚠`      | `password_manager.png` | task 2 (spring-back with spam) | tasks 3–4    |
 
-- Windows start at fixed, pairwise-overlapping positions (scaled to the viewport on
-  mount) and can be **dragged by the title bar** with a pointer (mouse/touch/pen).
+All three windows start **closed** — the desktop opens blank, and the stacked z-order
+above applies once they're open (virus on top, tempting).
+
+- Open windows start at fixed, pairwise-overlapping positions (scaled to the viewport
+  on mount) and can be **dragged by the title bar** with a pointer (mouse/touch/pen).
 - Clicking anywhere on a window raises it (`z-order` re-stack).
 - Title-bar window controls: minimize (`–`) hides the window, maximize (`□`) fills the
   desktop above the taskbar (drag is disabled while maximized and the button becomes a
-  restore `▣`), and close (`×`) tells a joke — it’s purely decorative. Back/forward
-  buttons joke too. The URL bar shows a fake address.
-- Taskbar: `Start` button (toggles the Start menu), one button per window (restores a
-  minimized window or else raises it, pressed style for the focused window), tray with
-  a live clock showing the current time in the player’s locale.
-- Start menu: `Programs`, `Documents`, `Settings`, `Find`, `Help`, `Run...`,
-  `Shut Down...` — each closes the menu and shows a joke dialog. Its vertical side
-  stripe brands the fictional OS as **Rainbows95**.
+  restore `▣`), and close (`×`) closes for real: frame and taskbar button disappear,
+  and the window's pop-ups go down with it. Back/forward buttons joke. The URL bar
+  shows a fake address.
+- Taskbar: `Start` button (toggles the Start menu), one button per **open** window
+  (restores a minimized window or else raises it, pressed style for the focused
+  window), tray with a live clock showing the current time in the player's locale.
+- Start menu: `Inbox` and `Internet` launch the two browser windows; `Programs`,
+  `Documents`, `Settings`, `Find`, `Help`, `Run...`, `Shut Down...` close the menu and
+  show a joke dialog. Its vertical side stripe brands the fictional OS as
+  **Rainbows95**.
 - Desktop icons (single click selects, Win95 style): `My Computer`, `Recycle Bin`,
   `My Documents`, `Sticky Notes`, `Calculator`, `Virus Shield`, and the decoy
   `Grandma’s Mail`. Selecting the decoy makes Grandma point the player back to "the
@@ -175,7 +181,7 @@ src/
 │   ├── GrandmaSpeech/   speech bubble, context-aware
 │   ├── Taskbar/         Start button + window buttons + tray (clock, volume)
 │   ├── VolumeControl/   tray speaker → Win95 vertical-fader volume popup
-│   ├── StartMenu/       joke menu items
+│   ├── StartMenu/       launchers (Inbox, Internet) + joke menu items
 │   └── WinScreen/       prop-driven task/win overlay
 ├── hooks/useDoubleClickOpen.ts shared double-click/Enter open gesture
 ├── hooks/useGame.ts     z-order, positions, pop-ups, dialogs, mission chain, menu state
@@ -189,10 +195,15 @@ src/
 ### State model (`useGame`)
 
 - `zOrder: WindowId[]` — last = focused/front; `raise(id)` re-stacks.
+- `open: Record<WindowId, boolean>` — every browser window starts closed, so the
+  desktop opens blank. `openWindow(id)` (Start menu, task spring-back, storm) shows,
+  un-minimizes, and raises; `closeWindow(id)` closes and drops that window's pop-ups.
+  `focusedId` only considers open, un-minimized windows.
 - `positions: Record<WindowId, WindowPosition>` — viewport-scaled on mount; `moveWindow`
   applies pointer deltas (clamping lives in `BrowserWindow`, branchless `Math.min/max`).
-- `openPopups: OpenPopup[]` — `{ key, popupId, windowId }`; liar `Close` appends
-  `spam` entries via a `useRef` counter for unique keys, capped at 5 per window.
+- `openPopups: OpenPopup[]` — `{ key, popupId, windowId }`; starts empty, task spawns
+  and liar `Close` append entries via a `useRef` counter for unique keys, capped at 5
+  per window.
 - `message: string | null` — joke dialog contents.
 - `grandmaLine: string` — intro → task instructions → "little X" line on safe
   dismiss → decoy-mail line.

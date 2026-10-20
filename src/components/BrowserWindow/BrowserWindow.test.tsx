@@ -21,6 +21,7 @@ const onFocus = vi.fn();
 const onMove = vi.fn();
 const onMinimize = vi.fn();
 const onToggleMaximize = vi.fn();
+const onClose = vi.fn();
 const onJoke = vi.fn();
 
 function renderWindow(isFront: boolean, maximized = false) {
@@ -38,6 +39,7 @@ function renderWindow(isFront: boolean, maximized = false) {
       onMove={onMove}
       onMinimize={onMinimize}
       onToggleMaximize={onToggleMaximize}
+      onClose={onClose}
       onJoke={onJoke}
     >
       <p>Window body</p>
@@ -101,12 +103,19 @@ describe('BrowserWindow component', () => {
     expect(play).toHaveBeenCalledWith('click');
   });
 
-  it('tells jokes from the decorative chrome buttons', async () => {
+  it('closes for real from the title bar', async () => {
     const user = userEvent.setup();
     renderWindow(true);
 
     await user.click(screen.getByRole('button', { name: 'Close Test Window' }));
-    expect(onJoke).toHaveBeenLastCalledWith(JOKES.windowClose);
+
+    expect(onClose).toHaveBeenCalledWith('inbox');
+    expect(onJoke).not.toHaveBeenCalled();
+  });
+
+  it('tells jokes from the decorative back and forward buttons', async () => {
+    const user = userEvent.setup();
+    renderWindow(true);
 
     await user.click(
       screen.getByRole('button', { name: 'Back in Test Window' }),

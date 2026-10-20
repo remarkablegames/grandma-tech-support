@@ -95,6 +95,8 @@ export interface ObjectiveConfig {
   doneMessage: string;
   icon: string;
   completesOn: ObjectiveEvent;
+  // Windows that spring open (or back open) when this task starts.
+  open?: WindowId[];
   spawn?: PopupSpawn[];
 }
 
@@ -134,9 +136,20 @@ export interface ProductConfig {
   joke: string;
 }
 
-export interface StartMenuItem {
+// Start menu entries double as launchers now: joke items put a grandma line
+// in the dialog, app items open a browser window.
+export interface StartMenuBaseItem {
   id: string;
   label: string;
   icon: string;
+}
+
+export interface StartMenuJokeItem extends StartMenuBaseItem {
   message: string;
 }
+
+export interface StartMenuAppItem extends StartMenuBaseItem {
+  windowId: WindowId;
+}
+
+export type StartMenuItem = StartMenuJokeItem | StartMenuAppItem;

@@ -45,6 +45,9 @@ export function App() {
       icon: config.icon,
     }));
 
+  // Closed browser windows show up nowhere: no frame, no taskbar button.
+  const openWindows = WINDOW_META.filter((meta) => game.open[meta.id]);
+
   useEffect(() => {
     audio.startMusic();
 
@@ -96,41 +99,46 @@ export function App() {
         })}
       </div>
 
-      {WINDOW_META.filter((meta) => !game.minimized[meta.id]).map((meta) => (
-        <BrowserWindow
-          key={meta.id}
-          windowId={meta.id}
-          title={meta.title}
-          icon={meta.icon}
-          url={meta.url}
-          position={game.positions[meta.id]}
-          isFront={game.focusedId === meta.id}
-          maximized={game.maximized[meta.id]}
-          zIndex={10 + game.zOrder.indexOf(meta.id)}
-          onFocus={game.raise}
-          onMove={game.moveWindow}
-          onMinimize={game.minimize}
-          onToggleMaximize={game.toggleMaximize}
-          onJoke={game.showJoke}
-        >
-          {meta.id === 'shopping' && <ShoppingWindow onBuy={game.buyToaster} />}
-          {meta.id === 'inbox' && (
-            <InboxWindow
-              loggedIn={game.loggedIn}
-              onLogin={game.login}
-              onJoke={game.showJoke}
-              onOpenEmail={game.openEmail}
-            />
-          )}
-          {meta.id === 'virus' && <VirusWindow onJoke={game.showJoke} />}
-          <Popups
+      {openWindows
+        .filter((meta) => !game.minimized[meta.id])
+        .map((meta) => (
+          <BrowserWindow
+            key={meta.id}
             windowId={meta.id}
-            popups={game.openPopups}
-            onDismiss={game.dismissPopup}
-            onAction={game.popupAction}
-          />
-        </BrowserWindow>
-      ))}
+            title={meta.title}
+            icon={meta.icon}
+            url={meta.url}
+            position={game.positions[meta.id]}
+            isFront={game.focusedId === meta.id}
+            maximized={game.maximized[meta.id]}
+            zIndex={10 + game.zOrder.indexOf(meta.id)}
+            onFocus={game.raise}
+            onMove={game.moveWindow}
+            onMinimize={game.minimize}
+            onToggleMaximize={game.toggleMaximize}
+            onClose={game.closeWindow}
+            onJoke={game.showJoke}
+          >
+            {meta.id === 'shopping' && (
+              <ShoppingWindow onBuy={game.buyToaster} />
+            )}
+            {meta.id === 'inbox' && (
+              <InboxWindow
+                loggedIn={game.loggedIn}
+                onLogin={game.login}
+                onJoke={game.showJoke}
+                onOpenEmail={game.openEmail}
+              />
+            )}
+            {meta.id === 'virus' && <VirusWindow onJoke={game.showJoke} />}
+            <Popups
+              windowId={meta.id}
+              popups={game.openPopups}
+              onDismiss={game.dismissPopup}
+              onAction={game.popupAction}
+            />
+          </BrowserWindow>
+        ))}
 
       {ICON_WINDOWS.filter(
         (config) =>
@@ -161,7 +169,7 @@ export function App() {
       <GrandmaSpeech line={game.grandmaLine} />
 
       <Taskbar
-        windows={WINDOW_META}
+        windows={openWindows}
         iconWindows={iconTaskbarItems}
         focusedId={game.focusedId}
         focusedIconId={game.iconFocusedId}

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import {
   DESKTOP_ICONS,
   GRANDMA_LINES,
@@ -36,6 +36,20 @@ vi.mock('src/services/audio', () => ({
 vi.mock('src/hooks/useCurrentTime', () => ({
   useCurrentTime: () => '12:34 PM',
 }));
+
+// The desktop opens blank, so most flows start by launching the Inbox.
+async function openFromStart(user: UserEvent, label: string) {
+  await user.click(screen.getByRole('button', { name: 'Start' }));
+  await user.click(screen.getByRole('menuitem', { name: label }));
+}
+
+// Task 1 in one go: launch the Inbox, log in, move on to the chaos task.
+async function logInThroughStart(user: UserEvent) {
+  await openFromStart(user, 'Inbox');
+  await user.type(screen.getByLabelText('Password'), 'password');
+  await user.click(screen.getByRole('button', { name: 'Log in' }));
+  await user.click(screen.getByRole('button', { name: 'Next task' }));
+}
 
 describe('App component', () => {
   beforeEach(() => {
@@ -93,22 +107,48 @@ describe('App component', () => {
     Reflect.deleteProperty(document, 'visibilityState');
   });
 
-  it('shows the three overlapping browser windows', () => {
+  it('opens browser windows from the Start menu and closes them for real', async () => {
+    const user = userEvent.setup();
     render(<App />);
 
-    WINDOW_META.forEach((meta) => {
-      expect(
-        screen.getByRole('button', { name: meta.title }),
-      ).toBeInTheDocument();
-    });
-    WINDOW_META.forEach((meta) => {
-      expect(
-        screen.getByRole('region', { name: meta.title }),
-      ).toBeInTheDocument();
-    });
+    // The desktop starts with nothing open.
+    expect(
+      screen.queryByRole('region', { name: WINDOW_META[1].title }),
+    ).toBeNull();
+
+    await openFromStart(user, 'Inbox');
+    expect(
+      screen.getByRole('region', { name: WINDOW_META[1].title }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: `Switch to ${WINDOW_META[1].title}` }),
+    ).toBeInTheDocument();
+
+    await openFromStart(user, 'Internet');
+    expect(
+      screen.getByRole('region', { name: WINDOW_META[0].title }),
+    ).toBeInTheDocument();
+
+    // The title-bar X closes it for real: frame and taskbar button both go.
+    await user.click(
+      within(
+        screen.getByRole('region', { name: WINDOW_META[1].title }),
+      ).getByRole('button', { name: `Close ${WINDOW_META[1].title}` }),
+    );
+    expect(
+      screen.queryByRole('region', { name: WINDOW_META[1].title }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole('button', {
+        name: `Switch to ${WINDOW_META[1].title}`,
+      }),
+    ).toBeNull();
+    expect(
+      screen.getByRole('region', { name: WINDOW_META[0].title }),
+    ).toBeInTheDocument();
   });
 
-  it('shows desktop icons, taskbar, and both popups', () => {
+  it('starts on a blank desktop with the icons and tray', () => {
     render(<App />);
 
     DESKTOP_ICONS.forEach((icon) => {
@@ -121,17 +161,21 @@ describe('App component', () => {
       screen.getByRole('button', { name: 'Volume control' }),
     ).toBeInTheDocument();
     expect(screen.getByText('12:34 PM')).toBeInTheDocument();
+
+    // No windows, no pop-ups: the evening starts quiet.
+    expect(screen.queryAllByRole('region')).toHaveLength(0);
     expect(
-      screen.getByRole('dialog', { name: 'CONGRATULATIONS!!!' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('dialog', { name: 'Your mailbox is FULL' }),
-    ).toBeInTheDocument();
+      screen.queryAllByRole('button', { name: /^Switch to/ }),
+    ).toHaveLength(0);
+    expect(screen.queryAllByRole('dialog')).toHaveLength(0);
   });
 
   it('brings clicked windows to the front', async () => {
     const user = userEvent.setup();
     render(<App />);
+
+    await openFromStart(user, 'Inbox');
+    await openFromStart(user, 'Internet');
 
     await user.click(
       screen.getByRole('button', { name: WINDOW_META[0].title }),
@@ -142,7 +186,7 @@ describe('App component', () => {
         .className,
     ).toContain('win-inset');
     expect(
-      screen.getByRole('button', { name: `Switch to ${WINDOW_META[2].title}` })
+      screen.getByRole('button', { name: `Switch to ${WINDOW_META[1].title}` })
         .className,
     ).toContain('win-button');
 
@@ -158,7 +202,9 @@ describe('App component', () => {
   it('minimizes a window to the taskbar and toggles it from there', async () => {
     const user = userEvent.setup();
     render(<App />);
-    const meta = WINDOW_META[2];
+    const meta = WINDOW_META[1];
+
+    await openFromStart(user, 'Inbox');
 
     await user.click(
       within(screen.getByRole('region', { name: meta.title })).getByRole(
@@ -185,7 +231,9 @@ describe('App component', () => {
   it('fills the desktop when maximized and restores back in place', async () => {
     const user = userEvent.setup();
     render(<App />);
-    const meta = WINDOW_META[2];
+    const meta = WINDOW_META[1];
+
+    await openFromStart(user, 'Inbox');
 
     await user.click(
       within(screen.getByRole('region', { name: meta.title })).getByRole(
@@ -204,12 +252,14 @@ describe('App component', () => {
 
     const restored = screen.getByRole('region', { name: meta.title });
     expect(restored.className).not.toContain('inset-x-0');
-    expect(restored.style.left).toBe('430px');
+    expect(restored.style.left).toBe('340px');
   });
 
   it('jokes about misleading buttons and lets the player retry', async () => {
     const user = userEvent.setup();
     render(<App />);
+
+    await logInThroughStart(user);
 
     await user.click(screen.getByRole('button', { name: 'Fix now!' }));
     expect(play).toHaveBeenCalledWith('error');
@@ -222,12 +272,16 @@ describe('App component', () => {
     expect(
       screen.getByRole('dialog', { name: 'Your mailbox is FULL' }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
-  });
+    expect(screen.getByRole('status')).toHaveTextContent(
+      OBJECTIVES[1].instruction,
+    );
+  }, 15000);
 
   it('spawns extra popups when a liar Close button is clicked', async () => {
     const user = userEvent.setup();
     render(<App />);
+
+    await logInThroughStart(user);
 
     await user.click(screen.getAllByRole('button', { name: 'Close' })[0]);
     expect(play).toHaveBeenCalledWith('open');
@@ -236,15 +290,20 @@ describe('App component', () => {
     ).toHaveTextContent(JOKES.liarClose);
 
     await user.click(screen.getByRole('button', { name: 'OK' }));
-    expect(screen.getAllByRole('dialog')).toHaveLength(4);
-    expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
-  });
+    // Deal plus two spam in Shopping, mailbox-full in the Inbox, plus the
+    // two fresh spam the liar button just spawned.
+    expect(screen.getAllByRole('dialog')).toHaveLength(6);
+    expect(screen.getByRole('status')).toHaveTextContent(
+      OBJECTIVES[1].instruction,
+    );
+  }, 15000);
 
   it('logs in, dismisses the popup, and opens the email', async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    // Task 1 — the password lives on the other note.
+    // Task 1 — launch the mail, then the password lives on the other note.
+    await openFromStart(user, 'Inbox');
     await user.type(screen.getByLabelText('Password'), 'password');
     await user.click(screen.getByRole('button', { name: 'Log in' }));
     expect(play).toHaveBeenCalledWith('win');
@@ -287,11 +346,13 @@ describe('App component', () => {
     expect(screen.getByRole('status')).toHaveTextContent(
       OBJECTIVES[2].instruction,
     );
-  });
+  }, 15000);
 
   it('wires page, chrome, and product jokes through to the dialog', async () => {
     const user = userEvent.setup();
     render(<App />);
+
+    await logInThroughStart(user);
 
     await user.click(
       screen.getByRole('button', { name: `Back in ${WINDOW_META[0].title}` }),
@@ -313,16 +374,14 @@ describe('App component', () => {
     expect(
       screen.getByRole('alertdialog', { name: 'System Message' }),
     ).toHaveTextContent(JOKES.toasterTile);
-  });
+  }, 15000);
 
   it('jokes about decoy emails and the broken desktop mail icon', async () => {
     const user = userEvent.setup();
     render(<App />);
 
     // Get past the log-on gate first.
-    await user.type(screen.getByLabelText('Password'), 'password');
-    await user.click(screen.getByRole('button', { name: 'Log in' }));
-    await user.click(screen.getByRole('button', { name: 'Next task' }));
+    await logInThroughStart(user);
 
     await user.click(screen.getAllByRole('button', { name: 'Close popup' })[1]);
     await user.click(screen.getByRole('button', { name: /photos of the dog/ }));
@@ -386,6 +445,9 @@ describe('App component', () => {
     const user = userEvent.setup();
     render(<App />);
 
+    // The virus window springs open with the task-2 chaos.
+    await logInThroughStart(user);
+
     await user.click(
       screen.getByRole('button', { name: 'CLEAN MY COMPUTER NOW!' }),
     );
@@ -398,8 +460,10 @@ describe('App component', () => {
     expect(
       screen.queryByRole('dialog', { name: OBJECTIVES[0].doneTitle }),
     ).toBeNull();
-    expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
-  });
+    expect(screen.getByRole('status')).toHaveTextContent(
+      OBJECTIVES[1].instruction,
+    );
+  }, 15000);
 
   it('opens the start menu and jokes about shut down', async () => {
     const user = userEvent.setup();
@@ -417,8 +481,11 @@ describe('App component', () => {
     expect(screen.queryByRole('menu')).toBeNull();
   });
 
-  it('drags a window across the desktop', () => {
+  it('drags a window across the desktop', async () => {
+    const user = userEvent.setup();
     render(<App />);
+
+    await openFromStart(user, 'Inbox');
 
     const region = screen.getByRole('region', { name: WINDOW_META[1].title });
     const startLeft = Number.parseInt(region.style.left, 10);
@@ -519,6 +586,7 @@ describe('App component', () => {
       within(notepad).getByText('the password is “password”.'),
     ).toBeInTheDocument();
 
+    await openFromStart(user, 'Inbox');
     await user.type(screen.getByLabelText('Password'), 'password');
     await user.click(screen.getByRole('button', { name: 'Log in' }));
     expect(
@@ -581,13 +649,12 @@ describe('App component', () => {
       screen.queryAllByRole('button', { name: 'Close popup' }),
     ).toHaveLength(0);
 
-    // Play again puts the whole evening back how it started.
+    // Play again puts the whole evening back to its blank, quiet start.
     await user.click(screen.getByRole('button', { name: 'Play again' }));
-    expect(screen.getByLabelText('Password')).toBeInTheDocument();
+    expect(screen.queryAllByRole('region')).toHaveLength(0);
+    expect(
+      screen.queryAllByRole('button', { name: 'Close popup' }),
+    ).toHaveLength(0);
     expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
-    expect(screen.queryByRole('region', { name: 'Sticky Notes' })).toBeNull();
-    expect(screen.getAllByRole('button', { name: 'Close popup' })).toHaveLength(
-      2,
-    );
-  }, 20000);
+  }, 30000);
 });

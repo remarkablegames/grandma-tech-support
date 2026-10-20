@@ -3,7 +3,6 @@ import type {
   EmailConfig,
   IconWindowConfig,
   ObjectiveConfig,
-  OpenPopup,
   PopupConfig,
   PopupId,
   PopupSpawn,
@@ -28,7 +27,6 @@ export const JOKES = {
   cleanNow:
     'Your computer is now 400% more infected. Just kidding, someone made this in Paint.',
   maybeLater: 'It’ll still be urgent later.',
-  windowClose: 'That one’s never worked, it’s purely decorative.',
   goBack: 'There’s nowhere to go back to. The internet only goes forward.',
   goForward: 'Forward is where the pop-ups live.',
   emailDog: 'Forty-seven pictures of the same dog.',
@@ -48,7 +46,7 @@ export const JOKES = {
 
 export const GRANDMA_LINES = {
   intro:
-    'I need to check my email, dear. The internet thing wants a password first. I wrote it on a note somewhere. Don’t click anything that says it’s urgent.',
+    'I need to check my email, dear. The internet thing lives under the Start button. It wants a password first. I wrote it on a note somewhere.',
   correctClose:
     'That’s it! The little X in the corner. Never trust a big button.',
   mailDecoy:
@@ -63,8 +61,8 @@ export const GRANDMA_LINES = {
 export const MAIL_PASSWORD = 'password';
 
 // The four-task mission chain. Each entry completes on its event; when the
-// next task starts, its instruction becomes grandma's line and its `spawn`
-// pop-ups land on top of whatever is already open.
+// next task starts, its instruction becomes grandma's line, its `open`
+// windows spring up, and its `spawn` pop-ups land on top of those.
 export const OBJECTIVES: ObjectiveConfig[] = [
   {
     instruction: GRANDMA_LINES.intro,
@@ -76,12 +74,17 @@ export const OBJECTIVES: ObjectiveConfig[] = [
   },
   {
     instruction:
-      'Open my mail, dear, the one from the grandkids. The other ones are nonsense.',
+      'That’s my mail popping open, dear! Find the one from the grandkids. The toaster ones are nonsense.',
     doneTitle: 'Task 2 of 4 complete',
     doneMessage: GRANDMA_LINES.win,
     icon: `${ICONS}/mail.png`,
     completesOn: 'email-opened',
-    spawn: [{ windowId: 'shopping', popupId: 'spam', count: 2 }],
+    open: ['shopping', 'virus', 'inbox'],
+    spawn: [
+      { windowId: 'shopping', popupId: 'deal', count: 1 },
+      { windowId: 'shopping', popupId: 'spam', count: 2 },
+      { windowId: 'inbox', popupId: 'full', count: 1 },
+    ],
   },
   {
     instruction:
@@ -107,11 +110,12 @@ export const OBJECTIVES: ObjectiveConfig[] = [
   },
 ];
 
-// The first toaster click of task 3 unleashes this storm.
+// The first toaster click of task 3 unleashes this storm; the windows spring
+// back open in this order, so the sale page ends up on top of the pile.
 export const BUY_STORM: PopupSpawn[] = [
-  { windowId: 'shopping', popupId: 'spam', count: 3 },
-  { windowId: 'inbox', popupId: 'spam', count: 3 },
   { windowId: 'virus', popupId: 'spam', count: 3 },
+  { windowId: 'inbox', popupId: 'spam', count: 3 },
+  { windowId: 'shopping', popupId: 'spam', count: 3 },
 ];
 
 export const WINDOW_META: WindowMeta[] = [
@@ -165,11 +169,6 @@ export const POPUP_CONFIGS: Record<PopupId, PopupConfig> = {
     ],
   },
 };
-
-export const INITIAL_POPUPS: OpenPopup[] = [
-  { key: 'shopping-deal', popupId: 'deal', windowId: 'shopping' },
-  { key: 'inbox-full', popupId: 'full', windowId: 'inbox' },
-];
 
 export const MAX_POPUPS_PER_WINDOW = 5;
 
@@ -365,7 +364,21 @@ export const PRODUCTS: ProductConfig[] = [
   },
 ];
 
+// The Start menu doubles as the desktop's launcher: the first two items open
+// the browser windows, the rest are grandma's joke entries.
 export const START_ITEMS: StartMenuItem[] = [
+  {
+    id: 'inbox',
+    label: 'Inbox',
+    icon: `${ICONS}/mail.png`,
+    windowId: 'inbox',
+  },
+  {
+    id: 'internet',
+    label: 'Internet',
+    icon: `${ICONS}/world.png`,
+    windowId: 'shopping',
+  },
   {
     id: 'programs',
     label: 'Programs',

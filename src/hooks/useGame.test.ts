@@ -2,7 +2,6 @@ import { act, renderHook } from '@testing-library/react';
 import {
   DESKTOP_ICONS,
   GRANDMA_LINES,
-  INITIAL_POPUPS,
   JOKES,
   MAIL_PASSWORD,
   OBJECTIVES,
@@ -19,14 +18,20 @@ describe('useGame hook', () => {
     const { result } = renderHook(() => useGame());
 
     expect(result.current.phase).toBe('playing');
-    expect(result.current.focusedId).toBe('virus');
+    // The desktop starts blank: every browser window is closed.
+    expect(result.current.focusedId).toBeUndefined();
     expect(result.current.zOrder).toEqual(['inbox', 'shopping', 'virus']);
     expect(result.current.positions).toEqual({
       shopping: { x: 60, y: 90 },
       inbox: { x: 340, y: 210 },
       virus: { x: 430, y: 70 },
     });
-    expect(result.current.openPopups).toHaveLength(2);
+    expect(result.current.open).toEqual({
+      shopping: false,
+      inbox: false,
+      virus: false,
+    });
+    expect(result.current.openPopups).toHaveLength(0);
     expect(result.current.message).toBeNull();
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.intro);
     expect(result.current.selectedIcon).toBeNull();
@@ -67,27 +72,73 @@ describe('useGame hook', () => {
     const { result } = renderHook(() => useGame());
 
     act(() => {
-      result.current.raise('inbox');
+      result.current.openWindow('inbox');
     });
     expect(result.current.focusedId).toBe('inbox');
     expect(result.current.zOrder).toEqual(['shopping', 'virus', 'inbox']);
 
     act(() => {
-      result.current.raise('shopping');
+      result.current.openWindow('shopping');
     });
     expect(result.current.focusedId).toBe('shopping');
     expect(result.current.zOrder).toHaveLength(3);
     expect(new Set(result.current.zOrder).size).toBe(3);
   });
 
+  it('opens and closes browser windows, taking their pop-ups with them', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.selectStartItem(START_ITEMS[0]);
+    });
+    expect(result.current.open.inbox).toBe(true);
+    expect(result.current.focusedId).toBe('inbox');
+
+    // Task 2 lands the deal, spam, and mailbox-full pop-ups.
+    act(() => {
+      result.current.login(MAIL_PASSWORD);
+    });
+    act(() => {
+      result.current.nextObjective();
+    });
+    expect(result.current.openPopups).toHaveLength(4);
+    expect(countInboxPopups(result.current.openPopups)).toBe(1);
+
+    // Closing the window takes its pop-ups down with it; focus falls to
+    // the sale page the storm kept raised underneath.
+    act(() => {
+      result.current.closeWindow('inbox');
+    });
+    expect(result.current.open.inbox).toBe(false);
+    expect(result.current.minimized.inbox).toBe(false);
+    expect(result.current.focusedId).toBe('shopping');
+    expect(countInboxPopups(result.current.openPopups)).toBe(0);
+    expect(result.current.openPopups).toHaveLength(3);
+
+    // The Start menu brings the window back, pop-ups and all.
+    act(() => {
+      result.current.selectStartItem(START_ITEMS[0]);
+    });
+    expect(result.current.open.inbox).toBe(true);
+    expect(result.current.focusedId).toBe('inbox');
+    expect(countInboxPopups(result.current.openPopups)).toBe(0);
+  });
+
   it('minimizes a window and hands focus to the one behind', () => {
     const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.openWindow('shopping');
+      result.current.openWindow('inbox');
+      result.current.openWindow('virus');
+    });
+    expect(result.current.focusedId).toBe('virus');
 
     act(() => {
       result.current.minimize('virus');
     });
     expect(result.current.minimized.virus).toBe(true);
-    expect(result.current.focusedId).toBe('shopping');
+    expect(result.current.focusedId).toBe('inbox');
 
     act(() => {
       result.current.activateWindow('virus');
@@ -100,6 +151,9 @@ describe('useGame hook', () => {
     const { result } = renderHook(() => useGame());
 
     act(() => {
+      result.current.openWindow('shopping');
+      result.current.openWindow('inbox');
+      result.current.openWindow('virus');
       result.current.minimize('shopping');
       result.current.minimize('inbox');
       result.current.minimize('virus');
@@ -227,14 +281,20 @@ describe('useGame hook', () => {
   it('toggles the focused browser window from its taskbar button', () => {
     const { result } = renderHook(() => useGame());
 
-    // 'virus' is on top of the initial z-order, so it starts focused.
+    act(() => {
+      result.current.openWindow('shopping');
+      result.current.openWindow('inbox');
+      result.current.openWindow('virus');
+    });
+
+    // 'virus' was raised last, so it starts focused.
     expect(result.current.focusedId).toBe('virus');
 
     act(() => {
       result.current.activateWindow('virus');
     });
     expect(result.current.minimized.virus).toBe(true);
-    expect(result.current.focusedId).toBe('shopping');
+    expect(result.current.focusedId).toBe('inbox');
 
     act(() => {
       result.current.activateWindow('virus');
@@ -272,6 +332,15 @@ describe('useGame hook', () => {
     const { result } = renderHook(() => useGame());
 
     act(() => {
+      result.current.popupAction('inbox', {
+        label: 'Close',
+        message: JOKES.liarClose,
+        spawns: 2,
+      });
+    });
+    expect(result.current.openPopups).toHaveLength(2);
+
+    act(() => {
       result.current.popupAction('shopping', {
         label: 'Buy',
         message: JOKES.buyButton,
@@ -292,8 +361,8 @@ describe('useGame hook', () => {
         spawns: 2,
       });
     });
-    expect(result.current.openPopups).toHaveLength(4);
-    expect(countInboxPopups(result.current.openPopups)).toBe(3);
+    expect(result.current.openPopups).toHaveLength(2);
+    expect(countInboxPopups(result.current.openPopups)).toBe(2);
 
     const keys = result.current.openPopups.map((popup) => popup.key);
     expect(new Set(keys).size).toBe(keys.length);
@@ -305,7 +374,7 @@ describe('useGame hook', () => {
         spawns: 2,
       });
     });
-    expect(countInboxPopups(result.current.openPopups)).toBe(5);
+    expect(countInboxPopups(result.current.openPopups)).toBe(4);
 
     act(() => {
       result.current.popupAction('inbox', {
@@ -315,7 +384,7 @@ describe('useGame hook', () => {
       });
     });
     expect(countInboxPopups(result.current.openPopups)).toBe(5);
-    expect(result.current.openPopups).toHaveLength(6);
+    expect(result.current.openPopups).toHaveLength(5);
     expect(result.current.message).toBe(JOKES.liarClose);
   });
 
@@ -323,15 +392,23 @@ describe('useGame hook', () => {
     const { result } = renderHook(() => useGame());
 
     act(() => {
-      result.current.dismissPopup('shopping-deal', 'deal');
+      result.current.login(MAIL_PASSWORD);
     });
-    expect(result.current.openPopups).toHaveLength(1);
-    expect(result.current.grandmaLine).toBe(GRANDMA_LINES.intro);
+    act(() => {
+      result.current.nextObjective();
+    });
+    expect(result.current.openPopups).toHaveLength(4);
 
     act(() => {
-      result.current.dismissPopup('inbox-full', 'full');
+      result.current.dismissPopup('deal-1', 'deal');
     });
-    expect(result.current.openPopups).toHaveLength(0);
+    expect(result.current.openPopups).toHaveLength(3);
+    expect(result.current.grandmaLine).toBe(OBJECTIVES[1].instruction);
+
+    act(() => {
+      result.current.dismissPopup('full-4', 'full');
+    });
+    expect(result.current.openPopups).toHaveLength(2);
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.correctClose);
   });
 
@@ -373,10 +450,10 @@ describe('useGame hook', () => {
     expect(result.current.startOpen).toBe(true);
 
     act(() => {
-      result.current.selectStartItem(START_ITEMS[6]);
+      result.current.selectStartItem(START_ITEMS[8]);
     });
     expect(result.current.startOpen).toBe(false);
-    expect(result.current.message).toBe(START_ITEMS[6].message);
+    expect(result.current.message).toBe(JOKES.startShutDown);
   });
 
   it('completes a task and resets everything on play again', () => {
@@ -399,12 +476,13 @@ describe('useGame hook', () => {
     });
     act(() => {
       result.current.popupAction('shopping', {
-        label: 'Buy',
-        message: JOKES.buyButton,
+        label: 'Close',
+        message: JOKES.liarClose,
+        spawns: 2,
       });
     });
     act(() => {
-      result.current.dismissPopup('inbox-full', 'full');
+      result.current.selectStartItem(START_ITEMS[0]);
     });
     act(() => {
       result.current.toggleStart();
@@ -425,17 +503,22 @@ describe('useGame hook', () => {
     });
 
     expect(result.current.phase).toBe('playing');
-    expect(result.current.focusedId).toBe('virus');
+    expect(result.current.focusedId).toBeUndefined();
     expect(result.current.positions).toEqual({
       shopping: { x: 60, y: 90 },
       inbox: { x: 340, y: 210 },
       virus: { x: 430, y: 70 },
     });
-    expect(result.current.openPopups).toEqual(INITIAL_POPUPS);
+    expect(result.current.openPopups).toEqual([]);
     expect(result.current.message).toBeNull();
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.intro);
     expect(result.current.selectedIcon).toBeNull();
     expect(result.current.startOpen).toBe(false);
+    expect(result.current.open).toEqual({
+      shopping: false,
+      inbox: false,
+      virus: false,
+    });
     expect(result.current.minimized).toEqual({
       shopping: false,
       inbox: false,
@@ -503,6 +586,13 @@ describe('useGame hook', () => {
     expect(result.current.phase).toBe('playing');
     expect(result.current.objectiveIndex).toBe(1);
     expect(result.current.grandmaLine).toBe(OBJECTIVES[1].instruction);
+    // The whole internet springs back open: two ad spam plus the deal popup
+    // in Shopping, and the mailbox-full popup in the Inbox.
+    expect(result.current.open).toEqual({
+      shopping: true,
+      inbox: true,
+      virus: true,
+    });
     expect(result.current.openPopups).toHaveLength(4);
 
     act(() => {
@@ -571,7 +661,12 @@ describe('useGame hook', () => {
     expect(result.current.objectiveIndex).toBe(0);
     expect(result.current.loggedIn).toBe(false);
     expect(result.current.stormTriggered).toBe(false);
-    expect(result.current.openPopups).toEqual(INITIAL_POPUPS);
+    expect(result.current.openPopups).toEqual([]);
+    expect(result.current.open).toEqual({
+      shopping: false,
+      inbox: false,
+      virus: false,
+    });
   });
 
   it('keeps out-of-objective clicks harmless', () => {
@@ -582,7 +677,7 @@ describe('useGame hook', () => {
     });
     expect(result.current.message).toBe(JOKES.toasterTile);
     expect(result.current.stormTriggered).toBe(false);
-    expect(result.current.openPopups).toHaveLength(2);
+    expect(result.current.openPopups).toHaveLength(0);
 
     act(() => {
       result.current.openEmail();
@@ -593,20 +688,21 @@ describe('useGame hook', () => {
       result.current.completeScan();
     });
     expect(result.current.phase).toBe('playing');
-    expect(result.current.openPopups).toHaveLength(2);
+    expect(result.current.openPopups).toHaveLength(0);
   });
 
   it('skips objective pop-ups for windows that are already full', () => {
     const { result } = renderHook(() => useGame());
 
     act(() => {
-      result.current.popupAction('shopping', {
+      result.current.popupAction('inbox', {
         label: 'Close',
         message: JOKES.liarClose,
         spawns: 5,
       });
     });
-    expect(result.current.openPopups).toHaveLength(6);
+    expect(result.current.openPopups).toHaveLength(5);
+    expect(countInboxPopups(result.current.openPopups)).toBe(5);
 
     act(() => {
       result.current.login(MAIL_PASSWORD);
@@ -615,7 +711,9 @@ describe('useGame hook', () => {
       result.current.nextObjective();
     });
 
-    // Shopping was already at its cap, so the task's spam lands nowhere new.
-    expect(result.current.openPopups).toHaveLength(6);
+    // The Inbox was already at its cap, so the mailbox-full popup lands
+    // nowhere new; Shopping still gets the deal plus two spam.
+    expect(result.current.openPopups).toHaveLength(8);
+    expect(countInboxPopups(result.current.openPopups)).toBe(5);
   });
 });

@@ -6,7 +6,6 @@ import {
   GRANDMA_LINES,
   ICON_WINDOW_BASE_POSITION,
   ICON_WINDOWS,
-  INITIAL_POPUPS,
   JOKES,
   MAIL_PASSWORD,
   MAX_POPUPS_PER_WINDOW,
@@ -29,6 +28,14 @@ import type {
 const INITIAL_Z_ORDER: WindowId[] = ['inbox', 'shopping', 'virus'];
 
 const INITIAL_WINDOW_FLAGS: Record<WindowId, boolean> = {
+  shopping: false,
+  inbox: false,
+  virus: false,
+};
+
+// The desktop starts blank: every browser window is closed until a task's
+// spring-back or the Start menu opens it.
+const INITIAL_WINDOW_OPEN: Record<WindowId, boolean> = {
   shopping: false,
   inbox: false,
   virus: false,
@@ -86,11 +93,13 @@ export function useGame() {
   const [zOrder, setZOrder] = useState<WindowId[]>(INITIAL_Z_ORDER);
   const [positions, setPositions] =
     useState<Record<WindowId, WindowPosition>>(getInitialPositions);
-  const [openPopups, setOpenPopups] = useState<OpenPopup[]>(INITIAL_POPUPS);
+  const [openPopups, setOpenPopups] = useState<OpenPopup[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [grandmaLine, setGrandmaLine] = useState<string>(GRANDMA_LINES.intro);
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [startOpen, setStartOpen] = useState(false);
+  const [open, setOpen] =
+    useState<Record<WindowId, boolean>>(INITIAL_WINDOW_OPEN);
   const [minimized, setMinimized] =
     useState<Record<WindowId, boolean>>(INITIAL_WINDOW_FLAGS);
   const [maximized, setMaximized] =
@@ -112,11 +121,12 @@ export function useGame() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [stormTriggered, setStormTriggered] = useState(false);
 
-  const spamCounter = useRef(0);
+  const spawnCounter = useRef(0);
 
-  // A minimized window can't hold focus, so the top visible window is active.
+  // Closed and minimized windows can't hold focus, so the top visible
+  // window is active.
   const focusedId: WindowId | undefined = zOrder
-    .filter((id) => !minimized[id])
+    .filter((id) => open[id] && !minimized[id])
     .at(-1);
   const iconFocusedId: IconWindowId | undefined = iconZOrder
     .filter((id) => !iconMinimized[id])
@@ -144,6 +154,24 @@ export function useGame() {
 
     setMinimized((prev) => ({ ...prev, [windowId]: false }));
     raise(windowId);
+  };
+
+  // Opening a browser window (Start menu or a task's spring-back) shows it
+  // fresh and raises it.
+  const openWindow = (windowId: WindowId) => {
+    setOpen((prev) => ({ ...prev, [windowId]: true }));
+    setMinimized((prev) => ({ ...prev, [windowId]: false }));
+    raise(windowId);
+  };
+
+  // Closing takes the window's pop-ups down with it, the way closing a real
+  // page clears whatever it piled up.
+  const closeWindow = (windowId: WindowId) => {
+    setOpen((prev) => ({ ...prev, [windowId]: false }));
+    setMinimized((prev) => ({ ...prev, [windowId]: false }));
+    setOpenPopups((prev) =>
+      prev.filter((popup) => popup.windowId !== windowId),
+    );
   };
 
   const moveWindow = (windowId: WindowId, position: WindowPosition) => {
@@ -216,11 +244,15 @@ export function useGame() {
     return true;
   };
 
-  // Objective storms land on top of whatever is already open, capped at
-  // MAX_POPUPS_PER_WINDOW per window.
+  // Objective storms spring their windows back open and land on top, capped
+  // at MAX_POPUPS_PER_WINDOW per window.
   const addSpawns = (spawns: PopupSpawn[] | undefined) => {
     if (spawns === undefined) {
       return;
+    }
+
+    for (const spawn of spawns) {
+      openWindow(spawn.windowId);
     }
 
     setOpenPopups((prev) => {
@@ -236,9 +268,9 @@ export function useGame() {
         );
 
         for (let i = 0; i < amount; i += 1) {
-          spamCounter.current += 1;
+          spawnCounter.current += 1;
           next.push({
-            key: `spam-${String(spamCounter.current)}`,
+            key: `${spawn.popupId}-${String(spawnCounter.current)}`,
             popupId: spawn.popupId,
             windowId: spawn.windowId,
           });
@@ -256,6 +288,11 @@ export function useGame() {
     setPhase('playing');
     setMessage(null);
     setGrandmaLine(OBJECTIVES[next].instruction);
+
+    for (const windowId of OBJECTIVES[next].open ?? []) {
+      openWindow(windowId);
+    }
+
     addSpawns(OBJECTIVES[next].spawn);
   };
 
@@ -318,9 +355,9 @@ export function useGame() {
         Math.max(MAX_POPUPS_PER_WINDOW - count, 0),
       );
       const extras: OpenPopup[] = Array.from({ length: amount }, () => {
-        spamCounter.current += 1;
+        spawnCounter.current += 1;
         return {
-          key: `spam-${String(spamCounter.current)}`,
+          key: `spam-${String(spawnCounter.current)}`,
           popupId: 'spam',
           windowId,
         };
@@ -342,15 +379,16 @@ export function useGame() {
   };
 
   const playAgain = () => {
-    spamCounter.current = 0;
+    spawnCounter.current = 0;
     setPhase('playing');
     setZOrder(INITIAL_Z_ORDER);
     setPositions(getInitialPositions());
-    setOpenPopups(INITIAL_POPUPS);
+    setOpenPopups([]);
     setMessage(null);
     setGrandmaLine(GRANDMA_LINES.intro);
     setSelectedIcon(null);
     setStartOpen(false);
+    setOpen(INITIAL_WINDOW_OPEN);
     setMinimized(INITIAL_WINDOW_FLAGS);
     setMaximized(INITIAL_WINDOW_FLAGS);
     setOpenIconWindows(INITIAL_ICON_WINDOW_FLAGS);
@@ -376,6 +414,12 @@ export function useGame() {
 
   const selectStartItem = (item: StartMenuItem) => {
     setStartOpen(false);
+
+    if ('windowId' in item) {
+      openWindow(item.windowId);
+      return;
+    }
+
     setMessage(item.message);
   };
 
@@ -387,6 +431,7 @@ export function useGame() {
     focusedId,
     zOrder,
     positions,
+    open,
     minimized,
     maximized,
     openIconWindows,
@@ -404,6 +449,8 @@ export function useGame() {
     minimize,
     toggleMaximize,
     activateWindow,
+    openWindow,
+    closeWindow,
     openIconWindow,
     closeIconWindow,
     raiseIconWindow,

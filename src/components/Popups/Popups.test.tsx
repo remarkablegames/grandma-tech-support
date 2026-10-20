@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { INITIAL_POPUPS, POPUP_CONFIGS } from 'src/data/gameContent';
+import { POPUP_CONFIGS } from 'src/data/gameContent';
 import type { OpenPopup } from 'src/types/game';
 
 import { Popups } from '.';
@@ -16,6 +16,12 @@ vi.mock('src/services/audio', () => ({
     setMuted: vi.fn(),
   },
 }));
+
+// The game opens blank now, so this component test carries its own pair.
+const INITIAL_POPUPS: OpenPopup[] = [
+  { key: 'shopping-deal', popupId: 'deal', windowId: 'shopping' },
+  { key: 'inbox-full', popupId: 'full', windowId: 'inbox' },
+];
 
 const onDismiss = vi.fn();
 const onAction = vi.fn();
