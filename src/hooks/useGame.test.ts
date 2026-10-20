@@ -498,6 +498,7 @@ describe('useGame hook', () => {
     });
     expect(result.current.startOpen).toBe(false);
     expect(result.current.message).toBe(OBJECTIVES[1].instruction);
+    expect(result.current.messageVariant).toBe('info');
   });
 
   it('toggles the start menu and picks items', () => {

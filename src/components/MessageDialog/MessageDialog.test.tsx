@@ -49,4 +49,17 @@ describe('MessageDialog component', () => {
     expect(screen.getByText('❌')).toBeInTheDocument();
     expect(play).toHaveBeenCalledWith('error');
   });
+
+  it('shows the info icon and stays quiet for the mission', () => {
+    render(
+      <MessageDialog
+        message="Find the one from the grandkids."
+        variant="info"
+        onDismiss={onDismiss}
+      />,
+    );
+
+    expect(screen.getByText('ℹ️')).toBeInTheDocument();
+    expect(play).not.toHaveBeenCalledWith('error');
+  });
 });

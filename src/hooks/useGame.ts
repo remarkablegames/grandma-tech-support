@@ -453,7 +453,7 @@ export function useGame() {
     }
 
     if ('action' in item) {
-      setMessage(OBJECTIVES[objectiveIndex].instruction);
+      setMessage(OBJECTIVES[objectiveIndex].instruction, 'info');
       return;
     }
 

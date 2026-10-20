@@ -2,6 +2,14 @@ import { useEffect } from 'react';
 import { audio } from 'src/services/audio';
 import type { MessageVariant } from 'src/types/game';
 
+// Win95's message-box icons: a red X for errors, a smile for grandma's gags,
+// and the blue Information "i" when the dialog is just telling you the task.
+const MESSAGE_FACES: Record<MessageVariant, string> = {
+  error: '❌',
+  joke: '😅',
+  info: 'ℹ️',
+};
+
 interface MessageDialogProps {
   message: string;
   variant?: MessageVariant;
@@ -33,7 +41,7 @@ export function MessageDialog({
 
         <div className="flex items-start gap-3 p-4">
           <span aria-hidden="true" className="text-3xl">
-            {variant === 'error' ? '❌' : '😅'}
+            {MESSAGE_FACES[variant]}
           </span>
           <p className="text-sm leading-snug text-black">{message}</p>
         </div>

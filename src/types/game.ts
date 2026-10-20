@@ -116,7 +116,7 @@ export interface PopupButtonConfig {
 }
 
 // System Message dialogs default to grandma's joke face; errors get the red X.
-export type MessageVariant = 'joke' | 'error';
+export type MessageVariant = 'joke' | 'error' | 'info';
 
 export interface PopupConfig {
   title: string;
