@@ -392,12 +392,17 @@ describe('App component', () => {
 
     const desktopMail = screen.getByRole('button', { name: 'Grandma’s Mail' });
     await user.click(desktopMail);
+    expect(desktopMail).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.queryByRole('alertdialog')).toBeNull();
+
+    await user.dblClick(desktopMail);
+    expect(
+      screen.getByRole('alertdialog', { name: 'System Message' }),
+    ).toHaveTextContent(JOKES.mailError);
     expect(screen.getByRole('status')).toHaveTextContent(
       GRANDMA_LINES.mailDecoy,
     );
-    expect(desktopMail).toHaveAttribute('aria-pressed', 'true');
-
-    await user.dblClick(desktopMail);
+    await user.click(screen.getByRole('button', { name: 'OK' }));
     expect(screen.queryByRole('region', { name: 'Grandma’s Mail' })).toBeNull();
   }, 15000);
 

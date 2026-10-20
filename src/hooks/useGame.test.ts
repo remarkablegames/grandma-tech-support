@@ -432,14 +432,24 @@ describe('useGame hook', () => {
     });
     expect(result.current.selectedIcon).toBe('computer');
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.intro);
+    expect(result.current.messageVariant).toBe('joke');
 
-    // The decoy "Grandma's Mail" shortcut.
+    // The decoy "Grandma's Mail" shortcut: selecting stays silent.
     const mailIcon = DESKTOP_ICONS[5];
 
     act(() => {
       result.current.selectIcon(mailIcon);
     });
     expect(result.current.selectedIcon).toBe(mailIcon.id);
+    expect(result.current.message).toBeNull();
+    expect(result.current.grandmaLine).toBe(GRANDMA_LINES.intro);
+
+    // Opening it errors out, and grandma explains over the system's shoulder.
+    act(() => {
+      result.current.openMailDecoy();
+    });
+    expect(result.current.message).toBe(JOKES.mailError);
+    expect(result.current.messageVariant).toBe('error');
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.mailDecoy);
   });
 

@@ -1,11 +1,24 @@
+import { useEffect } from 'react';
 import { audio } from 'src/services/audio';
+import type { MessageVariant } from 'src/types/game';
 
 interface MessageDialogProps {
   message: string;
+  variant?: MessageVariant;
   onDismiss: () => void;
 }
 
-export function MessageDialog({ message, onDismiss }: MessageDialogProps) {
+export function MessageDialog({
+  message,
+  variant = 'joke',
+  onDismiss,
+}: MessageDialogProps) {
+  useEffect(() => {
+    if (variant === 'error') {
+      audio.play('error');
+    }
+  }, [variant]);
+
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
       <div
@@ -20,7 +33,7 @@ export function MessageDialog({ message, onDismiss }: MessageDialogProps) {
 
         <div className="flex items-start gap-3 p-4">
           <span aria-hidden="true" className="text-3xl">
-            😅
+            {variant === 'error' ? '❌' : '😅'}
           </span>
           <p className="text-sm leading-snug text-black">{message}</p>
         </div>

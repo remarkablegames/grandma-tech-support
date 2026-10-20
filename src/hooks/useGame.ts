@@ -15,6 +15,7 @@ import type {
   DesktopIconConfig,
   GamePhase,
   IconWindowId,
+  MessageVariant,
   ObjectiveEvent,
   OpenPopup,
   PopupButtonConfig,
@@ -106,7 +107,17 @@ export function useGame() {
   const [positions, setPositions] =
     useState<Record<WindowId, WindowPosition>>(getInitialPositions);
   const [openPopups, setOpenPopups] = useState<OpenPopup[]>([]);
-  const [message, setMessage] = useState<string | null>(null);
+  const [systemMessage, setSystemMessage] = useState<string | null>(null);
+  const [messageVariant, setMessageVariant] = useState<MessageVariant>('joke');
+
+  // Jokes keep grandma's 😅 dialog; error copy opts into the red X and ding.
+  const setMessage = (
+    text: string | null,
+    variant: MessageVariant = 'joke',
+  ) => {
+    setSystemMessage(text);
+    setMessageVariant(variant);
+  };
   const [grandmaLine, setGrandmaLine] = useState<string>(GRANDMA_LINES.intro);
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [startOpen, setStartOpen] = useState(false);
@@ -415,10 +426,12 @@ export function useGame() {
 
   const selectIcon = (icon: DesktopIconConfig) => {
     setSelectedIcon(icon.id);
+  };
 
-    if (icon.decoy) {
-      setGrandmaLine(GRANDMA_LINES.mailDecoy);
-    }
+  // The mail shortcut fails the Win95 way: only when you try to open it.
+  const openMailDecoy = () => {
+    setMessage(JOKES.mailError, 'error');
+    setGrandmaLine(GRANDMA_LINES.mailDecoy);
   };
 
   const toggleStart = () => {
@@ -453,7 +466,8 @@ export function useGame() {
     iconMinimized,
     iconFocusedId,
     openPopups,
-    message,
+    message: systemMessage,
+    messageVariant,
     grandmaLine,
     selectedIcon,
     startOpen,
@@ -481,6 +495,7 @@ export function useGame() {
     nextObjective,
     playAgain,
     selectIcon,
+    openMailDecoy,
     toggleStart,
     selectStartItem,
   };

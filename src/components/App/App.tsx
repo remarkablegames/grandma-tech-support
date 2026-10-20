@@ -89,7 +89,7 @@ export function App() {
               onSelect={game.selectIcon}
               onOpen={
                 windowId === undefined
-                  ? undefined
+                  ? game.openMailDecoy
                   : () => {
                       game.openIconWindow(windowId);
                     }
@@ -184,7 +184,11 @@ export function App() {
       )}
 
       {game.message !== null && (
-        <MessageDialog message={game.message} onDismiss={game.dismissJoke} />
+        <MessageDialog
+          message={game.message}
+          variant={game.messageVariant}
+          onDismiss={game.dismissJoke}
+        />
       )}
 
       {game.phase !== 'playing' && (

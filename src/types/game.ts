@@ -25,7 +25,6 @@ export interface DesktopIconConfig {
   label: string;
   icon: string;
   windowId?: IconWindowId;
-  decoy?: boolean;
 }
 
 // Windows that show grandma’s notes and joke files inside a Notepad frame.
@@ -115,6 +114,9 @@ export interface PopupButtonConfig {
   message: string;
   spawns?: number;
 }
+
+// System Message dialogs default to grandma's joke face; errors get the red X.
+export type MessageVariant = 'joke' | 'error';
 
 export interface PopupConfig {
   title: string;

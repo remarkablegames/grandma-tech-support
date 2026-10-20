@@ -63,10 +63,10 @@ above applies once they're open (virus on top, tempting).
   **Rainbows95**.
 - Desktop icons (single click selects, Win95 style): `My Computer`, `Recycle Bin`,
   `My Documents`, `Sticky Notes`, `Calculator`, `Virus Shield`, and the decoy
-  `Grandma’s Mail`. Selecting the decoy makes Grandma point the player back to "the
-  internet thing". Double-clicking the six real icons opens floating mini-windows — see
-  [icon-windows](./2026-10-19-desktop-icon-windows.md); the decoy stays deliberately
-  broken.
+  `Grandma’s Mail`. Double-clicking the six real icons opens floating mini-windows — see
+  [icon-windows](./2026-10-19-desktop-icon-windows.md). Double-clicking the decoy fails
+  the way Win95 fails: a “Cannot find the file MAIL.EXE” system error (red X, error
+  ding), and Grandma points the player back to “the internet thing”.
 
 ### Pop-ups
 
@@ -206,7 +206,8 @@ src/
 - `openPopups: OpenPopup[]` — `{ key, popupId, windowId }`; starts empty, task spawns
   and liar `Close` append entries via a `useRef` counter for unique keys, capped at 5
   per window.
-- `message: string | null` — joke dialog contents.
+- `message: string | null` — System Message contents; `messageVariant` picks grandma’s
+  joke face (default) or the red X plus an error ding.
 - `grandmaLine: string` — intro → task instructions → "little X" line on safe
   dismiss → decoy-mail line.
 - `selectedIcon`, `startOpen` — desktop/menu state.

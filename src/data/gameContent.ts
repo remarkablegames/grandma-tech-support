@@ -52,6 +52,8 @@ export const JOKES = {
     'Your trial expired in 1995. It looks like they’re still waiting on the payment.',
   emailCart:
     'Your cart has one thing in it. It’s been that one thing for years.',
+  mailError:
+    'Cannot find the file “MAIL.EXE” (or one of its components). Make sure the path and filename are correct and that all required libraries are available.',
   buyBlocked: 'The page is buried in pop-ups. Close them all first.',
   startPrograms: 'There are 20 programs. 19 of them are Solitaire.',
   startDocuments: 'They’re all called “untitled_final_v2”.',
@@ -412,10 +414,10 @@ export const DESKTOP_ICONS: DesktopIconConfig[] = [
     windowId: 'calculator',
   },
   {
+    // No windowId: double-clicking "opens" a program that isn't there.
     id: 'mail',
     label: 'Grandma’s Mail',
     icon: `${ICONS}/mail.png`,
-    decoy: true,
   },
   {
     id: 'scanner',

@@ -6,17 +6,17 @@ double-clicking the desktop opens in Rainbows95.
 Single click on a desktop icon selects it — the Win95 idiom documented in the main spec.
 This companion covers the other half of that idiom: **double-click opens**. Six of the
 seven desktop icons open a floating mini-window; the decoy `Grandma’s Mail` stays
-deliberately broken — double-clicking it opens nothing (that's the joke), backed by
-Grandma's "broken since 2000" redirect line.
+deliberately broken — double-clicking it opens a “Cannot find the file” system error
+(red X, error ding) instead, backed by Grandma’s “broken since 2000” redirect line.
 
-| Icon           | Window contents                                                                                                                               |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `My Computer`  | drive list: `3½ Floppy (A:)`, `Hard disk (C:)` — hint "mostly toasters", `CD-ROM (D:)` — hint "1 song"                                        |
-| `Recycle Bin`  | "deleted" files: `untitled_final_v2.doc`, `toaster_7_install.exe`, `do_not_open.jpg`                                                          |
-| `My Documents` | folder residue: `untitled`, `untitled (2)`, `untitled (3)`, `asdf`, plus the openable `the_other_note.txt` (Notepad window with the password) |
-| `Sticky Notes` | the note itself: "THE PASSWORD" — "(it's on the other note)"                                                                                  |
-| `Calculator`   | clickable keypad; the display accepts digits, but every `=` shows **47**                                                                      |
-| `Virus Shield` | task 4’s scanner: idle → `Scanning C:\` → “1 threat quarantined: toaster_7_install.exe”; one scan sweeps the whole pop-up storm               |
+| Icon           | Window contents                                                                                                                                                                                                                                                                          |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `My Computer`  | drive list: `3½ Floppy (A:)` — hint "cupholder", `Hard disk (C:)` — hint "mostly toasters", `CD-ROM (D:)` — hint "1 song", `CD-RW (E:)` — hint "still burning", `Printer (LPT1:)` — hint "jammed", `Network (N:)` — hint "the neighbors’ stuff", `Games (G:)` — hint "Solitaire, mostly" |
+| `Recycle Bin`  | "deleted" files: `untitled_final_v2.doc`, `toaster_7_install.exe`, `do_not_open.jpg`, `final_final_v3.doc`, `totally_not_a_virus.exe`                                                                                                                                                    |
+| `My Documents` | every file opens its own Notepad window: `untitled`, `untitled (2)`, `untitled (3)`, `asdf`, `the_other_note.txt` (the password), `todo.txt`, `recipe.txt`                                                                                                                               |
+| `Sticky Notes` | the note itself: "THE PASSWORD" — "(it's on the other note)"                                                                                                                                                                                                                             |
+| `Calculator`   | clickable keypad; the display accepts digits, but every `=` shows **42**                                                                                                                                                                                                                 |
+| `Virus Shield` | task 4’s scanner: idle → `Scanning C:\` → “1 threat quarantined: toaster_7_install.exe”; one scan sweeps the whole pop-up storm                                                                                                                                                          |
 
 - **Window behavior.** Mini-chrome: navy titlebar, title, and **working** `–` (minimize)
   and `×` (close) buttons — unlike the browser chrome's decorative close, these are our
