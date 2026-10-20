@@ -46,7 +46,7 @@ export const JOKES = {
 
 export const GRANDMA_LINES = {
   intro:
-    'I need to check my email, dear. The internet thing lives under the Start button. It wants a password first. I wrote it on a note somewhere.',
+    'I need to check my email, dear. It should be in the Start menu. I wrote my password in a note somewhere.',
   correctClose:
     'That’s it! The little X in the corner. Never trust a big button.',
   mailDecoy:

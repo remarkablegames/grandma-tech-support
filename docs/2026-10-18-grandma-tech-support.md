@@ -19,8 +19,8 @@ defuse a pop-up storm) while dodging fake warnings and misleading buttons.
 
 1. The desktop opens blank — desktop icons, taskbar, and Grandma’s instruction, the
    current task, in her own words:
-   > "I need to check my email, dear. The internet thing lives under the Start button.
-   > It wants a password first. I wrote it on a note somewhere.
+   > I need to check my email, dear. It should be in the Start menu.
+   > I wrote my password in a note somewhere.
 2. The player launches the Inbox from the Start menu, digs through desktop icon windows
    for clues (the password lives on "the other note" in My Documents), and logs in.
 3. Logging in springs the whole desktop back open: Shopping, Virus, and Inbox pile up
