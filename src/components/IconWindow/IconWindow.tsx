@@ -29,7 +29,7 @@ const CALCULATOR_KEYS = [
   '+',
 ];
 
-const CALCULATOR_LIMIT = '47';
+const CALCULATOR_LIMIT = '42';
 
 const SCAN_MS = 600;
 

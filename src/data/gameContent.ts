@@ -209,7 +209,11 @@ export const ICON_WINDOWS: IconWindowConfig[] = [
     icon: `${ICONS}/this_computer.png`,
     kind: 'list',
     rows: [
-      { icon: `${ICONS}/flop_drive.png`, label: '3½ Floppy (A:)' },
+      {
+        icon: `${ICONS}/flop_drive.png`,
+        label: '3½ Floppy (A:)',
+        hint: 'cupholder',
+      },
       {
         icon: `${ICONS}/drive.png`,
         label: 'Hard disk (C:)',

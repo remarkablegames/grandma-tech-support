@@ -173,7 +173,7 @@ describe('IconWindow component', () => {
     expect(screen.getByText('(it’s on the other note)')).toBeInTheDocument();
   });
 
-  it('accepts digits but every equals shows 47', async () => {
+  it('accepts digits but every equals shows 42', async () => {
     const user = userEvent.setup();
     renderIconWindow({
       id: 'calculator',
@@ -187,7 +187,7 @@ describe('IconWindow component', () => {
     expect(screen.getByLabelText('Calculator display')).toHaveTextContent('12');
 
     await user.click(screen.getByRole('button', { name: '=' }));
-    expect(screen.getByLabelText('Calculator display')).toHaveTextContent('47');
+    expect(screen.getByLabelText('Calculator display')).toHaveTextContent('42');
 
     await user.click(screen.getByRole('button', { name: 'C' }));
     expect(screen.getByLabelText('Calculator display')).toHaveTextContent('0');
