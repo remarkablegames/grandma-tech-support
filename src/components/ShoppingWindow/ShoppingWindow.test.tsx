@@ -27,6 +27,7 @@ describe('ShoppingWindow component', () => {
     expect(screen.getByText(/MEGA SALE/)).toBeInTheDocument();
     expect(screen.getByText(/visitor #1,000,000/)).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /Toaster/ })).toHaveLength(3);
+    expect(screen.getAllByRole('button')).toHaveLength(6);
   });
 
   it('passes the product joke along when a product is clicked', async () => {

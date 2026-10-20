@@ -16,8 +16,16 @@ const ICONS = 'windows_icons_32x32';
 export const JOKES = {
   toasterTile:
     'That’s the seventh toaster, dear. The garage is mostly toasters now.',
+  toasterSecond:
+    'That’s another toaster. We have enough to replace our heater now.',
+  toasterFree: 'Another free toaster... I wonder how the company makes money.',
+  extendedWarranty:
+    'The warranty covers everything except toasters. Do read the fine print.',
+  breadSamples:
+    'Samples are for sampling. You bought the entire sample pantry.',
+  moreRam: 'It’s a sticky note that says “RAM”.',
   buyButton:
-    'You’ve spent $4.99 you don’t have. Just kidding, the payment didn’t go through.',
+    'You’ve spent $4.99 you don’t have. Luckily, the payment didn’t go through.',
   liarClose:
     'That “Close” button was reporting to the ads. Now there are twice as many.',
   fixNow:
@@ -29,13 +37,23 @@ export const JOKES = {
   maybeLater: 'It’ll still be urgent later.',
   goBack: 'There’s nowhere to go back to. The internet only goes forward.',
   goForward: 'Forward is where the pop-ups live.',
-  emailDog: 'Forty-seven pictures of the same dog.',
+  emailDog: 'Eleven pictures of the same dog.',
   emailUpdate: 'That’s the update that broke the internet in year 2000.',
-  emailPrize: 'You’ve been selected for a free toaster. Everyone has, dear.',
+  emailPrize: 'You’ve been selected for a free toaster!',
   emailWire:
     'That’s not your grandson, dear. Your grandson can’t spell “wire”.',
-  buyBlocked: 'The page is buried in pop-ups, dear. Close them all first.',
-  startPrograms: 'There are 47 programs. 46 of them are Solitaire.',
+  emailChain:
+    'Forward it to ten friends, or the modem gets grumpy. I don’t make the rules.',
+  emailHoroscope:
+    'It predicted this toaster. The stars are finally doing their job.',
+  emailVitamins:
+    'One weird trick: vitamins from a popup. The doctors really do hate this one.',
+  emailTrial:
+    'Your trial expired in 1995. It looks like they’re still waiting on the payment.',
+  emailCart:
+    'Your cart has one thing in it. It’s been that one thing for years.',
+  buyBlocked: 'The page is buried in pop-ups. Close them all first.',
+  startPrograms: 'There are 20 programs. 19 of them are Solitaire.',
   startDocuments: 'They’re all called “untitled_final_v2”.',
   startSettings: 'Everything’s set to “don’t touch”.',
   startFind: 'It was open in the internet thing.',
@@ -198,6 +216,26 @@ export const ICON_WINDOWS: IconWindowConfig[] = [
         hint: 'mostly toasters',
       },
       { icon: `${ICONS}/cd_drive.png`, label: 'CD-ROM (D:)', hint: '1 song' },
+      {
+        icon: `${ICONS}/cd_drive.png`,
+        label: 'CD-RW (E:)',
+        hint: 'still burning',
+      },
+      {
+        icon: `${ICONS}/printer.png`,
+        label: 'Printer (LPT1:)',
+        hint: 'jammed',
+      },
+      {
+        icon: `${ICONS}/folder_closed.png`,
+        label: 'Network (N:)',
+        hint: 'the neighbors’ stuff',
+      },
+      {
+        icon: `${ICONS}/games.png`,
+        label: 'Games (G:)',
+        hint: 'Solitaire, mostly',
+      },
     ],
   },
   {
@@ -209,6 +247,8 @@ export const ICON_WINDOWS: IconWindowConfig[] = [
       { icon: `${ICONS}/text_file.png`, label: 'untitled_final_v2.doc' },
       { icon: `${ICONS}/program.png`, label: 'toaster_7_install.exe' },
       { icon: `${ICONS}/image_file.png`, label: 'do_not_open.jpg' },
+      { icon: `${ICONS}/text_file_2.png`, label: 'final_final_v3.doc' },
+      { icon: `${ICONS}/program.png`, label: 'totally_not_a_virus.exe' },
     ],
   },
   {
@@ -216,16 +256,27 @@ export const ICON_WINDOWS: IconWindowConfig[] = [
     title: 'My Documents',
     icon: `${ICONS}/folder_closed.png`,
     kind: 'list',
+    // Every file opens in its own Notepad window, password note included.
     rows: [
-      { icon: `${ICONS}/text_file.png`, label: 'untitled' },
-      { icon: `${ICONS}/text_file.png`, label: 'untitled (2)' },
-      { icon: `${ICONS}/text_file.png`, label: 'untitled (3)' },
-      { icon: `${ICONS}/text_file.png`, label: 'asdf' },
+      { icon: `${ICONS}/text_file.png`, label: 'untitled', opens: 'untitled' },
+      {
+        icon: `${ICONS}/text_file.png`,
+        label: 'untitled (2)',
+        opens: 'untitled-2',
+      },
+      {
+        icon: `${ICONS}/text_file.png`,
+        label: 'untitled (3)',
+        opens: 'untitled-3',
+      },
+      { icon: `${ICONS}/text_file.png`, label: 'asdf', opens: 'asdf' },
       {
         icon: `${ICONS}/text_file.png`,
         label: 'the_other_note.txt',
         opens: 'other-note',
       },
+      { icon: `${ICONS}/text_file.png`, label: 'todo.txt', opens: 'todo' },
+      { icon: `${ICONS}/text_file.png`, label: 'recipe.txt', opens: 'recipe' },
     ],
   },
   {
@@ -241,6 +292,75 @@ export const ICON_WINDOWS: IconWindowConfig[] = [
     icon: `${ICONS}/text_file.png`,
     kind: 'note',
     lines: ['THE OTHER NOTE', 'the password is “password”.'],
+  },
+  {
+    id: 'untitled',
+    title: 'untitled — Notepad',
+    icon: `${ICONS}/text_file.png`,
+    kind: 'note',
+    lines: [
+      'GROCERY LIST',
+      'whole wheat bread',
+      'salted butter',
+      'call the grandchildren',
+    ],
+  },
+  {
+    id: 'untitled-2',
+    title: 'untitled (2) — Notepad',
+    icon: `${ICONS}/text_file.png`,
+    kind: 'note',
+    lines: [
+      'GROCERY LIST (v2)',
+      'bread (any bread at this point)',
+      'butter (unsalted is fine)',
+      'STOP RENAMING FILES',
+    ],
+  },
+  {
+    id: 'untitled-3',
+    title: 'untitled (3) — Notepad',
+    icon: `${ICONS}/text_file.png`,
+    kind: 'note',
+    lines: [
+      'GROCERY LIST (FINAL)',
+      'bread',
+      'bread?',
+      'who keeps copying these',
+      'DELETE ME',
+    ],
+  },
+  {
+    id: 'asdf',
+    title: 'asdf — Notepad',
+    icon: `${ICONS}/text_file.png`,
+    kind: 'note',
+    lines: ['asdfghjkl'],
+  },
+  {
+    id: 'todo',
+    title: 'todo.txt — Notepad',
+    icon: `${ICONS}/text_file.png`,
+    kind: 'note',
+    lines: [
+      'TODO:',
+      '1. find the password note',
+      '2. reply to the grandkids',
+      '3. don’t click the toaster',
+    ],
+  },
+  {
+    id: 'recipe',
+    title: 'recipe.txt — Notepad',
+    icon: `${ICONS}/text_file.png`,
+    kind: 'note',
+    lines: [
+      'GRANDMA’S FAMOUS TOAST',
+      'INGREDIENTS: bread',
+      '1. turn on toaster',
+      '2. toast the bread',
+      '3. spread the butter',
+    ],
   },
   {
     id: 'calculator',
@@ -301,14 +421,8 @@ export const DESKTOP_ICONS: DesktopIconConfig[] = [
   },
 ];
 
+// The real email hides mid-list, between the joke decoys.
 export const EMAILS: EmailConfig[] = [
-  {
-    id: 'joke',
-    from: 'The Grandkids',
-    subject: 'RE: RE: RE: Fwd: the joke',
-    date: 'Today',
-    target: true,
-  },
   {
     id: 'dog',
     from: 'Your Grandson',
@@ -316,6 +430,21 @@ export const EMAILS: EmailConfig[] = [
     date: 'Mon',
     target: false,
     joke: JOKES.emailDog,
+  },
+  {
+    id: 'chain',
+    from: 'Your Sister-in-Law',
+    subject: 'FW: FW: FW: (no subject)',
+    date: 'Mon',
+    target: false,
+    joke: JOKES.emailChain,
+  },
+  {
+    id: 'joke',
+    from: 'The Grandkids',
+    subject: 'RE: RE: RE: Fwd: the joke',
+    date: 'Today',
+    target: true,
   },
   {
     id: 'update',
@@ -326,12 +455,44 @@ export const EMAILS: EmailConfig[] = [
     joke: JOKES.emailUpdate,
   },
   {
+    id: 'horoscope',
+    from: 'Daily Horoscope',
+    subject: 'Scorpio: your week is toasty',
+    date: 'Tue',
+    target: false,
+    joke: JOKES.emailHoroscope,
+  },
+  {
     id: 'prize',
     from: 'PRIZE DEPARTMENT',
     subject: 'FINAL NOTICE: your toaster awaits',
     date: 'Today',
     target: false,
     joke: JOKES.emailPrize,
+  },
+  {
+    id: 'vitamins',
+    from: 'TOTAL HEALTH',
+    subject: 'Doctors hate this one weird trick',
+    date: 'Wed',
+    target: false,
+    joke: JOKES.emailVitamins,
+  },
+  {
+    id: 'trial',
+    from: 'Rainbows95',
+    subject: 'Your free trial has expired',
+    date: 'Today',
+    target: false,
+    joke: JOKES.emailTrial,
+  },
+  {
+    id: 'cart',
+    from: 'Best Deals',
+    subject: 'RE: RE: your cart (1,000 toasters)',
+    date: 'Today',
+    target: false,
+    joke: JOKES.emailCart,
   },
   {
     id: 'wire',
@@ -348,19 +509,43 @@ export const PRODUCTS: ProductConfig[] = [
     id: 'toaster',
     name: 'Toaster',
     price: '$4.99',
+    emoji: '🍞',
     joke: JOKES.toasterTile,
   },
   {
     id: 'toaster-plus',
     name: 'Another Toaster',
     price: '$5.99',
-    joke: JOKES.toasterTile,
+    emoji: '🍞',
+    joke: JOKES.toasterSecond,
   },
   {
     id: 'toaster-free',
     name: 'FREE* Toaster',
     price: '$0.00*',
-    joke: JOKES.toasterTile,
+    emoji: '🍞',
+    joke: JOKES.toasterFree,
+  },
+  {
+    id: 'warranty',
+    name: 'Extended Warranty',
+    price: '$19.99',
+    emoji: '🛡️',
+    joke: JOKES.extendedWarranty,
+  },
+  {
+    id: 'samples',
+    name: 'Bread Samples',
+    price: '$3.50',
+    emoji: '🥖',
+    joke: JOKES.breadSamples,
+  },
+  {
+    id: 'ram',
+    name: 'More RAM',
+    price: '$12.99',
+    emoji: '📝',
+    joke: JOKES.moreRam,
   },
 ];
 

@@ -51,6 +51,12 @@ const INITIAL_ICON_WINDOW_FLAGS: Record<IconWindowId, boolean> = {
   calculator: false,
   scanner: false,
   'other-note': false,
+  untitled: false,
+  'untitled-2': false,
+  'untitled-3': false,
+  asdf: false,
+  todo: false,
+  recipe: false,
 };
 
 function getInitialIconWindowPositions(): Record<IconWindowId, WindowPosition> {
@@ -62,6 +68,12 @@ function getInitialIconWindowPositions(): Record<IconWindowId, WindowPosition> {
     calculator: ICON_WINDOW_BASE_POSITION,
     scanner: ICON_WINDOW_BASE_POSITION,
     'other-note': ICON_WINDOW_BASE_POSITION,
+    untitled: ICON_WINDOW_BASE_POSITION,
+    'untitled-2': ICON_WINDOW_BASE_POSITION,
+    'untitled-3': ICON_WINDOW_BASE_POSITION,
+    asdf: ICON_WINDOW_BASE_POSITION,
+    todo: ICON_WINDOW_BASE_POSITION,
+    recipe: ICON_WINDOW_BASE_POSITION,
   };
 }
 

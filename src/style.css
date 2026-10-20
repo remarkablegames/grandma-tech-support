@@ -104,7 +104,8 @@
   }
 
   /* Win95-style dotted focus rectangle. */
-  button:focus-visible {
+  button:focus-visible,
+  [tabindex='0']:focus-visible {
     outline: 1px dotted var(--color-win-dark);
     outline-offset: -4px;
   }
@@ -210,4 +211,37 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Chunky Win95 scrollbars: flat track, raised thumb and arrow buttons. */
+* {
+  scrollbar-color: var(--color-win-shadow) var(--color-win-face);
+}
+
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--color-win-face);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-win-face);
+  box-shadow:
+    inset -1px -1px 0 var(--color-win-dark),
+    inset 1px 1px 0 var(--color-win-light),
+    inset -2px -2px 0 var(--color-win-shadow),
+    inset 2px 2px 0 var(--color-win-highlight);
+}
+
+::-webkit-scrollbar-button:single-button {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background-color: var(--color-win-face);
+  box-shadow:
+    inset -1px -1px 0 var(--color-win-dark),
+    inset 1px 1px 0 var(--color-win-light);
 }

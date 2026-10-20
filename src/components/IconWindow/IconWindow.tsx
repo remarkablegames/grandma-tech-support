@@ -215,7 +215,7 @@ function IconList({
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
 
   return (
-    <ul className="win-inset h-40 overflow-y-auto bg-white p-1 text-xs text-black">
+    <ul className="win-inset max-h-40 overflow-y-auto bg-white p-1 text-xs text-black">
       {config.rows.map((row, index) => (
         <IconRow
           key={`${row.label}-${String(index)}`}
@@ -245,7 +245,7 @@ function IconWindowContent({
       return <IconList config={config} onOpenWindow={onOpenWindow} />;
     case 'note':
       return (
-        <div className="win-inset h-40 bg-white p-2 text-xs text-black">
+        <div className="win-inset max-h-40 overflow-y-auto bg-white p-2 text-xs text-black">
           {config.lines.map((line) => (
             <p key={line} className="py-0.5 font-bold">
               {line}

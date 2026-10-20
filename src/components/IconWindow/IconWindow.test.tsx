@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { ICON_WINDOWS } from 'src/data/gameContent';
 import { firePointer } from 'src/tests/firePointer';
 import type { IconWindowConfig } from 'src/types/game';
 
@@ -89,6 +90,25 @@ describe('IconWindow component', () => {
     expect(
       screen.getByRole('button', { name: 'the_other_note.txt' }),
     ).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('opens a Notepad window for every file in My Documents', async () => {
+    const user = userEvent.setup();
+    const documents = ICON_WINDOWS.find((config) => config.id === 'documents');
+    if (documents?.kind !== 'list') {
+      throw new Error('My Documents list config is missing');
+    }
+    renderIconWindow(documents);
+
+    for (const row of documents.rows) {
+      await user.dblClick(screen.getByRole('button', { name: row.label }));
+
+      expect(row.opens).toBeDefined();
+      expect(onOpenWindow).toHaveBeenLastCalledWith(row.opens);
+      expect(ICON_WINDOWS.find((config) => config.id === row.opens)?.kind).toBe(
+        'note',
+      );
+    }
   });
 
   it('selects a row on a single click, like a desktop icon', async () => {

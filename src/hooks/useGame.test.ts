@@ -56,6 +56,12 @@ describe('useGame hook', () => {
       calculator: false,
       scanner: false,
       'other-note': false,
+      untitled: false,
+      'untitled-2': false,
+      'untitled-3': false,
+      asdf: false,
+      todo: false,
+      recipe: false,
     });
     expect(result.current.openIconWindows).toEqual({
       computer: false,
@@ -65,6 +71,12 @@ describe('useGame hook', () => {
       calculator: false,
       scanner: false,
       'other-note': false,
+      untitled: false,
+      'untitled-2': false,
+      'untitled-3': false,
+      asdf: false,
+      todo: false,
+      recipe: false,
     });
   });
 

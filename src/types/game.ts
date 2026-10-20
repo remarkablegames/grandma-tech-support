@@ -28,14 +28,24 @@ export interface DesktopIconConfig {
   decoy?: boolean;
 }
 
+// Windows that show grandma’s notes and joke files inside a Notepad frame.
+export type NoteWindowId =
+  | 'notes'
+  | 'other-note'
+  | 'untitled'
+  | 'untitled-2'
+  | 'untitled-3'
+  | 'asdf'
+  | 'todo'
+  | 'recipe';
+
 export type IconWindowId =
   | 'computer'
   | 'recycle'
   | 'documents'
-  | 'notes'
   | 'calculator'
   | 'scanner'
-  | 'other-note';
+  | NoteWindowId;
 
 export interface IconWindowRow {
   icon?: string;
@@ -53,7 +63,7 @@ export interface ListIconWindow {
 }
 
 export interface NoteIconWindow {
-  id: 'notes' | 'other-note';
+  id: NoteWindowId;
   title: string;
   icon: string;
   kind: 'note';
@@ -133,6 +143,7 @@ export interface ProductConfig {
   id: string;
   name: string;
   price: string;
+  emoji: string;
   joke: string;
 }
 

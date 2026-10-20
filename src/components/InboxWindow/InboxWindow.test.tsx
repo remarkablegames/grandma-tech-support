@@ -124,6 +124,21 @@ describe('InboxWindow component', () => {
     await user.click(screen.getByRole('button', { name: /send \$500/ }));
     expect(onJoke).toHaveBeenLastCalledWith(JOKES.emailWire);
 
+    await user.click(screen.getByRole('button', { name: /FW: FW: FW:/ }));
+    expect(onJoke).toHaveBeenLastCalledWith(JOKES.emailChain);
+
+    await user.click(screen.getByRole('button', { name: /Scorpio/ }));
+    expect(onJoke).toHaveBeenLastCalledWith(JOKES.emailHoroscope);
+
+    await user.click(screen.getByRole('button', { name: /weird trick/ }));
+    expect(onJoke).toHaveBeenLastCalledWith(JOKES.emailVitamins);
+
+    await user.click(screen.getByRole('button', { name: /free trial/ }));
+    expect(onJoke).toHaveBeenLastCalledWith(JOKES.emailTrial);
+
+    await user.click(screen.getByRole('button', { name: /1,000 toasters/ }));
+    expect(onJoke).toHaveBeenLastCalledWith(JOKES.emailCart);
+
     expect(onOpenEmail).not.toHaveBeenCalled();
   });
 });
