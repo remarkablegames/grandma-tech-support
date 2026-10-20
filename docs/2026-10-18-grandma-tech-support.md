@@ -129,7 +129,9 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
   brand lives in the OS name "Rainbows95"). Flag-only, no wordmark, so it stays
   legible at favicon sizes.
 - **Motion:** CSS `@keyframes` only — popup scale-in, dialog wobble, win-screen pop,
-  start-menu slide, ad blink. Honors `prefers-reduced-motion`.
+  start-menu slide, ad blink. A new grandma line replays a bubble pop plus a wiggle from
+  the emoji, keyed on the line change so unchanged text never re-animates. Honors
+  `prefers-reduced-motion`.
 - **Responsive:** windows use viewport-scaled initial positions and
   `min(92vw, 440px)` widths; drag clamping keeps title bars reachable; the layout is
   usable down to ~360px.

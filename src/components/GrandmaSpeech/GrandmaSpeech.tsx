@@ -9,10 +9,17 @@ export function GrandmaSpeech({ line }: GrandmaSpeechProps) {
       aria-live="polite"
       className="pointer-events-none absolute right-2 bottom-12 z-40 flex max-w-[min(92vw,26rem)] flex-row-reverse items-start gap-2"
     >
-      <span aria-hidden="true" className="text-3xl">
+      <span
+        key={`emoji-${line}`}
+        aria-hidden="true"
+        className="animate-wiggle text-3xl"
+      >
         👵
       </span>
-      <p className="win-outset bg-win-face max-w-full px-3 py-2 text-sm leading-snug text-black">
+      <p
+        key={`bubble-${line}`}
+        className="animate-dialog win-outset bg-win-face max-w-full px-3 py-2 text-sm leading-snug text-black"
+      >
         {line}
       </p>
     </div>
