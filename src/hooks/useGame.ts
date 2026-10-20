@@ -320,7 +320,8 @@ export function useGame() {
       return;
     }
 
-    if (openPopups.length > 0) {
+    // Only the sale page's own pop-ups block the order.
+    if (openPopups.some((popup) => popup.windowId === 'shopping')) {
       setMessage(JOKES.buyBlocked);
       return;
     }

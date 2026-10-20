@@ -547,7 +547,7 @@ describe('useGame hook', () => {
     expect(result.current.stormTriggered).toBe(false);
   });
 
-  it('only the note’s password opens the mail gate', () => {
+  it("only the note's password opens the mail gate", () => {
     const { result } = renderHook(() => useGame());
 
     let accepted = true;
@@ -667,6 +667,48 @@ describe('useGame hook', () => {
       inbox: false,
       virus: false,
     });
+  });
+
+  it('blocks the order only while the sale page is buried', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.login(MAIL_PASSWORD);
+    });
+    act(() => {
+      result.current.nextObjective();
+    });
+    act(() => {
+      result.current.openEmail();
+    });
+    act(() => {
+      result.current.nextObjective();
+    });
+    expect(result.current.objectiveIndex).toBe(2);
+
+    // The first click storms all three windows.
+    act(() => {
+      result.current.buyToaster(JOKES.toasterTile);
+    });
+    expect(result.current.openPopups).toHaveLength(12);
+
+    // Clear only the sale page's pop-ups.
+    const salePagePopups = result.current.openPopups.filter(
+      (popup) => popup.windowId === 'shopping',
+    );
+    for (const popup of salePagePopups) {
+      act(() => {
+        result.current.dismissPopup(popup.key, popup.popupId);
+      });
+    }
+    expect(result.current.openPopups).toHaveLength(7);
+
+    // The other windows are still buried, but the order goes through.
+    act(() => {
+      result.current.buyToaster(JOKES.toasterTile);
+    });
+    expect(result.current.phase).toBe('taskDone');
+    expect(result.current.openPopups).toHaveLength(7);
   });
 
   it('keeps out-of-objective clicks harmless', () => {
