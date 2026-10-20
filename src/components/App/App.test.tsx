@@ -406,6 +406,29 @@ describe('App component', () => {
     expect(screen.queryByRole('region', { name: 'Grandma’s Mail' })).toBeNull();
   }, 15000);
 
+  it('lets grandma re-read the mission after the decoy reaction', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await logInThroughStart(user);
+    expect(screen.getByRole('status')).toHaveTextContent(
+      OBJECTIVES[1].instruction,
+    );
+
+    // The decoy reaction overwrites the mission with grandma's aside.
+    await user.dblClick(screen.getByRole('button', { name: 'Grandma’s Mail' }));
+    expect(screen.getByRole('status')).toHaveTextContent(
+      GRANDMA_LINES.mailDecoy,
+    );
+    await user.click(screen.getByRole('button', { name: 'OK' }));
+
+    // Clicking the bubble puts the current mission back.
+    await user.click(screen.getByRole('button', { name: /click grandma/ }));
+    expect(screen.getByRole('status')).toHaveTextContent(
+      OBJECTIVES[1].instruction,
+    );
+  }, 15000);
+
   it('opens a desktop icon window on double-click and closes it', async () => {
     const user = userEvent.setup();
     render(<App />);

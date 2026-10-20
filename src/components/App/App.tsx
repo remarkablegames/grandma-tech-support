@@ -166,7 +166,7 @@ export function App() {
         />
       ))}
 
-      <GrandmaSpeech line={game.grandmaLine} />
+      <GrandmaSpeech line={game.grandmaLine} onRepeat={game.repeatObjective} />
 
       <Taskbar
         windows={openWindows}

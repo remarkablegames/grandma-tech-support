@@ -59,7 +59,6 @@ export const JOKES = {
   startDocuments: 'They’re all called “untitled_final_v2”.',
   startSettings: 'Everything’s set to “don’t touch”.',
   startFind: 'It was open in the internet thing.',
-  startHelp: 'You ARE the help.',
   startRun: 'That’s how the toaster got installed.',
   startShutDown: 'Don’t shut it down! I’m expecting an email.',
 } as const;
@@ -556,7 +555,8 @@ export const PRODUCTS: ProductConfig[] = [
 ];
 
 // The Start menu doubles as the desktop's launcher: the first two items open
-// the browser windows, the rest are grandma's joke entries.
+// the browser windows, Help re-reads the current mission, and the rest are
+// grandma's joke entries.
 export const START_ITEMS: StartMenuItem[] = [
   {
     id: 'inbox',
@@ -598,7 +598,7 @@ export const START_ITEMS: StartMenuItem[] = [
     id: 'help',
     label: 'Help',
     icon: `${ICONS}/sticky_note.png`,
-    message: JOKES.startHelp,
+    action: 'show-mission',
   },
   {
     id: 'run',

@@ -150,7 +150,8 @@ export interface ProductConfig {
 }
 
 // Start menu entries double as launchers now: joke items put a grandma line
-// in the dialog, app items open a browser window.
+// in the dialog, app items open a browser window, and the mission item
+// re-reads the current task.
 export interface StartMenuBaseItem {
   id: string;
   label: string;
@@ -165,4 +166,11 @@ export interface StartMenuAppItem extends StartMenuBaseItem {
   windowId: WindowId;
 }
 
-export type StartMenuItem = StartMenuJokeItem | StartMenuAppItem;
+// A menu item whose effect isn't a fixed string: Help re-reads whatever the
+// current mission is, so it can't live in the static content file.
+export interface StartMenuMissionItem extends StartMenuBaseItem {
+  action: 'show-mission';
+}
+
+export type StartMenuItem =
+  StartMenuJokeItem | StartMenuAppItem | StartMenuMissionItem;

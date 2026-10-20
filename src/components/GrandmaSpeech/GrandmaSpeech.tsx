@@ -1,8 +1,9 @@
 interface GrandmaSpeechProps {
   line: string;
+  onRepeat: () => void;
 }
 
-export function GrandmaSpeech({ line }: GrandmaSpeechProps) {
+export function GrandmaSpeech({ line, onRepeat }: GrandmaSpeechProps) {
   return (
     <div
       role="status"
@@ -16,12 +17,15 @@ export function GrandmaSpeech({ line }: GrandmaSpeechProps) {
       >
         👵
       </span>
-      <p
+      <button
         key={`bubble-${line}`}
-        className="animate-dialog win-outset bg-win-face max-w-full px-3 py-2 text-sm leading-snug text-black"
+        type="button"
+        onClick={onRepeat}
+        className="animate-dialog win-outset bg-win-face pointer-events-auto max-w-full cursor-pointer px-3 py-2 text-left text-sm leading-snug text-black"
       >
         {line}
-      </p>
+        <span className="sr-only">(click grandma to hear it again)</span>
+      </button>
     </div>
   );
 }

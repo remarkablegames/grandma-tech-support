@@ -453,6 +453,53 @@ describe('useGame hook', () => {
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.mailDecoy);
   });
 
+  it('lets grandma re-read the current mission after a reaction', () => {
+    const { result } = renderHook(() => useGame());
+
+    // Get to task 2, whose instruction is not the intro line.
+    act(() => {
+      result.current.login(MAIL_PASSWORD);
+    });
+    act(() => {
+      result.current.nextObjective();
+    });
+    expect(result.current.grandmaLine).toBe(OBJECTIVES[1].instruction);
+
+    // The decoy reaction overwrites the mission...
+    act(() => {
+      result.current.openMailDecoy();
+    });
+    expect(result.current.grandmaLine).toBe(GRANDMA_LINES.mailDecoy);
+
+    // ...and clicking grandma puts the current mission back.
+    act(() => {
+      result.current.repeatObjective();
+    });
+    expect(result.current.grandmaLine).toBe(OBJECTIVES[1].instruction);
+  });
+
+  it('puts the current mission in the dialog from Start > Help', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.login(MAIL_PASSWORD);
+    });
+    act(() => {
+      result.current.nextObjective();
+    });
+    expect(result.current.message).toBeNull();
+
+    // Help is START_ITEMS[6]; it re-reads whatever the current task is.
+    act(() => {
+      result.current.toggleStart();
+    });
+    act(() => {
+      result.current.selectStartItem(START_ITEMS[6]);
+    });
+    expect(result.current.startOpen).toBe(false);
+    expect(result.current.message).toBe(OBJECTIVES[1].instruction);
+  });
+
   it('toggles the start menu and picks items', () => {
     const { result } = renderHook(() => useGame());
 

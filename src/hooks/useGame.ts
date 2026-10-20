@@ -434,6 +434,12 @@ export function useGame() {
     setGrandmaLine(GRANDMA_LINES.mailDecoy);
   };
 
+  // Reactions overwrite grandma's line, so clicking her bubble puts the
+  // current mission back in her mouth.
+  const repeatObjective = () => {
+    setGrandmaLine(OBJECTIVES[objectiveIndex].instruction);
+  };
+
   const toggleStart = () => {
     setStartOpen((open) => !open);
   };
@@ -443,6 +449,11 @@ export function useGame() {
 
     if ('windowId' in item) {
       openWindow(item.windowId);
+      return;
+    }
+
+    if ('action' in item) {
+      setMessage(OBJECTIVES[objectiveIndex].instruction);
       return;
     }
 
@@ -496,6 +507,7 @@ export function useGame() {
     playAgain,
     selectIcon,
     openMailDecoy,
+    repeatObjective,
     toggleStart,
     selectStartItem,
   };
