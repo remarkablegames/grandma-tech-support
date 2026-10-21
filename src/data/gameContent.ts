@@ -78,6 +78,7 @@ export const GRANDMA_LINES = {
   mailDecoy:
     'That one’s been broken since 2000. Your email’s in the internet thing.',
   shutDown: 'Don’t shut it down! I’m expecting an email.',
+  powerBack: 'It’s back! Did anything happen while it was dark?',
   win: 'You did it, my dear! You found my email, and you didn’t fall for the toaster. Tell your grandfather the computer stays with me.',
   wrongPassword: 'Incorrect password.',
   saved:

@@ -465,11 +465,16 @@ export function useGame() {
 
   // Leaving a power screen: both black lines — the boot line after a
   // restart, the safe-off toast after a shutdown — advance to the clouds
-  // splash, the way a machine comes back on either way. The splash itself
-  // brings the desktop back with the startup sound and the theme: the safe
-  // return over untouched state, the restart return over a reset.
+  // splash, the way a machine comes back on either way. Waking also trades
+  // grandma's protest for her wake line behind the clouds (the restart's
+  // reset has already put the intro back); the splash itself brings the
+  // desktop back with the startup sound and the theme.
   const leavePowerScreen = () => {
     if (powerScreen === 'boot' || powerScreen === 'safe') {
+      if (powerScreen === 'safe') {
+        setGrandmaLine(GRANDMA_LINES.powerBack);
+      }
+
       setPowerScreen('splash');
       return;
     }

@@ -833,6 +833,7 @@ describe('App component', () => {
     expect(
       screen.queryByRole('button', { name: POWER_MESSAGES.safe }),
     ).toBeNull();
+    expect(screen.queryByRole('status')).toBeNull();
 
     await waitFor(
       () => {
@@ -847,6 +848,10 @@ describe('App component', () => {
     expect(
       screen.getByRole('region', { name: WINDOW_META[1].title }),
     ).toBeInTheDocument();
+    // The protest gave way to the wake line behind the clouds.
+    expect(screen.getByRole('status')).toHaveTextContent(
+      GRANDMA_LINES.powerBack,
+    );
   }, 15000);
 
   it('restarts through the boot screen to a fresh desktop', async () => {

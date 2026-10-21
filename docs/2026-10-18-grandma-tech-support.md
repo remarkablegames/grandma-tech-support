@@ -163,7 +163,8 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
   autofocused `OK` beside `Cancel`. Cancel just closes it. Shutting down and
   restarting both pause the theme and go full-screen black — the amber safe-off line
   or the `Starting Rainbows95...` boot line — and both hand off to the clouds
-  splash: the safe wake back to an untouched desktop, the restart to the reset one,
+  splash: the safe wake back to an untouched desktop (grandma trading the protest
+  for her wake line), the restart to the reset one,
   each beat skippable by click. Each transition plays its power sound, and the
   desktop's return resumes the theme. The splash also opens the game itself. Full
   spec: [shutdown](./2026-10-20-shutdown-restart.md).
@@ -249,7 +250,7 @@ src/
   `grandmaLine`; the Start menu’s `Help` shows it as a dialog instead.
 - `grandmaLine: string` — intro → task instructions → "little X" line on safe
   dismiss → decoy-mail line → the Shut Down protest (her bubble gets the last
-  word, not the dialog).
+  word, not the dialog) → the wake line once the machine is back on.
 - `selectedIcon`, `startOpen` — desktop/menu state. The right-click context menu
   lives in App (not `useGame`): desktop vs. icon menu, coordinates, and the
   icon’s stored open action.

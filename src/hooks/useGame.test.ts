@@ -585,12 +585,16 @@ describe('useGame hook', () => {
       result.current.openWindow('inbox');
     });
     act(() => {
+      result.current.openShutdown();
+    });
+    act(() => {
       result.current.confirmShutdown('shutdown');
     });
 
     expect(result.current.shutdownOpen).toBe(false);
     expect(result.current.powerScreen).toBe('safe');
     expect(result.current.open.inbox).toBe(true);
+    expect(result.current.grandmaLine).toBe(GRANDMA_LINES.shutDown);
     expect(play).toHaveBeenCalledWith('shutdown');
     expect(pauseMusic).toHaveBeenCalledTimes(1);
 
@@ -598,9 +602,11 @@ describe('useGame hook', () => {
       result.current.leavePowerScreen();
     });
 
-    // The safe line powers up through the clouds splash, state untouched.
+    // The safe line powers up through the clouds splash, state untouched —
+    // but grandma swaps the protest for the wake line on the way up.
     expect(result.current.powerScreen).toBe('splash');
     expect(result.current.open.inbox).toBe(true);
+    expect(result.current.grandmaLine).toBe(GRANDMA_LINES.powerBack);
     expect(play).not.toHaveBeenCalledWith('startup');
 
     act(() => {

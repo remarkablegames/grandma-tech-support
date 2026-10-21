@@ -28,16 +28,22 @@ still repeats the current mission.
 
 ## Exit paths
 
-| Path          | What happens                                                                                                                                                                                                                                                                                                                      |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Cancel**    | the dialog closes; nothing else changes                                                                                                                                                                                                                                                                                           |
-| **Shut down** | the `shutdown` sound plays, the theme pauses, and a full-screen black `It’s now safe to turn off your computer.` line appears — a click or keypress powers up through the clouds splash, and the desktop returns exactly as it was (windows, pop-ups, mission intact), with the `startup` sound and the theme resuming on arrival |
-| **Restart**   | the same sound and pause, but the game resets behind the screens: the black `Starting Rainbows95...` boot line (blinking cursor) hands off to the clouds splash on its own, and the splash lifts to the blank opening desktop — each beat a click to skip, the `startup` sound and theme arriving with the desktop                |
+| Path          | What happens                                                                                                                                                                                                                                                                                                                                                                                 |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Cancel**    | the dialog closes; nothing else changes                                                                                                                                                                                                                                                                                                                                                      |
+| **Shut down** | the `shutdown` sound plays, the theme pauses, and a full-screen black `It’s now safe to turn off your computer.` line appears — a click or keypress powers up through the clouds splash (grandma trading her protest for the wake line behind it), and the desktop returns exactly as it was — windows, pop-ups, mission intact — with the `startup` sound and the theme resuming on arrival |
+| **Restart**   | the same sound and pause, but the game resets behind the screens: the black `Starting Rainbows95...` boot line (blinking cursor) hands off to the clouds splash on its own, and the splash lifts to the blank opening desktop — each beat a click to skip, the `startup` sound and theme arriving with the desktop                                                                           |
 
 Restart is the mid-game twin of the win screen's `Play again`: the same `playAgain()`
 reset (blank desktop, mission back to task one, login cleared), reachable without
 winning first. The win screen's own button stays instant — a boot beat belongs to the
 computer, not to the celebration.
+
+The wake's punchline lands in grandma's bubble: the safe path swaps her protest for
+
+> It’s back! Did anything happen while it was dark?
+
+as the machine powers up — set behind the clouds, revealed with the desktop.
 
 ## Power screens
 
@@ -58,8 +64,8 @@ as well as a click, and a click skips every beat.
   survive subpath deploys. The splash is the machine coming up: the third beat of
   both exits (restart over a reset, shutdown over untouched state) and the way the
   game itself opens. Page load starts on the splash, and the desktop always mounts
-  as the clouds lift — intro bubble on a fresh boot, grandma's standing protest
-  after a shutdown. The same photo
+  as the clouds lift — the intro bubble on a fresh boot or restart, grandma's wake
+  line after a shutdown. The same photo
   also rides inline on `<body>` (index.html, document-relative like the favicon)
   as the page's very first paint, so the sky precedes even the first React frame —
   with the desktop teal staying underneath as the fallback color. Nothing ever
@@ -87,9 +93,10 @@ power screen is up and resumes when the desktop returns — one rule for every p
   parodies.
 - `confirmShutdown(mode)` closes the dialog, plays the power sound, pauses the theme,
   then either waits on the safe screen or resets behind the boot line.
-- `leavePowerScreen()` — both black lines advance to the splash; the splash plays
-  the return sound, resumes the theme, and clears. While the splash is up the
-  desktop stays unmounted.
+- `leavePowerScreen()` — both black lines advance to the splash (the safe one
+  also trading grandma's protest for `GRANDMA_LINES.powerBack` behind the
+  clouds); the splash plays the return sound, resumes the theme, and clears.
+  While the splash is up the desktop stays unmounted.
 - `playAgain()` clears both flags along with the rest of the reset, so a mid-game
   restart leaves nothing of the old evening behind.
 
