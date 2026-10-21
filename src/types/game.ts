@@ -174,3 +174,35 @@ export interface StartMenuMissionItem extends StartMenuBaseItem {
 
 export type StartMenuItem =
   StartMenuJokeItem | StartMenuAppItem | StartMenuMissionItem;
+
+// Right-click menus. Joke items put a grandma line in the dialog, `open` runs
+// whatever the right-clicked target would have done on a double-click,
+// disabled items are the greyed-out entries Win95 never lets you pick, and
+// separators are the horizontal rules it draws between groups.
+export interface ContextMenuBaseItem {
+  id: string;
+  label: string;
+}
+
+export interface ContextMenuJokeItem extends ContextMenuBaseItem {
+  message: string;
+}
+
+export interface ContextMenuOpenItem extends ContextMenuBaseItem {
+  action: 'open';
+}
+
+export interface ContextMenuDisabledItem extends ContextMenuBaseItem {
+  disabled: true;
+}
+
+export interface ContextMenuSeparator {
+  id: string;
+  separator: true;
+}
+
+export type ContextMenuItem =
+  | ContextMenuJokeItem
+  | ContextMenuOpenItem
+  | ContextMenuDisabledItem
+  | ContextMenuSeparator;

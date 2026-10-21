@@ -35,7 +35,9 @@ deliberately broken — double-clicking it opens a “Cannot find the file” sy
 - **Input.** Mouse double-click opens; keyboard activation (`Enter`/`Space` on the
   focused icon — keyboard clicks carry `detail === 0`) opens directly, matching Windows'
   "select then Enter"; two taps inside ~400 ms cover touch. Single click keeps selecting,
-  unchanged. Folder rows follow the same idiom: a single click highlights the row (navy
+  unchanged; right-click selects too and opens the icon's own context menu, where `Open`
+  runs this same open path (so the decoy's MAIL.EXE error still fires) alongside joke
+  `Delete` and `Properties` entries. Folder rows follow the same idiom: a single click highlights the row (navy
   fill, `aria-pressed`, hint text flips to white), and openable rows (`opens` in the row
   config) open on the same double-click gesture, shared through the `useDoubleClickOpen`
   hook. Plain rows only select, nothing opens.

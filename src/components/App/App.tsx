@@ -1,6 +1,8 @@
-import { useEffect } from 'react';
+import { type MouseEvent, useEffect, useState } from 'react';
 import {
+  DESKTOP_CONTEXT_MENU,
   DESKTOP_ICONS,
+  ICON_CONTEXT_MENU,
   ICON_WINDOWS,
   OBJECTIVES,
   START_ITEMS,
@@ -8,9 +10,15 @@ import {
 } from 'src/data/gameContent';
 import { useGame } from 'src/hooks/useGame';
 import { audio } from 'src/services/audio';
-import type { IconTaskbarItem } from 'src/types/game';
+import type {
+  ContextMenuItem,
+  ContextMenuJokeItem,
+  ContextMenuOpenItem,
+  IconTaskbarItem,
+} from 'src/types/game';
 
 import { BrowserWindow } from '../BrowserWindow';
+import { ContextMenu } from '../ContextMenu';
 import { DesktopIcon } from '../DesktopIcon';
 import { GrandmaSpeech } from '../GrandmaSpeech';
 import { IconWindow } from '../IconWindow';
@@ -22,6 +30,15 @@ import { StartMenu } from '../StartMenu';
 import { Taskbar } from '../Taskbar';
 import { VirusWindow } from '../VirusWindow';
 import { WinScreen } from '../WinScreen';
+
+// A context menu waiting on screen: where it opens, what it offers, and
+// (for icons) what a "double-click" entry should actually do.
+interface OpenContextMenu {
+  x: number;
+  y: number;
+  items: ContextMenuItem[];
+  onOpen?: () => void;
+}
 
 export function App() {
   const game = useGame();
@@ -47,6 +64,48 @@ export function App() {
 
   // Closed browser windows show up nowhere: no frame, no taskbar button.
   const openWindows = WINDOW_META.filter((meta) => game.open[meta.id]);
+
+  const [contextMenu, setContextMenu] = useState<OpenContextMenu | null>(null);
+
+  const closeContextMenu = () => {
+    setContextMenu(null);
+  };
+
+  // Win95 swaps menus: opening one puts the Start menu away.
+  const openContextMenu = (menu: OpenContextMenu) => {
+    if (game.startOpen) {
+      game.toggleStart();
+    }
+
+    setContextMenu(menu);
+  };
+
+  const handleRootContextMenu = (event: MouseEvent<HTMLDivElement>) => {
+    // The browser's own menu never appears; only the bare desktop earns
+    // Win95's menu (windows and the taskbar just swallow the click).
+    event.preventDefault();
+
+    if (event.target === event.currentTarget) {
+      openContextMenu({
+        x: event.clientX,
+        y: event.clientY,
+        items: DESKTOP_CONTEXT_MENU,
+      });
+    }
+  };
+
+  const handleContextMenuSelect = (
+    item: ContextMenuJokeItem | ContextMenuOpenItem,
+  ) => {
+    setContextMenu(null);
+
+    if ('action' in item) {
+      contextMenu?.onOpen?.();
+      return;
+    }
+
+    game.showJoke(item.message);
+  };
 
   useEffect(() => {
     audio.startMusic();
@@ -76,7 +135,10 @@ export function App() {
   }, []);
 
   return (
-    <div className="bg-win-desktop relative h-dvh w-full overflow-hidden select-none">
+    <div
+      className="bg-win-desktop relative h-dvh w-full overflow-hidden select-none"
+      onContextMenu={handleRootContextMenu}
+    >
       <div className="absolute top-2 left-2 z-[5] flex flex-col gap-1">
         {DESKTOP_ICONS.map((icon) => {
           const windowId = icon.windowId;
@@ -94,6 +156,19 @@ export function App() {
                       game.openIconWindow(windowId);
                     }
               }
+              onContextMenu={(x, y) => {
+                openContextMenu({
+                  x,
+                  y,
+                  items: ICON_CONTEXT_MENU,
+                  onOpen:
+                    windowId === undefined
+                      ? game.openMailDecoy
+                      : () => {
+                          game.openIconWindow(windowId);
+                        },
+                });
+              }}
             />
           );
         })}
@@ -181,6 +256,16 @@ export function App() {
 
       {game.startOpen && (
         <StartMenu items={START_ITEMS} onSelect={game.selectStartItem} />
+      )}
+
+      {contextMenu !== null && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          items={contextMenu.items}
+          onSelect={handleContextMenuSelect}
+          onDismiss={closeContextMenu}
+        />
       )}
 
       {game.message !== null && (

@@ -7,6 +7,7 @@ interface DesktopIconProps {
   selected: boolean;
   onSelect: (icon: DesktopIconConfig) => void;
   onOpen?: () => void;
+  onContextMenu?: (x: number, y: number) => void;
 }
 
 export function DesktopIcon({
@@ -14,6 +15,7 @@ export function DesktopIcon({
   selected,
   onSelect,
   onOpen,
+  onContextMenu,
 }: DesktopIconProps) {
   const handleOpen = useDoubleClickOpen(onOpen);
 
@@ -25,6 +27,13 @@ export function DesktopIcon({
         audio.play('click');
         onSelect(icon);
         handleOpen(event);
+      }}
+      onContextMenu={(event) => {
+        // Right-clicking selects the icon, Win95 style, and the desktop
+        // decides which menu (if any) opens on top.
+        event.preventDefault();
+        onSelect(icon);
+        onContextMenu?.(event.clientX, event.clientY);
       }}
       className="flex w-20 flex-col items-center gap-1 p-1"
     >

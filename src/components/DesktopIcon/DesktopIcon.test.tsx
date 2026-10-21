@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { DesktopIconConfig } from 'src/types/game';
 
@@ -88,5 +88,38 @@ describe('DesktopIcon component', () => {
     await user.keyboard('{Enter}');
 
     expect(onOpen).toHaveBeenCalledTimes(1);
+  });
+
+  it('selects itself and reports a right-click', () => {
+    const onContextMenu = vi.fn();
+    render(
+      <DesktopIcon
+        icon={icon}
+        selected={false}
+        onSelect={onSelect}
+        onContextMenu={onContextMenu}
+      />,
+    );
+
+    const prevented = fireEvent.contextMenu(
+      screen.getByRole('button', { name: 'Sticky Notes' }),
+      { clientX: 48, clientY: 96 },
+    );
+
+    expect(prevented).toBe(false);
+    expect(onSelect).toHaveBeenCalledWith(icon);
+    expect(onContextMenu).toHaveBeenCalledWith(48, 96);
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+
+  it('still swallows the native menu without a handler', () => {
+    render(<DesktopIcon icon={icon} selected={false} onSelect={onSelect} />);
+
+    const prevented = fireEvent.contextMenu(
+      screen.getByRole('button', { name: 'Sticky Notes' }),
+    );
+
+    expect(prevented).toBe(false);
+    expect(onSelect).toHaveBeenCalledWith(icon);
   });
 });

@@ -51,6 +51,16 @@ async function logInThroughStart(user: UserEvent) {
   await user.click(screen.getByRole('button', { name: 'Next task' }));
 }
 
+// App's root div is the bare desktop: the only right-click target that
+// earns Win95's menu instead of just swallowing the browser's.
+function getDesktop(container: HTMLElement): HTMLElement {
+  const desktop = container.querySelector<HTMLElement>('.bg-win-desktop');
+  if (desktop === null) {
+    throw new Error('Desktop did not render');
+  }
+  return desktop;
+}
+
 describe('App component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -428,6 +438,126 @@ describe('App component', () => {
       OBJECTIVES[1].instruction,
     );
   }, 15000);
+
+  it('serves Win95’s menu on a bare desktop right-click', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<App />);
+
+    // The native menu never stands a chance.
+    const prevented = fireEvent.contextMenu(getDesktop(container), {
+      clientX: 480,
+      clientY: 320,
+    });
+    expect(prevented).toBe(false);
+
+    const menu = screen.getByRole('menu', { name: 'Context menu' });
+    expect(
+      within(menu).getByRole('menuitem', { name: 'Arrange Icons' }),
+    ).toBeInTheDocument();
+    expect(
+      within(menu).getByRole('menuitem', { name: 'Paste' }),
+    ).toBeDisabled();
+
+    // A joke entry puts grandma's line in the dialog and closes the menu.
+    await user.click(within(menu).getByRole('menuitem', { name: 'Refresh' }));
+    expect(
+      screen.getByRole('alertdialog', { name: 'System Message' }),
+    ).toHaveTextContent(JOKES.contextRefresh);
+    expect(screen.queryByRole('menu', { name: 'Context menu' })).toBeNull();
+  });
+
+  it('puts the Start menu away when the desktop menu opens', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Start' }));
+    expect(
+      screen.getByRole('menu', { name: 'Start menu' }),
+    ).toBeInTheDocument();
+
+    fireEvent.contextMenu(getDesktop(container));
+    expect(screen.queryByRole('menu', { name: 'Start menu' })).toBeNull();
+    expect(
+      screen.getByRole('menu', { name: 'Context menu' }),
+    ).toBeInTheDocument();
+
+    // Escape puts the menu away again.
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByRole('menu', { name: 'Context menu' })).toBeNull();
+  });
+
+  it('swallows right-clicks on windows and the taskbar', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await openFromStart(user, 'Inbox');
+    const meta = WINDOW_META[1];
+
+    // Still the browser's menu suppressed everywhere, but only the bare
+    // desktop earns Win95's replacement.
+    expect(
+      fireEvent.contextMenu(screen.getByRole('region', { name: meta.title })),
+    ).toBe(false);
+    expect(
+      fireEvent.contextMenu(
+        screen.getByRole('button', { name: `Switch to ${meta.title}` }),
+      ),
+    ).toBe(false);
+    expect(screen.queryByRole('menu', { name: 'Context menu' })).toBeNull();
+  });
+
+  it('opens an icon’s menu with Open behaving like a double-click', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const mailIcon = screen.getByRole('button', { name: 'Grandma’s Mail' });
+    const prevented = fireEvent.contextMenu(mailIcon, {
+      clientX: 40,
+      clientY: 72,
+    });
+    expect(prevented).toBe(false);
+    expect(mailIcon).toHaveAttribute('aria-pressed', 'true');
+
+    const menu = screen.getByRole('menu', { name: 'Context menu' });
+    await user.click(within(menu).getByRole('menuitem', { name: 'Open' }));
+
+    // Same path as double-clicking: the broken shortcut raises its error.
+    expect(
+      screen.getByRole('alertdialog', { name: 'System Message' }),
+    ).toHaveTextContent(JOKES.mailError);
+    expect(screen.getByRole('status')).toHaveTextContent(
+      GRANDMA_LINES.mailDecoy,
+    );
+    expect(screen.queryByRole('menu', { name: 'Context menu' })).toBeNull();
+  });
+
+  it('opens an icon window from its context menu', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    fireEvent.contextMenu(screen.getByRole('button', { name: 'My Computer' }));
+    const menu = screen.getByRole('menu', { name: 'Context menu' });
+    await user.click(within(menu).getByRole('menuitem', { name: 'Open' }));
+
+    expect(
+      screen.getByRole('region', { name: 'My Computer' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('menu', { name: 'Context menu' })).toBeNull();
+  });
+
+  it('jokes about deleting an icon', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    fireEvent.contextMenu(screen.getByRole('button', { name: 'My Computer' }));
+    const menu = screen.getByRole('menu', { name: 'Context menu' });
+    await user.click(within(menu).getByRole('menuitem', { name: 'Delete' }));
+
+    expect(
+      screen.getByRole('alertdialog', { name: 'System Message' }),
+    ).toHaveTextContent(JOKES.contextDelete);
+    expect(screen.queryByRole('menu', { name: 'Context menu' })).toBeNull();
+  });
 
   it('opens a desktop icon window on double-click and closes it', async () => {
     const user = userEvent.setup();

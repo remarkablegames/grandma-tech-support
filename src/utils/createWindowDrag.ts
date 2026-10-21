@@ -22,6 +22,11 @@ export function createWindowDrag({
       return;
     }
 
+    // Only the left button drags, Win95 style: right-press opens the menu.
+    if (event.button !== 0) {
+      return;
+    }
+
     const originX = event.clientX - position.x;
     const originY = event.clientY - position.y;
 

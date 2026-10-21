@@ -214,4 +214,20 @@ describe('BrowserWindow component', () => {
 
     expect(onMove).not.toHaveBeenCalled();
   });
+
+  it('does not drag on a right-button press', () => {
+    renderWindow(true);
+    const titleButton = screen.getByRole('button', { name: 'Test Window' });
+
+    firePointer(titleButton, 'pointerdown', {
+      button: 2,
+      clientX: 100,
+      clientY: 50,
+    });
+    firePointer(window, 'pointermove', { clientX: 300, clientY: 200 });
+
+    expect(onMove).not.toHaveBeenCalled();
+    // The press still raises the window; only the drag stays home.
+    expect(onFocus).toHaveBeenCalledWith('inbox');
+  });
 });

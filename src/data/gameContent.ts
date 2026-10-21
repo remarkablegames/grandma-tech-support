@@ -1,4 +1,5 @@
 import type {
+  ContextMenuItem,
   DesktopIconConfig,
   EmailConfig,
   IconWindowConfig,
@@ -61,6 +62,12 @@ export const JOKES = {
   startFind: 'It was open in the internet thing.',
   startRun: 'That’s how the toaster got installed.',
   startShutDown: 'Don’t shut it down! I’m expecting an email.',
+  contextArrange: 'They’re already arranged by importance.',
+  contextLineUp: 'They’re as lined up as they’re going to get.',
+  contextRefresh: 'Refreshed! Nothing was broken, so nothing changed.',
+  contextProperties: 'It’s set to “don’t touch”. Same as everything else.',
+  contextDelete: 'You can’t delete that.',
+  contextIconProperties: 'The main property is that it’s not a toaster.',
 } as const;
 
 export const GRANDMA_LINES = {
@@ -611,5 +618,32 @@ export const START_ITEMS: StartMenuItem[] = [
     label: 'Shut Down...',
     icon: `${ICONS}/password_manager.png`,
     message: JOKES.startShutDown,
+  },
+];
+
+// Right-click on the bare desktop. Paste and Paste Shortcut stay greyed out
+// the way Win95 leaves them when the clipboard is empty.
+export const DESKTOP_CONTEXT_MENU: ContextMenuItem[] = [
+  { id: 'arrange', label: 'Arrange Icons', message: JOKES.contextArrange },
+  { id: 'line-up', label: 'Line up Icons', message: JOKES.contextLineUp },
+  { id: 'sep-desktop', separator: true },
+  { id: 'paste', label: 'Paste', disabled: true },
+  { id: 'paste-shortcut', label: 'Paste Shortcut', disabled: true },
+  { id: 'sep-desktop-2', separator: true },
+  { id: 'refresh', label: 'Refresh', message: JOKES.contextRefresh },
+  { id: 'sep-desktop-3', separator: true },
+  { id: 'properties', label: 'Properties', message: JOKES.contextProperties },
+];
+
+// Right-click on a desktop icon: `open` runs the icon's own double-click
+// path, so the broken mail shortcut still raises the MAIL.EXE error.
+export const ICON_CONTEXT_MENU: ContextMenuItem[] = [
+  { id: 'open', label: 'Open', action: 'open' },
+  { id: 'sep-icon', separator: true },
+  { id: 'delete', label: 'Delete', message: JOKES.contextDelete },
+  {
+    id: 'icon-properties',
+    label: 'Properties',
+    message: JOKES.contextIconProperties,
   },
 ];

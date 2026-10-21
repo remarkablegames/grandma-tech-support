@@ -58,9 +58,9 @@ above applies once they're open (virus on top, tempting).
   (restores a minimized window or else raises it, pressed style for the focused
   window), tray with a live clock showing the current time in the player's locale.
 - Start menu: `Inbox` and `Internet` launch the two browser windows; `Programs`,
-  `Documents`, `Settings`, `Find`, `Help`, `Run...`, `Shut Down...` close the menu and
-  show a joke dialog. Its vertical side stripe brands the fictional OS as
-  **Rainbows95**.
+  `Documents`, `Settings`, `Find`, `Run...`, `Shut Down...` close the menu and
+  show a joke dialog, while `Help` re-reads the current mission. Its vertical
+  side stripe brands the fictional OS as **Rainbows95**.
 - Desktop icons (single click selects, Win95 style): `My Computer`, `Recycle Bin`,
   `My Documents`, `Sticky Notes`, `Calculator`, `Virus Shield`, and the decoy
   `Grandma’s Mail`. Double-clicking the six real icons opens floating mini-windows — see
@@ -146,7 +146,21 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
   tabbed to and activated to raise; openable file rows activate the same way; dialogs
   autofocus their primary button.
 - **Feedback:** wrong clicks open a modal `System Message` dialog ( `role="alertdialog"`,
-  `OK` dismisses); Grandma’s speech bubble (`role="status"`) changes contextually.
+  `OK` dismisses), dressed by its variant: 😅 joke face (default), red ❌ plus the
+  error ding, or the silent ℹ️ info face for mission re-reads. Grandma’s speech
+  bubble (`role="status"`) changes contextually.
+- **Mission recall.** Reactions overwrite Grandma’s line, so clicking her speech
+  bubble puts the current task back (the bubble is a real button with an `sr-only`
+  hint); Start → `Help` shows the same instruction as a dialog instead.
+- **Right-click.** The browser’s own context menu is suppressed everywhere. The
+  bare desktop opens Win95’s menu — Arrange Icons, Line up Icons, greyed-out
+  Paste and Paste Shortcut, Refresh, Properties — every live entry a grandma
+  joke. An icon opens its own menu: `Open` runs the icon’s double-click path
+  (the decoy still raises its MAIL.EXE error) plus joke `Delete` and
+  `Properties` entries. Windows and the taskbar swallow the click with no
+  replacement menu. Opening a menu closes the Start menu; the menu is clamped
+  inside the viewport, focuses its first enabled entry, and dismisses on an
+  outside press or Escape.
 
 ## Accessibility
 
@@ -171,6 +185,7 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
 src/
 ├── components/
 │   ├── App/             composition root, owns all game state via useGame
+│   ├── ContextMenu/     right-click menu (desktop + icons), edge-clamped
 │   ├── DesktopIcon/     32px icon + label, selectable, double-click opens
 │   ├── IconWindow/      floating mini-window (list/note/calculator/scanner bodies)
 │   ├── BrowserWindow/   window chrome + raise + drag + browser toolbar
@@ -207,10 +222,14 @@ src/
   and liar `Close` append entries via a `useRef` counter for unique keys, capped at 5
   per window.
 - `message: string | null` — System Message contents; `messageVariant` picks grandma’s
-  joke face (default) or the red X plus an error ding.
+  joke face (default), the red X plus an error ding, or the silent ℹ️ info face
+  (mission recall). `repeatObjective()` puts the current task back in
+  `grandmaLine`; the Start menu’s `Help` shows it as a dialog instead.
 - `grandmaLine: string` — intro → task instructions → "little X" line on safe
   dismiss → decoy-mail line.
-- `selectedIcon`, `startOpen` — desktop/menu state.
+- `selectedIcon`, `startOpen` — desktop/menu state. The right-click context menu
+  lives in App (not `useGame`): desktop vs. icon menu, coordinates, and the
+  icon’s stored open action.
 - `openIconWindows`, `iconWindowPositions`, `iconZOrder`, `iconMinimized` — desktop
   mini-windows; `openIconWindow` cascades the default position per open window,
   `iconFocusedId` is the top visible one, and `playAgain` closes them all.
