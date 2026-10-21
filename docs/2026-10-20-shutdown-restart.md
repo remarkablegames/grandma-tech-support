@@ -56,7 +56,12 @@ as well as a click, and a click skips every beat.
   a second and a half. The style URL is inline and page-relative so the clouds
   survive subpath deploys. The splash is not only restart's third beat — it also
   opens the game itself: page load starts on the splash, and the desktop mounts as
-  the clouds lift, so grandma's intro bubble pops on the reveal.
+  the clouds lift, so grandma's intro bubble pops on the reveal. The same photo
+  also rides inline on `<body>` (index.html, document-relative like the favicon)
+  as the page's very first paint, so the sky precedes even the first React frame —
+  with the desktop teal staying underneath as the fallback color. Nothing ever
+  switches back: App's root covers the viewport from its first frame on, so the
+  body is only ever visible before React mounts.
 
 ## Sound
 
