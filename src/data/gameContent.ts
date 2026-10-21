@@ -463,9 +463,9 @@ export const DESKTOP_ICONS: DesktopIconConfig[] = [
     windowId: 'calculator',
   },
   {
-    // No windowId: double-clicking "opens" a program that isn't there.
+    // Deliberately targets nothing: the broken shortcut is the joke.
     id: 'mail',
-    label: 'Grandma’s Mail',
+    label: 'Inbox',
     icon: `${ICONS}/mail.png`,
   },
   {
@@ -473,6 +473,13 @@ export const DESKTOP_ICONS: DesktopIconConfig[] = [
     label: 'Virus Shield',
     icon: `${ICONS}/search.png`,
     windowId: 'scanner',
+  },
+  {
+    // Desktop twin of Start → Internet: both open Bargain Barn.
+    id: 'internet',
+    label: 'The Internet',
+    icon: `${ICONS}/world.png`,
+    browserWindowId: 'shopping',
   },
 ];
 

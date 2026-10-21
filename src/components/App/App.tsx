@@ -148,7 +148,19 @@ export function App() {
         <>
           <div className="absolute top-2 left-2 z-[5] flex flex-col gap-1">
             {DESKTOP_ICONS.map((icon) => {
-              const windowId = icon.windowId;
+              const open = () => {
+                if (icon.windowId !== undefined) {
+                  game.openIconWindow(icon.windowId);
+                  return;
+                }
+
+                if (icon.browserWindowId !== undefined) {
+                  game.openWindow(icon.browserWindowId);
+                  return;
+                }
+
+                game.openMailDecoy();
+              };
 
               return (
                 <DesktopIcon
@@ -156,24 +168,13 @@ export function App() {
                   icon={icon}
                   selected={game.selectedIcon === icon.id}
                   onSelect={game.selectIcon}
-                  onOpen={
-                    windowId === undefined
-                      ? game.openMailDecoy
-                      : () => {
-                          game.openIconWindow(windowId);
-                        }
-                  }
+                  onOpen={open}
                   onContextMenu={(x, y) => {
                     openContextMenu({
                       x,
                       y,
                       items: ICON_CONTEXT_MENU,
-                      onOpen:
-                        windowId === undefined
-                          ? game.openMailDecoy
-                          : () => {
-                              game.openIconWindow(windowId);
-                            },
+                      onOpen: open,
                     });
                   }}
                 />

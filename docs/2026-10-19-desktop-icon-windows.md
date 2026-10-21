@@ -5,9 +5,10 @@ double-clicking the desktop opens in Rainbows95.
 
 Single click on a desktop icon selects it — the Win95 idiom documented in the main spec.
 This companion covers the other half of that idiom: **double-click opens**. Six of the
-seven desktop icons open a floating mini-window; the decoy `Grandma’s Mail` stays
-deliberately broken — double-clicking it opens a “Cannot find the file” system error
-(red X, error ding) instead, backed by Grandma’s “broken since 2000” redirect line.
+eight desktop icons open a floating mini-window; `The Internet` opens the Bargain Barn
+browser window (Start → Internet’s twin); and the decoy `Inbox` stays deliberately
+broken — double-clicking it opens a “Cannot find the file” system error (red X, error
+ding) instead, backed by Grandma’s “broken since 2000” redirect line.
 
 | Icon           | Window contents                                                                                                                                                                                                                                                                          |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -470,7 +470,8 @@ describe('App component', () => {
     ).toHaveTextContent(JOKES.emailDog);
     await user.click(screen.getByRole('button', { name: 'OK' }));
 
-    const desktopMail = screen.getByRole('button', { name: 'Grandma’s Mail' });
+    const desktopMail = screen.getByRole('button', { name: 'Inbox' });
+    const windowsBefore = screen.getAllByRole('region').length;
     await user.click(desktopMail);
     expect(desktopMail).toHaveAttribute('aria-pressed', 'true');
     expect(screen.queryByRole('alertdialog')).toBeNull();
@@ -483,7 +484,18 @@ describe('App component', () => {
       GRANDMA_LINES.mailDecoy,
     );
     await user.click(screen.getByRole('button', { name: 'OK' }));
-    expect(screen.queryByRole('region', { name: 'Grandma’s Mail' })).toBeNull();
+    expect(screen.getAllByRole('region')).toHaveLength(windowsBefore);
+  }, 15000);
+
+  it('opens Bargain Barn from The Internet desktop icon', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
+
+    await user.dblClick(screen.getByRole('button', { name: 'The Internet' }));
+    expect(
+      screen.getByRole('region', { name: WINDOW_META[0].title }),
+    ).toBeInTheDocument();
   }, 15000);
 
   it('lets grandma re-read the mission after the decoy reaction', async () => {
@@ -497,7 +509,7 @@ describe('App component', () => {
     );
 
     // The decoy reaction overwrites the mission with grandma's aside.
-    await user.dblClick(screen.getByRole('button', { name: 'Grandma’s Mail' }));
+    await user.dblClick(screen.getByRole('button', { name: 'Inbox' }));
     expect(screen.getByRole('status')).toHaveTextContent(
       GRANDMA_LINES.mailDecoy,
     );
@@ -585,13 +597,13 @@ describe('App component', () => {
     render(<App />);
     await skipSplash(user);
 
-    const mailIcon = screen.getByRole('button', { name: 'Grandma’s Mail' });
-    const prevented = fireEvent.contextMenu(mailIcon, {
+    const inboxIcon = screen.getByRole('button', { name: 'Inbox' });
+    const prevented = fireEvent.contextMenu(inboxIcon, {
       clientX: 40,
       clientY: 72,
     });
     expect(prevented).toBe(false);
-    expect(mailIcon).toHaveAttribute('aria-pressed', 'true');
+    expect(inboxIcon).toHaveAttribute('aria-pressed', 'true');
 
     const menu = screen.getByRole('menu', { name: 'Context menu' });
     await user.click(within(menu).getByRole('menuitem', { name: 'Open' }));

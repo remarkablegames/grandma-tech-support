@@ -34,6 +34,7 @@ export interface DesktopIconConfig {
   label: string;
   icon: string;
   windowId?: IconWindowId;
+  browserWindowId?: WindowId;
 }
 
 // Windows that show grandma’s notes and joke files inside a Notepad frame.

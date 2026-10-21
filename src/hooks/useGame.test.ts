@@ -512,7 +512,7 @@ describe('useGame hook', () => {
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.intro);
     expect(result.current.messageVariant).toBe('joke');
 
-    // The decoy "Grandma's Mail" shortcut: selecting stays silent.
+    // The decoy "Inbox" shortcut: selecting stays silent.
     const mailIcon = DESKTOP_ICONS[5];
 
     act(() => {

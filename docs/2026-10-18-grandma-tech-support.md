@@ -63,16 +63,17 @@ above applies once they're open (virus on top, tempting).
   window), tray with a live clock showing the current time in the player's locale.
 - Start menu: `Inbox` and `Internet` launch the two browser windows; `Programs`,
   `Documents`, `Settings`, `Find`, `Run...` close the menu and show a joke dialog,
-  `Help` re-reads the current mission, `Task Manager` opens the task list dialog (Win95's Close Program under its NT-era name)
-  dialog, and `Shut Down...` opens Win95's power
+  `Help` re-reads the current mission, `Task Manager` opens the task list dialog (Win95's Close Program under its NT-era name),
+  and `Shut Down...` opens Win95's power
   dialog — see [shutdown](./2026-10-20-shutdown-restart.md). Its vertical
   side stripe brands the fictional OS as **Rainbows95**.
 - Desktop icons (single click selects, Win95 style): `My Computer`, `Recycle Bin`,
-  `My Documents`, `Sticky Notes`, `Calculator`, `Virus Shield`, and the decoy
-  `Grandma’s Mail`. Double-clicking the six real icons opens floating mini-windows — see
-  [icon-windows](./2026-10-19-desktop-icon-windows.md). Double-clicking the decoy fails
-  the way Win95 fails: a “Cannot find the file MAIL.EXE” system error (red X, error
-  ding), and Grandma points the player back to “the internet thing”.
+  `My Documents`, `Sticky Notes`, `Calculator`, `Virus Shield`, `The Internet`, and the
+  decoy `Inbox`. Double-clicking six of the icons opens floating mini-windows — see
+  [icon-windows](./2026-10-19-desktop-icon-windows.md). `The Internet` opens Bargain
+  Barn, the same window as Start → Internet. Double-clicking the decoy fails the way
+  Win95 fails: a “Cannot find the file MAIL.EXE” system error (red X, error ding), and
+  Grandma points the player back to “the internet thing”.
 
 ### Pop-ups
 
