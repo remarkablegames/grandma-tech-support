@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   BASE_VIEWPORT,
   BASE_WINDOW_POSITIONS,
@@ -25,6 +25,7 @@ import type {
   PowerScreenMode,
   ShutdownMode,
   StartMenuItem,
+  UpdateStage,
   WindowId,
   WindowPosition,
 } from 'src/types/game';
@@ -155,6 +156,15 @@ export function useGame() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [stormTriggered, setStormTriggered] = useState(false);
 
+  // The late-mission state: task 4's update dialog, task 5's frozen windows
+  // (dead to every input until End Task) and the Task Manager dialog, plus
+  // the completion event queued behind the update reboot's clouds.
+  const [updateStage, setUpdateStage] = useState<UpdateStage | null>(null);
+  const [frozen, setFrozen] =
+    useState<Record<WindowId, boolean>>(INITIAL_WINDOW_FLAGS);
+  const [taskManagerOpen, setTaskManagerOpen] = useState(false);
+  const [pendingEvent, setPendingEvent] = useState<ObjectiveEvent | null>(null);
+
   const spawnCounter = useRef(0);
 
   // Closed and minimized windows can't hold focus, so the top visible
@@ -166,7 +176,13 @@ export function useGame() {
     .filter((id) => !iconMinimized[id])
     .at(-1);
 
+  // A frozen window ignores raises: clicks slide off it the way a hung
+  // Win95 window eats input, until End Task puts it out of its misery.
   const raise = (windowId: WindowId) => {
+    if (frozen[windowId]) {
+      return;
+    }
+
     setZOrder((prev) => [...prev.filter((id) => id !== windowId), windowId]);
   };
 
@@ -179,8 +195,12 @@ export function useGame() {
   };
 
   // Win95 taskbar toggle: the active window's button minimizes it, any
-  // other button restores and activates.
+  // other button restores and activates. Frozen windows do neither.
   const activateWindow = (windowId: WindowId) => {
+    if (frozen[windowId]) {
+      return;
+    }
+
     if (windowId === focusedId) {
       minimize(windowId);
       return;
@@ -317,17 +337,38 @@ export function useGame() {
 
   const nextObjective = () => {
     const next = objectiveIndex + 1;
+    const config = OBJECTIVES[next];
 
     setObjectiveIndex(next);
     setPhase('playing');
     setMessage(null);
-    setGrandmaLine(OBJECTIVES[next].instruction);
+    setGrandmaLine(config.instruction);
 
-    for (const windowId of OBJECTIVES[next].open ?? []) {
+    // Spring windows open first, freeze second, so a frozen window still
+    // lands on top the way any freshly opened window would.
+    for (const windowId of config.open ?? []) {
       openWindow(windowId);
     }
 
-    addSpawns(OBJECTIVES[next].spawn);
+    if (config.update) {
+      setUpdateStage('installing');
+    }
+
+    const freeze = config.freeze;
+
+    if (freeze !== undefined) {
+      setFrozen((prev) => {
+        const flags = { ...prev };
+
+        for (const windowId of freeze) {
+          flags[windowId] = true;
+        }
+
+        return flags;
+      });
+    }
+
+    addSpawns(config.spawn);
   };
 
   // Only the password from the other note opens the mail gate.
@@ -368,6 +409,52 @@ export function useGame() {
     if (completeObjective('scan-complete')) {
       setOpenPopups([]);
     }
+  };
+
+  // Task 4's update dialog advances only on clicks: the 99% stall, the
+  // rollback gag, then the failure that asks for a reboot. "Later" never
+  // gets rid of it.
+  const advanceUpdate = () => {
+    if (updateStage === 'installing') {
+      setUpdateStage('restored');
+      return;
+    }
+
+    setUpdateStage('failed');
+  };
+
+  const laterUpdate = () => {
+    setMessage(JOKES.updateLater);
+  };
+
+  // The reboot the update asks for: everything the player did stays put
+  // behind the boot line and clouds, and the task completes when the
+  // desktop comes back — unlike Start > Shut Down > Restart, which resets.
+  const rebootUpdate = () => {
+    setUpdateStage(null);
+    setPendingEvent('update-rebooted');
+    audio.play('shutdown');
+    audio.pauseMusic();
+    setPowerScreen('boot');
+  };
+
+  // Poking a frozen window trades focus for grandma's diagnosis instead.
+  const reactFrozen = () => {
+    setGrandmaLine(GRANDMA_LINES.frozen);
+  };
+
+  // End Task from the Task Manager list: healthy windows joke, the frozen
+  // one dies for real and finishes the force-quit task.
+  const endTask = (windowId: WindowId) => {
+    if (!frozen[windowId]) {
+      setMessage(JOKES.endTaskAlive);
+      return;
+    }
+
+    setTaskManagerOpen(false);
+    setFrozen((prev) => ({ ...prev, [windowId]: false }));
+    closeWindow(windowId);
+    completeObjective('frozen-ended');
   };
 
   const showJoke = (joke: string) => {
@@ -433,6 +520,10 @@ export function useGame() {
     setObjectiveIndex(0);
     setLoggedIn(false);
     setStormTriggered(false);
+    setUpdateStage(null);
+    setFrozen(INITIAL_WINDOW_FLAGS);
+    setTaskManagerOpen(false);
+    setPendingEvent(null);
     setShutdownOpen(false);
     setPowerScreen(null);
   };
@@ -446,6 +537,24 @@ export function useGame() {
 
   const closeShutdown = () => {
     setShutdownOpen(false);
+  };
+
+  // Start > Task Manager — and the secret Ctrl+Alt+Del chord below — open
+  // the task list dialog (Win95's Close Program under its NT-era name),
+  // interrupting whatever's up.
+  const openTaskManager = () => {
+    setMessage(null);
+    setTaskManagerOpen(true);
+  };
+
+  const closeTaskManager = () => {
+    setTaskManagerOpen(false);
+  };
+
+  // The dialog's own Shut Down button runs the real shutdown flow.
+  const shutDownFromTaskManager = () => {
+    setTaskManagerOpen(false);
+    openShutdown();
   };
 
   // Both exits go black with the power sound and the theme paused; only
@@ -482,6 +591,14 @@ export function useGame() {
     setPowerScreen(null);
     audio.play('startup');
     audio.startMusic();
+
+    // The update reboot queues its completion behind the clouds; the
+    // desktop coming back is what actually finishes the task.
+    if (pendingEvent !== null) {
+      const event = pendingEvent;
+      setPendingEvent(null);
+      completeObjective(event);
+    }
   };
 
   const selectIcon = (icon: DesktopIconConfig) => {
@@ -518,12 +635,45 @@ export function useGame() {
         return;
       }
 
+      if (item.action === 'task-manager') {
+        openTaskManager();
+        return;
+      }
+
       setMessage(OBJECTIVES[objectiveIndex].instruction, 'info');
       return;
     }
 
     setMessage(item.message);
   };
+
+  // The three-key ritual: Win95's own Close Program chord, honored where
+  // the browser actually receives it — Windows swallows Ctrl+Alt+Del at OS
+  // level, which is why the mission only ever teaches Start > Task Manager.
+  useEffect(() => {
+    const handleChord = (event: KeyboardEvent) => {
+      // Only on the live desktop: a chord mid-boot would open behind the
+      // power screen, and the task screens own the desktop anyway.
+      if (powerScreen !== null || phase !== 'playing' || shutdownOpen) {
+        return;
+      }
+
+      if (
+        event.ctrlKey &&
+        event.altKey &&
+        (event.key === 'Delete' || event.key === 'Backspace')
+      ) {
+        setSystemMessage(null);
+        setMessageVariant('joke');
+        setTaskManagerOpen(true);
+      }
+    };
+
+    document.addEventListener('keydown', handleChord);
+    return () => {
+      document.removeEventListener('keydown', handleChord);
+    };
+  }, [powerScreen, phase, shutdownOpen]);
 
   return {
     phase,
@@ -549,6 +699,9 @@ export function useGame() {
     startOpen,
     shutdownOpen,
     powerScreen,
+    updateStage,
+    frozen,
+    taskManagerOpen,
     raise,
     moveWindow,
     minimize,
@@ -570,6 +723,11 @@ export function useGame() {
     login,
     buyToaster,
     completeScan,
+    advanceUpdate,
+    laterUpdate,
+    rebootUpdate,
+    reactFrozen,
+    endTask,
     nextObjective,
     playAgain,
     selectIcon,
@@ -579,6 +737,9 @@ export function useGame() {
     selectStartItem,
     openShutdown,
     closeShutdown,
+    openTaskManager,
+    closeTaskManager,
+    shutDownFromTaskManager,
     confirmShutdown,
     leavePowerScreen,
   };

@@ -39,6 +39,15 @@ reset (blank desktop, mission back to task one, login cleared), reachable withou
 winning first. The win screen's own button stays instant — a boot beat belongs to the
 computer, not to the celebration.
 
+Task 4's Windows Update rides the same screens without the reset: `Restart now` from
+its dialog plays the same power sound, pauses the theme, and goes black to the boot
+line — but `playAgain()` never runs, so the desktop behind the screens keeps every
+window, pop-up, and mission step. The task's `update-rebooted` completion queues
+behind the clouds and fires with the reveal (see
+[missions](./2026-10-19-missions.md)). One rule covers all three paths: the boot
+line and splash are the machine, and what the machine forgets depends on who asked
+it to reboot.
+
 The wake's punchline lands in grandma's bubble: the safe path swaps her protest for
 
 > It’s back! Did anything happen while it was dark?
@@ -95,8 +104,10 @@ power screen is up and resumes when the desktop returns — one rule for every p
   then either waits on the safe screen or resets behind the boot line.
 - `leavePowerScreen()` — both black lines advance to the splash (the safe one
   also trading grandma's protest for `GRANDMA_LINES.powerBack` behind the
-  clouds); the splash plays the return sound, resumes the theme, and clears.
-  While the splash is up the desktop stays unmounted.
+  clouds); the splash plays the return sound, resumes the theme, clears, and
+  fires any completion the update reboot queued (`update-rebooted`) — the
+  task completing with the desktop's reveal. While the splash is up the
+  desktop stays unmounted.
 - `playAgain()` clears both flags along with the rest of the reset, so a mid-game
   restart leaves nothing of the old evening behind.
 

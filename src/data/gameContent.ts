@@ -10,6 +10,7 @@ import type {
   PopupSpawn,
   ProductConfig,
   StartMenuItem,
+  UpdateStage,
   WindowMeta,
 } from 'src/types/game';
 
@@ -37,6 +38,8 @@ export const JOKES = {
   cleanNow:
     'Your computer is now 400% more infected. Just kidding, someone made this in Paint.',
   maybeLater: 'It’ll still be urgent later.',
+  updateLater: '“Later” has always meant “now” to Windows Update.',
+  endTaskAlive: 'That one’s running fine. End Task is only for the frozen one.',
   goBack: 'There’s nowhere to go back to. The internet only goes forward.',
   goForward: 'Forward is where the pop-ups live.',
   emailDog: 'Eleven pictures of the same dog.',
@@ -79,6 +82,7 @@ export const GRANDMA_LINES = {
     'That one’s been broken since 2000. Your email’s in the internet thing.',
   shutDown: 'Don’t shut it down! I’m expecting an email.',
   powerBack: 'It’s back! Did anything happen while it was dark?',
+  frozen: 'It’s not responding! Try quitting it with the Task Manager.',
   win: 'You did it, my dear! You found my email, and you didn’t fall for the toaster. Tell your grandfather the computer stays with me.',
   wrongPassword: 'Incorrect password.',
   saved:
@@ -93,16 +97,26 @@ export const POWER_MESSAGES: Record<'safe' | 'boot', string> = {
   boot: 'Starting Rainbows95...',
 };
 
+// Copy for the three click-driven stages of task 4's Windows Update dialog.
+export const UPDATE_MESSAGES: Record<UpdateStage, string> = {
+  installing:
+    'Installing important updates... 99% complete. Preparing file 3 of 1.',
+  restored:
+    'Something went wrong. Restoring previous settings... nothing was saved, so nothing was restored.',
+  failed:
+    'Windows could not complete the update. Restart your computer to try again.',
+};
+
 // The password the mail log-on form expects — it lives on the other note.
 export const MAIL_PASSWORD = 'password';
 
-// The four-task mission chain. Each entry completes on its event; when the
+// The six-task mission chain. Each entry completes on its event; when the
 // next task starts, its instruction becomes grandma's line, its `open`
 // windows spring up, and its `spawn` pop-ups land on top of those.
 export const OBJECTIVES: ObjectiveConfig[] = [
   {
     instruction: GRANDMA_LINES.intro,
-    doneTitle: 'Task 1 of 4 complete',
+    doneTitle: 'Task 1 of 6 complete',
     doneMessage:
       'That’s it, dear! I’m in. Now find the real email, not the ones offering you toasters.',
     icon: `${ICONS}/sticky_note.png`,
@@ -111,7 +125,7 @@ export const OBJECTIVES: ObjectiveConfig[] = [
   {
     instruction:
       'That’s my mail popping open, dear! Find the one from the grandkids. The toaster ones are nonsense.',
-    doneTitle: 'Task 2 of 4 complete',
+    doneTitle: 'Task 2 of 6 complete',
     doneMessage: GRANDMA_LINES.win,
     icon: `${ICONS}/mail.png`,
     completesOn: 'email-opened',
@@ -125,11 +139,30 @@ export const OBJECTIVES: ObjectiveConfig[] = [
   {
     instruction:
       'Would you order me a toaster, dear? The burning shopping page.',
-    doneTitle: 'Task 3 of 4 complete',
+    doneTitle: 'Task 3 of 6 complete',
     doneMessage:
       'Ordered! ...though I may have clicked something while we waited, dear.',
     icon: `${ICONS}/world.png`,
     completesOn: 'order-placed',
+  },
+  {
+    instruction: 'It’s auto-updating! When it gives up, click Restart now.',
+    doneTitle: 'Task 4 of 6 complete',
+    doneMessage: 'New and improved! Although the toaster page broke.',
+    icon: `${ICONS}/tools.png`,
+    completesOn: 'update-rebooted',
+    update: true,
+  },
+  {
+    instruction:
+      'The bargain page stopped responding! Use the Task Manager to end it.',
+    doneTitle: 'Task 5 of 6 complete',
+    doneMessage:
+      'It stopped yelping! And I may have clicked one little thing while you were in there.',
+    icon: `${ICONS}/program.png`,
+    completesOn: 'frozen-ended',
+    open: ['shopping'],
+    freeze: ['shopping'],
   },
   {
     instruction:
@@ -572,8 +605,9 @@ export const PRODUCTS: ProductConfig[] = [
 ];
 
 // The Start menu doubles as the desktop's launcher: the first two items open
-// the browser windows, Help re-reads the current mission, Shut Down... opens
-// the power dialog, and the rest are grandma's joke entries.
+// the browser windows, Help re-reads the current mission, Task Manager opens
+// the task list, Shut Down... opens the power dialog, and the
+// rest are grandma's joke entries.
 export const START_ITEMS: StartMenuItem[] = [
   {
     id: 'inbox',
@@ -622,6 +656,12 @@ export const START_ITEMS: StartMenuItem[] = [
     label: 'Run...',
     icon: `${ICONS}/script_file.png`,
     message: JOKES.startRun,
+  },
+  {
+    id: 'task-manager',
+    label: 'Task Manager',
+    icon: `${ICONS}/program.png`,
+    action: 'task-manager',
   },
   {
     id: 'shutdown',

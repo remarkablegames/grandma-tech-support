@@ -4,16 +4,18 @@
 
 A short, funny browser game about being Grandma’s tech support. The player lands on a
 playful, **fictional** Windows 95-style desktop (an homage, not a copy of a real OS) and
-works through a chain of four silly tasks (log in, find the email, order a toaster,
-defuse a pop-up storm) while dodging fake warnings and misleading buttons.
+works through a chain of six silly tasks (log in, find the email, order a toaster, sit
+through a botched update, end-task a frozen page, defuse a pop-up storm) while dodging
+fake warnings and misleading buttons.
 
 - **Genre:** comedy point-and-click / puzzle vignette
-- **Session length:** 8–10 minutes for the full four-task chain
+- **Session length:** 10–12 minutes for the full six-task chain
 - **Tone:** warm, silly, grandma-flavored; nothing scary, nothing real
 - **Lose state:** none. Wrong clicks produce jokes and the player retries.
-- **Win condition:** complete all four tasks — log in, open the email, order the
-  toaster, run the scanner. Each task ends in a Win95 dialog; the fourth ends in the
-  final screen. See [missions](./2026-10-19-missions.md).
+- **Win condition:** complete all six tasks — log in, open the email, order the
+  toaster, reboot through the update, end-task the frozen page, run the scanner. Each
+  task ends in a Win95 dialog; the sixth ends in the final screen. See
+  [missions](./2026-10-19-missions.md).
 
 ## Core loop
 
@@ -39,11 +41,11 @@ defuse a pop-up storm) while dodging fake warnings and misleading buttons.
 
 ### Windows (all three are browser windows: title bar + back/forward/URL chrome)
 
-| Window         | Title                             | Icon                   | Launch                         | Pop-up storm |
-| -------------- | --------------------------------- | ---------------------- | ------------------------------ | ------------ |
-| Shopping       | `🔥 Bargain Barn — TODAY ONLY!!!` | `world.png`            | Start → Internet; task 2       | tasks 3–4    |
-| Inbox (target) | `✉ Inbox (12) — Grandma’s Mail`   | `mail.png`             | Start → Inbox; task 2          | tasks 3–4    |
-| Fake warning   | `⚠ URGENT: VIRUS DETECTED ⚠`      | `password_manager.png` | task 2 (spring-back with spam) | tasks 3–4    |
+| Window         | Title                             | Icon                   | Launch                         | Pop-up storm            |
+| -------------- | --------------------------------- | ---------------------- | ------------------------------ | ----------------------- |
+| Shopping       | `🔥 Bargain Barn — TODAY ONLY!!!` | `world.png`            | Start → Internet; task 2       | tasks 3, 6; frozen in 5 |
+| Inbox (target) | `✉ Inbox (12) — Grandma’s Mail`   | `mail.png`             | Start → Inbox; task 2          | tasks 3, 6              |
+| Fake warning   | `⚠ URGENT: VIRUS DETECTED ⚠`      | `password_manager.png` | task 2 (spring-back with spam) | tasks 3, 6              |
 
 All three windows start **closed** — the desktop opens blank, and the stacked z-order
 above applies once they're open (virus on top, tempting).
@@ -61,7 +63,8 @@ above applies once they're open (virus on top, tempting).
   window), tray with a live clock showing the current time in the player's locale.
 - Start menu: `Inbox` and `Internet` launch the two browser windows; `Programs`,
   `Documents`, `Settings`, `Find`, `Run...` close the menu and show a joke dialog,
-  `Help` re-reads the current mission, and `Shut Down...` opens Win95's power
+  `Help` re-reads the current mission, `Task Manager` opens the task list dialog (Win95's Close Program under its NT-era name)
+  dialog, and `Shut Down...` opens Win95's power
   dialog — see [shutdown](./2026-10-20-shutdown-restart.md). Its vertical
   side stripe brands the fictional OS as **Rainbows95**.
 - Desktop icons (single click selects, Win95 style): `My Computer`, `Recycle Bin`,
@@ -108,7 +111,7 @@ Toolbar pixels are decorative (not interactive). Email list:
 ### Task and win screens
 
 Every task ends in the same Win95 dialog, dressed with the task's title, message, and
-icon: `Next task` for tasks 1–3, `Computer saved!` and `Play again` for the fourth.
+icon: `Next task` for tasks 1–5, `Computer saved!` and `Play again` for the sixth.
 Each one plays the `win` jingle. The final screen's closing line from Grandma:
 
 > "You saved it, my dear! The computer stays with me. Tell your grandfather it was a
@@ -251,7 +254,8 @@ src/
   `grandmaLine`; the Start menu’s `Help` shows it as a dialog instead.
 - `grandmaLine: string` — intro → task instructions → "little X" line on safe
   dismiss → decoy-mail line → the Shut Down protest (her bubble gets the last
-  word, not the dialog) → the wake line once the machine is back on.
+  word, not the dialog) → the wake line once the machine is back on, plus the
+  frozen-window diagnosis whenever a dead page gets poked.
 - `selectedIcon`, `startOpen` — desktop/menu state. The right-click context menu
   lives in App (not `useGame`): desktop vs. icon menu, coordinates, and the
   icon’s stored open action.
@@ -264,6 +268,15 @@ src/
   desktop, where the return sound and theme wait, and `playAgain()` clears both
   flags. See
   [shutdown](./2026-10-20-shutdown-restart.md).
+- `updateStage: 'installing' | 'restored' | 'failed' | null`, `frozen:
+Record<WindowId, boolean>`, `closeProgramOpen`, and the queued `pendingEvent` —
+  tasks 4 and 5: the UpdateDialog's click-driven stage, which windows are dead
+  to every input, the Task Manager dialog (`Start → Task Manager`, plus the
+  secret Ctrl+Alt+Del chord where the browser delivers it), and the
+  `update-rebooted` completion waiting behind the clouds. The update's
+  `Restart now` reboots without `playAgain()`, and `End Task` thaws and closes
+  the frozen window for real. See
+  [missions](./2026-10-19-missions.md).
 - `openIconWindows`, `iconWindowPositions`, `iconZOrder`, `iconMinimized` — desktop
   mini-windows; `openIconWindow` cascades the default position per open window,
   `iconFocusedId` is the top visible one, and `playAgain` closes them all.

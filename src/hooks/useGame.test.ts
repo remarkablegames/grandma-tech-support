@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, fireEvent, renderHook } from '@testing-library/react';
 import {
   DESKTOP_ICONS,
   GRANDMA_LINES,
@@ -25,6 +25,63 @@ vi.mock('src/services/audio', () => ({
 
 function countInboxPopups(openPopups: { windowId: string }[]) {
   return openPopups.filter((popup) => popup.windowId === 'inbox').length;
+}
+
+// Walk the mission chain to the start of task 4: log in, read the email,
+// order the toaster through the ad storm, and land on the update dialog.
+function walkToUpdateTask(result: { current: ReturnType<typeof useGame> }) {
+  act(() => {
+    result.current.login(MAIL_PASSWORD);
+  });
+  act(() => {
+    result.current.nextObjective();
+  });
+  act(() => {
+    result.current.openEmail();
+  });
+  act(() => {
+    result.current.nextObjective();
+  });
+  act(() => {
+    result.current.buyToaster(JOKES.toasterTile);
+  });
+  for (const popup of [...result.current.openPopups]) {
+    if (popup.windowId === 'shopping') {
+      act(() => {
+        result.current.dismissPopup(popup.key, popup.popupId);
+      });
+    }
+  }
+  act(() => {
+    result.current.buyToaster(JOKES.toasterTile);
+  });
+  act(() => {
+    result.current.nextObjective();
+  });
+}
+
+// ...and on to task 5, through the update's reboot, where the bargain page
+// springs open frozen.
+function walkToFrozenTask(result: { current: ReturnType<typeof useGame> }) {
+  walkToUpdateTask(result);
+  act(() => {
+    result.current.advanceUpdate();
+  });
+  act(() => {
+    result.current.advanceUpdate();
+  });
+  act(() => {
+    result.current.rebootUpdate();
+  });
+  act(() => {
+    result.current.leavePowerScreen();
+  });
+  act(() => {
+    result.current.leavePowerScreen();
+  });
+  act(() => {
+    result.current.nextObjective();
+  });
 }
 
 describe('useGame hook', () => {
@@ -541,7 +598,7 @@ describe('useGame hook', () => {
     expect(result.current.startOpen).toBe(true);
 
     act(() => {
-      result.current.selectStartItem(START_ITEMS[8]);
+      result.current.selectStartItem(START_ITEMS[9]);
     });
     expect(result.current.startOpen).toBe(false);
     expect(result.current.shutdownOpen).toBe(true);
@@ -867,12 +924,58 @@ describe('useGame hook', () => {
     });
     expect(result.current.phase).toBe('taskDone');
 
-    // Task 4 floods every window again.
+    // Task 4 opens the update dialog over the still-open desktop.
     act(() => {
       result.current.nextObjective();
     });
     expect(result.current.objectiveIndex).toBe(3);
+    expect(result.current.updateStage).toBe('installing');
+    expect(result.current.openPopups).toHaveLength(0);
+
+    act(() => {
+      result.current.advanceUpdate();
+    });
+    act(() => {
+      result.current.advanceUpdate();
+    });
+    expect(result.current.updateStage).toBe('failed');
+
+    // The reboot keeps every window exactly where the player left it.
+    act(() => {
+      result.current.rebootUpdate();
+    });
+    expect(result.current.powerScreen).toBe('boot');
+    expect(result.current.phase).toBe('playing');
+
+    act(() => {
+      result.current.leavePowerScreen();
+    });
+    act(() => {
+      result.current.leavePowerScreen();
+    });
+    expect(result.current.phase).toBe('taskDone');
+
+    // Task 5 springs the bargain page open frozen.
+    act(() => {
+      result.current.nextObjective();
+    });
+    expect(result.current.objectiveIndex).toBe(4);
+    expect(result.current.frozen.shopping).toBe(true);
+
+    act(() => {
+      result.current.endTask('shopping');
+    });
+    expect(result.current.phase).toBe('taskDone');
+    expect(result.current.frozen.shopping).toBe(false);
+    expect(result.current.open.shopping).toBe(false);
+
+    // Task 6 floods every window again.
+    act(() => {
+      result.current.nextObjective();
+    });
+    expect(result.current.objectiveIndex).toBe(5);
     expect(result.current.openPopups).toHaveLength(9);
+    expect(result.current.open.shopping).toBe(true);
 
     // The scan completes the finale and sweeps the storm in one motion.
     act(() => {
@@ -894,12 +997,257 @@ describe('useGame hook', () => {
     expect(result.current.objectiveIndex).toBe(0);
     expect(result.current.loggedIn).toBe(false);
     expect(result.current.stormTriggered).toBe(false);
+    expect(result.current.updateStage).toBeNull();
+    expect(result.current.frozen).toEqual({
+      shopping: false,
+      inbox: false,
+      virus: false,
+    });
+    expect(result.current.taskManagerOpen).toBe(false);
     expect(result.current.openPopups).toEqual([]);
     expect(result.current.open).toEqual({
       shopping: false,
       inbox: false,
       virus: false,
     });
+  });
+
+  it('reboots for the update without losing any progress', () => {
+    const { result } = renderHook(() => useGame());
+    walkToUpdateTask(result);
+
+    expect(result.current.objectiveIndex).toBe(3);
+    expect(result.current.updateStage).toBe('installing');
+    expect(result.current.grandmaLine).toBe(OBJECTIVES[3].instruction);
+    expect(result.current.phase).toBe('playing');
+    expect(result.current.loggedIn).toBe(true);
+    expect(result.current.open).toEqual({
+      shopping: true,
+      inbox: true,
+      virus: true,
+    });
+
+    act(() => {
+      result.current.advanceUpdate();
+    });
+    expect(result.current.updateStage).toBe('restored');
+
+    act(() => {
+      result.current.advanceUpdate();
+    });
+    expect(result.current.updateStage).toBe('failed');
+
+    // "Later" tells the joke and keeps the dialog in its seat.
+    act(() => {
+      result.current.laterUpdate();
+    });
+    expect(result.current.message).toBe(JOKES.updateLater);
+    expect(result.current.updateStage).toBe('failed');
+    expect(result.current.phase).toBe('playing');
+
+    // Restart now: black line, music off, nothing else touched.
+    act(() => {
+      result.current.rebootUpdate();
+    });
+    expect(result.current.powerScreen).toBe('boot');
+    expect(result.current.updateStage).toBeNull();
+    expect(result.current.objectiveIndex).toBe(3);
+    expect(result.current.phase).toBe('playing');
+    expect(result.current.open).toEqual({
+      shopping: true,
+      inbox: true,
+      virus: true,
+    });
+    expect(play).toHaveBeenCalledWith('shutdown');
+    expect(pauseMusic).toHaveBeenCalledTimes(1);
+
+    // The boot line hands over to the clouds; progress waits behind them.
+    act(() => {
+      result.current.leavePowerScreen();
+    });
+    expect(result.current.powerScreen).toBe('splash');
+    expect(result.current.phase).toBe('playing');
+
+    // The desktop's reveal is what finishes the task.
+    act(() => {
+      result.current.leavePowerScreen();
+    });
+    expect(result.current.powerScreen).toBeNull();
+    expect(result.current.phase).toBe('taskDone');
+    // The joke from "Later" is gone; the win screen carries the done copy.
+    expect(result.current.message).toBeNull();
+    expect(play).toHaveBeenCalledWith('startup');
+  });
+
+  it('freezes the bargain page until End Task puts it down', () => {
+    const { result } = renderHook(() => useGame());
+    walkToFrozenTask(result);
+
+    expect(result.current.objectiveIndex).toBe(4);
+    expect(result.current.grandmaLine).toBe(OBJECTIVES[4].instruction);
+    expect(result.current.open.shopping).toBe(true);
+    expect(result.current.frozen).toEqual({
+      shopping: true,
+      inbox: false,
+      virus: false,
+    });
+
+    // The frozen window lands on top, then ignores every raise.
+    expect(result.current.zOrder[result.current.zOrder.length - 1]).toBe(
+      'shopping',
+    );
+    act(() => {
+      result.current.raise('inbox');
+    });
+    expect(result.current.zOrder[result.current.zOrder.length - 1]).toBe(
+      'inbox',
+    );
+    act(() => {
+      result.current.raise('shopping');
+    });
+    expect(result.current.zOrder[result.current.zOrder.length - 1]).toBe(
+      'inbox',
+    );
+
+    // Taskbar presses are dead weight, too.
+    act(() => {
+      result.current.activateWindow('shopping');
+    });
+    expect(result.current.minimized.shopping).toBe(false);
+    expect(result.current.zOrder[result.current.zOrder.length - 1]).toBe(
+      'inbox',
+    );
+
+    // Poking it trades grandma's line for a diagnosis.
+    act(() => {
+      result.current.reactFrozen();
+    });
+    expect(result.current.grandmaLine).toBe(GRANDMA_LINES.frozen);
+
+    // The task list interrupts, and End Task on a healthy window just jokes.
+    act(() => {
+      result.current.openTaskManager();
+    });
+    expect(result.current.taskManagerOpen).toBe(true);
+    act(() => {
+      result.current.endTask('inbox');
+    });
+    expect(result.current.message).toBe(JOKES.endTaskAlive);
+    expect(result.current.open.inbox).toBe(true);
+    expect(result.current.frozen.inbox).toBe(false);
+    expect(result.current.phase).toBe('playing');
+    expect(result.current.taskManagerOpen).toBe(true);
+
+    // End Task on the frozen one kills it and finishes the task.
+    act(() => {
+      result.current.endTask('shopping');
+    });
+    expect(result.current.open.shopping).toBe(false);
+    expect(result.current.frozen).toEqual({
+      shopping: false,
+      inbox: false,
+      virus: false,
+    });
+    expect(result.current.taskManagerOpen).toBe(false);
+    expect(result.current.phase).toBe('taskDone');
+    expect(result.current.message).toBeNull();
+  });
+
+  it('opens the task manager from Start and cancels it again', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.showJoke(JOKES.toasterTile);
+    });
+    act(() => {
+      result.current.toggleStart();
+    });
+    // Task Manager is START_ITEMS[8].
+    act(() => {
+      result.current.selectStartItem(START_ITEMS[8]);
+    });
+    expect(result.current.startOpen).toBe(false);
+    expect(result.current.taskManagerOpen).toBe(true);
+    // It interrupts whatever dialog was up.
+    expect(result.current.message).toBeNull();
+
+    // Its own Shut Down button runs the real shutdown flow.
+    act(() => {
+      result.current.shutDownFromTaskManager();
+    });
+    expect(result.current.taskManagerOpen).toBe(false);
+    expect(result.current.shutdownOpen).toBe(true);
+
+    act(() => {
+      result.current.closeShutdown();
+    });
+    act(() => {
+      result.current.openTaskManager();
+    });
+    expect(result.current.taskManagerOpen).toBe(true);
+    act(() => {
+      result.current.closeTaskManager();
+    });
+    expect(result.current.taskManagerOpen).toBe(false);
+  });
+
+  it('opens the task manager on the three-key chord where the browser delivers it', () => {
+    const { result } = renderHook(() => useGame());
+
+    // The splash owns the screen: the chord would only open behind the clouds.
+    fireEvent.keyDown(document, { key: 'Delete', ctrlKey: true, altKey: true });
+    expect(result.current.taskManagerOpen).toBe(false);
+
+    act(() => {
+      result.current.leavePowerScreen();
+    });
+    expect(result.current.powerScreen).toBeNull();
+
+    // Plain keys and half-modified presses stay quiet.
+    fireEvent.keyDown(document, { key: 'Delete' });
+    expect(result.current.taskManagerOpen).toBe(false);
+    fireEvent.keyDown(document, { key: 'Delete', ctrlKey: true });
+    expect(result.current.taskManagerOpen).toBe(false);
+    fireEvent.keyDown(document, { key: 'a', ctrlKey: true, altKey: true });
+    expect(result.current.taskManagerOpen).toBe(false);
+
+    // The ritual itself, on both Delete keys keyboards send.
+    fireEvent.keyDown(document, { key: 'Delete', ctrlKey: true, altKey: true });
+    expect(result.current.taskManagerOpen).toBe(true);
+
+    act(() => {
+      result.current.closeTaskManager();
+    });
+    fireEvent.keyDown(document, {
+      key: 'Backspace',
+      ctrlKey: true,
+      altKey: true,
+    });
+    expect(result.current.taskManagerOpen).toBe(true);
+  });
+
+  it('keeps the chord out of task screens and the power dialogs', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.leavePowerScreen();
+    });
+    act(() => {
+      result.current.login(MAIL_PASSWORD);
+    });
+    expect(result.current.phase).toBe('taskDone');
+    fireEvent.keyDown(document, { key: 'Delete', ctrlKey: true, altKey: true });
+    expect(result.current.taskManagerOpen).toBe(false);
+
+    act(() => {
+      result.current.nextObjective();
+    });
+    act(() => {
+      result.current.openShutdown();
+    });
+    fireEvent.keyDown(document, { key: 'Delete', ctrlKey: true, altKey: true });
+    expect(result.current.taskManagerOpen).toBe(false);
+    expect(result.current.shutdownOpen).toBe(true);
   });
 
   it('blocks the order only while the sale page is buried', () => {

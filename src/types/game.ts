@@ -4,7 +4,16 @@ export type BrowserWindowId = WindowId;
 export type GamePhase = 'playing' | 'taskDone' | 'won';
 
 export type ObjectiveEvent =
-  'logged-in' | 'email-opened' | 'order-placed' | 'scan-complete';
+  | 'logged-in'
+  | 'email-opened'
+  | 'order-placed'
+  | 'update-rebooted'
+  | 'frozen-ended'
+  | 'scan-complete';
+
+// The Windows Update dialog's click-driven stages: the stall at 99%, the
+// rollback gag, then the failure that asks for a reboot. No timers.
+export type UpdateStage = 'installing' | 'restored' | 'failed';
 
 export type PopupId = 'deal' | 'full' | 'spam';
 
@@ -107,6 +116,10 @@ export interface ObjectiveConfig {
   // Windows that spring open (or back open) when this task starts.
   open?: WindowId[];
   spawn?: PopupSpawn[];
+  // The update task: its Windows Update dialog takes over at task start.
+  update?: boolean;
+  // Windows that spring open frozen — dead to every input until End Task.
+  freeze?: WindowId[];
 }
 
 export interface PopupButtonConfig {
@@ -167,10 +180,10 @@ export interface StartMenuAppItem extends StartMenuBaseItem {
 }
 
 // Menu items whose effect isn't a fixed string: Help re-reads whatever the
-// current mission is, and Shut Down... opens the power dialog, so neither can
-// live as a message in the static content file.
+// current mission is, Shut Down... opens the power dialog, and Task Manager
+// opens the task list, so none of them live in the content file.
 export interface StartMenuActionItem extends StartMenuBaseItem {
-  action: 'show-mission' | 'shutdown';
+  action: 'show-mission' | 'shutdown' | 'task-manager';
 }
 
 export type StartMenuItem =

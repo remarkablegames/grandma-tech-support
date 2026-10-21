@@ -12,6 +12,7 @@ import {
   JOKES,
   OBJECTIVES,
   POWER_MESSAGES,
+  UPDATE_MESSAGES,
   WINDOW_META,
 } from 'src/data/gameContent';
 import { firePointer } from 'src/tests/firePointer';
@@ -56,6 +57,32 @@ async function logInThroughStart(user: UserEvent) {
   await user.type(screen.getByLabelText('Password'), 'password');
   await user.click(screen.getByRole('button', { name: 'Log in' }));
   await user.click(screen.getByRole('button', { name: 'Next task' }));
+}
+
+// Tasks 2 and 3 in one go: the real email wins, then the ad storm gets
+// cleared and the toaster ordered — ending on the task-3 win screen.
+async function orderTheToaster(user: UserEvent) {
+  await user.click(screen.getByRole('button', { name: /The Grandkids/ }));
+  expect(
+    screen.getByRole('dialog', { name: OBJECTIVES[1].doneTitle }),
+  ).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Next task' }));
+
+  // The first click jokes and storms the whole desktop...
+  await user.click(screen.getAllByRole('button', { name: /Toaster/ })[0]);
+  expect(
+    screen.getByRole('alertdialog', { name: 'System Message' }),
+  ).toHaveTextContent(JOKES.toasterTile);
+  await user.click(screen.getByRole('button', { name: 'OK' }));
+
+  // ...and clearing every pop-up lets the next click through.
+  let closeButtons = screen.getAllByRole('button', { name: 'Close popup' });
+  while (closeButtons.length > 0) {
+    await user.click(closeButtons[0]);
+    closeButtons = screen.queryAllByRole('button', { name: 'Close popup' });
+  }
+
+  await user.click(screen.getAllByRole('button', { name: /Toaster/ })[0]);
 }
 
 // App's root div is the bare desktop: the only right-click target that
@@ -981,7 +1008,7 @@ describe('App component', () => {
     expect(iconButtons).toEqual(['Sticky Notes', 'My Computer']);
   });
 
-  it('plays through the whole mission chain', async () => {
+  it('plays through the first half of the mission chain', async () => {
     const user = userEvent.setup();
     render(<App />);
     await skipSplash(user);
@@ -1016,35 +1043,143 @@ describe('App component', () => {
     ).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Next task' }));
 
-    // Task 2 — the email list replaces the log-on form.
+    // The mail gate stays open for the rest of the evening.
     expect(screen.queryByRole('button', { name: 'Log in' })).toBeNull();
-    await user.click(screen.getByRole('button', { name: /The Grandkids/ }));
-    expect(
-      screen.getByRole('dialog', { name: OBJECTIVES[1].doneTitle }),
-    ).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Next task' }));
 
-    // Task 3 — the first click jokes and storms the whole desktop...
-    await user.click(screen.getAllByRole('button', { name: /Toaster/ })[0]);
-    expect(
-      screen.getByRole('alertdialog', { name: 'System Message' }),
-    ).toHaveTextContent(JOKES.toasterTile);
-    await user.click(screen.getByRole('button', { name: 'OK' }));
-
-    // ...and clearing every pop-up lets the next click through.
-    let closeButtons = screen.getAllByRole('button', { name: 'Close popup' });
-    while (closeButtons.length > 0) {
-      await user.click(closeButtons[0]);
-      closeButtons = screen.queryAllByRole('button', { name: 'Close popup' });
-    }
-
-    await user.click(screen.getAllByRole('button', { name: /Toaster/ })[0]);
+    // Tasks 2 and 3 — the email, then the toaster through the ad storm.
+    await orderTheToaster(user);
     expect(
       screen.getByRole('dialog', { name: OBJECTIVES[2].doneTitle }),
     ).toBeInTheDocument();
+    expect(
+      screen.queryAllByRole('button', { name: 'Close popup' }),
+    ).toHaveLength(0);
+  }, 30000);
+
+  it('plays through the update, the force-quit, and the finale', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
+
+    // Tasks 1–3 walk quickly: the mail gate opens, the toaster ships.
+    await logInThroughStart(user);
+    await orderTheToaster(user);
     await user.click(screen.getByRole('button', { name: 'Next task' }));
 
-    // Task 4 — spam floods everything; the shield program sweeps it away.
+    // Task 4 — the update stalls, rolls back, and begs for a restart.
+    const update = screen.getByRole('dialog', { name: 'Windows Update' });
+    expect(
+      within(update).getByText(UPDATE_MESSAGES.installing),
+    ).toBeInTheDocument();
+    expect(
+      within(update).getByRole('progressbar', { name: 'Update progress' }),
+    ).toHaveAttribute('aria-valuenow', '99');
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.getByText(UPDATE_MESSAGES.restored)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'OK' }));
+    expect(screen.getByText(UPDATE_MESSAGES.failed)).toBeInTheDocument();
+
+    // "Later" is a liar; the dialog keeps its seat.
+    await user.click(screen.getByRole('button', { name: 'Later' }));
+    expect(
+      screen.getByRole('alertdialog', { name: 'System Message' }),
+    ).toHaveTextContent(JOKES.updateLater);
+    await user.click(screen.getByRole('button', { name: 'OK' }));
+    expect(
+      screen.getByRole('dialog', { name: 'Windows Update' }),
+    ).toBeInTheDocument();
+
+    // Restart now reboots — with every window still open behind the boot line.
+    await user.click(screen.getByRole('button', { name: 'Restart now' }));
+    expect(
+      screen.getByRole('button', { name: POWER_MESSAGES.boot }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('region', { name: WINDOW_META[1].title }),
+    ).toBeInTheDocument();
+
+    // A click lifts the clouds like every other beat; the task completes
+    // with the reveal.
+    const splash = await screen.findByRole(
+      'button',
+      { name: 'Rainbows95' },
+      { timeout: 3000 },
+    );
+    await user.click(splash);
+    expect(
+      await screen.findByRole('dialog', { name: OBJECTIVES[3].doneTitle }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Next task' }));
+
+    // Task 5 — the bargain page came back frozen: gray, wait-cursed, deaf.
+    const frozenWindow = screen.getByRole('region', {
+      name: `${WINDOW_META[0].title} (Not responding)`,
+    });
+    expect(frozenWindow.className).toContain('cursor-wait');
+    expect(frozenWindow.querySelector('.win-titlebar-inactive')).not.toBeNull();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      OBJECTIVES[4].instruction,
+    );
+
+    // Even the close button just earns grandma's diagnosis.
+    await user.click(
+      within(frozenWindow).getByRole('button', {
+        name: `Close ${WINDOW_META[0].title} (Not responding)`,
+      }),
+    );
+    expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.frozen);
+    expect(
+      screen.getByRole('region', {
+        name: `${WINDOW_META[0].title} (Not responding)`,
+      }),
+    ).toBeInTheDocument();
+
+    // The taught route: Start > Task Manager.
+    await openFromStart(user, 'Task Manager');
+    const taskManager = screen.getByRole('dialog', { name: 'Task Manager' });
+    expect(
+      within(taskManager).getByRole('button', {
+        name: `${WINDOW_META[0].title} (Not responding)`,
+      }),
+    ).toBeInTheDocument();
+
+    // End Task on a healthy window is a harmless joke.
+    await user.click(
+      within(taskManager).getByRole('button', { name: WINDOW_META[1].title }),
+    );
+    await user.click(
+      within(taskManager).getByRole('button', { name: 'End Task' }),
+    );
+    expect(
+      screen.getByRole('alertdialog', { name: 'System Message' }),
+    ).toHaveTextContent(JOKES.endTaskAlive);
+    await user.click(screen.getByRole('button', { name: 'OK' }));
+    expect(
+      screen.getByRole('dialog', { name: 'Task Manager' }),
+    ).toBeInTheDocument();
+
+    // The frozen one goes down for real.
+    await user.click(
+      within(taskManager).getByRole('button', {
+        name: `${WINDOW_META[0].title} (Not responding)`,
+      }),
+    );
+    await user.click(
+      within(taskManager).getByRole('button', { name: 'End Task' }),
+    );
+    expect(screen.queryByRole('dialog', { name: 'Task Manager' })).toBeNull();
+    expect(
+      screen.queryByRole('region', {
+        name: `${WINDOW_META[0].title} (Not responding)`,
+      }),
+    ).toBeNull();
+    expect(
+      await screen.findByRole('dialog', { name: OBJECTIVES[4].doneTitle }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Next task' }));
+
+    // Task 6 — spam floods everything; the shield program sweeps it away.
     expect(screen.getAllByRole('button', { name: 'Close popup' })).toHaveLength(
       9,
     );
@@ -1063,7 +1198,7 @@ describe('App component', () => {
     expect(
       await screen.findByRole(
         'dialog',
-        { name: OBJECTIVES[3].doneTitle },
+        { name: OBJECTIVES[5].doneTitle },
         { timeout: 3000 },
       ),
     ).toBeInTheDocument();
@@ -1078,5 +1213,19 @@ describe('App component', () => {
       screen.queryAllByRole('button', { name: 'Close popup' }),
     ).toHaveLength(0);
     expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
-  }, 30000);
+  }, 60000);
+
+  it('opens the task manager from the three-key chord where the browser delivers it', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
+
+    fireEvent.keyDown(document, { key: 'Delete', ctrlKey: true, altKey: true });
+    const taskManager = screen.getByRole('dialog', { name: 'Task Manager' });
+    // Nothing is open, so only the dialog's own buttons are left.
+    expect(within(taskManager).queryAllByRole('button')).toHaveLength(3);
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('dialog', { name: 'Task Manager' })).toBeNull();
+  });
 });

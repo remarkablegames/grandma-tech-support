@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { WINDOW_META } from 'src/data/gameContent';
-import type { IconTaskbarItem } from 'src/types/game';
+import type { IconTaskbarItem, WindowId } from 'src/types/game';
 
 import { Taskbar } from '.';
 
@@ -42,13 +42,23 @@ const iconWindows: IconTaskbarItem[] = [
   },
 ];
 
-function renderTaskbar(startOpen: boolean) {
+const THAWED: Record<WindowId, boolean> = {
+  shopping: false,
+  inbox: false,
+  virus: false,
+};
+
+function renderTaskbar(
+  startOpen: boolean,
+  frozen: Record<WindowId, boolean> = THAWED,
+) {
   return render(
     <Taskbar
       windows={WINDOW_META}
       iconWindows={iconWindows}
       focusedId="inbox"
       focusedIconId="computer"
+      frozen={frozen}
       startOpen={startOpen}
       onStartToggle={onStartToggle}
       onWindowClick={onWindowClick}
@@ -130,5 +140,27 @@ describe('Taskbar component', () => {
     expect(onIconWindowClick).toHaveBeenCalledWith('notes');
     expect(onWindowClick).not.toHaveBeenCalled();
     expect(play).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps a frozen window's button labeled but never promising a switch", async () => {
+    const user = userEvent.setup();
+    renderTaskbar(false, { ...THAWED, inbox: true });
+
+    const title = WINDOW_META[1].title;
+    expect(
+      screen.queryByRole('button', {
+        name: `Switch to ${title} (Not responding)`,
+      }),
+    ).toBeNull();
+
+    const frozenButton = screen.getByRole('button', {
+      name: `${title} (Not responding)`,
+    });
+    expect(frozenButton).toHaveTextContent('(Not responding)');
+
+    // The press still reports; the game is what ignores it.
+    await user.click(frozenButton);
+    expect(onWindowClick).toHaveBeenCalledWith('inbox');
+    expect(play).toHaveBeenCalledWith('click');
   });
 });

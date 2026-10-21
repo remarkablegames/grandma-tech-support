@@ -31,6 +31,8 @@ import { ShoppingWindow } from '../ShoppingWindow';
 import { ShutdownDialog } from '../ShutdownDialog';
 import { StartMenu } from '../StartMenu';
 import { Taskbar } from '../Taskbar';
+import { TaskManager } from '../TaskManager';
+import { UpdateDialog } from '../UpdateDialog';
 import { VirusWindow } from '../VirusWindow';
 import { WinScreen } from '../WinScreen';
 
@@ -191,6 +193,7 @@ export function App() {
                 position={game.positions[meta.id]}
                 isFront={game.focusedId === meta.id}
                 maximized={game.maximized[meta.id]}
+                frozen={game.frozen[meta.id]}
                 zIndex={10 + game.zOrder.indexOf(meta.id)}
                 onFocus={game.raise}
                 onMove={game.moveWindow}
@@ -198,6 +201,7 @@ export function App() {
                 onToggleMaximize={game.toggleMaximize}
                 onClose={game.closeWindow}
                 onJoke={game.showJoke}
+                onFrozenClick={game.reactFrozen}
               >
                 {meta.id === 'shopping' && (
                   <ShoppingWindow onBuy={game.buyToaster} />
@@ -281,6 +285,7 @@ export function App() {
             iconWindows={iconTaskbarItems}
             focusedId={game.focusedId}
             focusedIconId={game.iconFocusedId}
+            frozen={game.frozen}
             startOpen={game.startOpen}
             onStartToggle={game.toggleStart}
             onWindowClick={game.activateWindow}
@@ -298,6 +303,25 @@ export function App() {
               items={contextMenu.items}
               onSelect={handleContextMenuSelect}
               onDismiss={closeContextMenu}
+            />
+          )}
+
+          {game.updateStage !== null && (
+            <UpdateDialog
+              stage={game.updateStage}
+              onAdvance={game.advanceUpdate}
+              onLater={game.laterUpdate}
+              onRestart={game.rebootUpdate}
+            />
+          )}
+
+          {game.taskManagerOpen && (
+            <TaskManager
+              windows={openWindows}
+              frozen={game.frozen}
+              onEndTask={game.endTask}
+              onShutDown={game.shutDownFromTaskManager}
+              onCancel={game.closeTaskManager}
             />
           )}
 

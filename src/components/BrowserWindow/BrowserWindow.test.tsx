@@ -23,8 +23,9 @@ const onMinimize = vi.fn();
 const onToggleMaximize = vi.fn();
 const onClose = vi.fn();
 const onJoke = vi.fn();
+const onFrozenClick = vi.fn();
 
-function renderWindow(isFront: boolean, maximized = false) {
+function renderWindow(isFront: boolean, maximized = false, frozen = false) {
   return render(
     <BrowserWindow
       windowId="inbox"
@@ -34,6 +35,7 @@ function renderWindow(isFront: boolean, maximized = false) {
       position={{ x: 100, y: 50 }}
       isFront={isFront}
       maximized={maximized}
+      frozen={frozen}
       zIndex={10}
       onFocus={onFocus}
       onMove={onMove}
@@ -41,6 +43,7 @@ function renderWindow(isFront: boolean, maximized = false) {
       onToggleMaximize={onToggleMaximize}
       onClose={onClose}
       onJoke={onJoke}
+      onFrozenClick={onFrozenClick}
     >
       <p>Window body</p>
     </BrowserWindow>,
@@ -229,5 +232,49 @@ describe('BrowserWindow component', () => {
     expect(onMove).not.toHaveBeenCalled();
     // The press still raises the window; only the drag stays home.
     expect(onFocus).toHaveBeenCalledWith('inbox');
+  });
+
+  it('goes dead and labels itself when frozen', async () => {
+    const user = userEvent.setup();
+    renderWindow(true, false, true);
+
+    const name = 'Test Window (Not responding)';
+    const frame = screen.getByRole('region', { name });
+    expect(frame.className).toContain('cursor-wait');
+    // In front, but the title bar stays gray like a hung window.
+    expect(frame.querySelector('.win-titlebar-inactive')).not.toBeNull();
+    expect(frame.querySelector('.win-titlebar')).toBeNull();
+
+    // Poking it trades focus for grandma's diagnosis instead.
+    firePointer(frame, 'pointerdown');
+    expect(onFrozenClick).toHaveBeenCalledTimes(1);
+    expect(onFocus).not.toHaveBeenCalled();
+    expect(play).toHaveBeenCalledWith('click');
+
+    // Every chrome button dies with it; each press still bubbles to the frame.
+    await user.click(screen.getByRole('button', { name: `Close ${name}` }));
+    expect(onClose).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: `Minimize ${name}` }));
+    expect(onMinimize).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: `Maximize ${name}` }));
+    expect(onToggleMaximize).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: `Back in ${name}` }));
+    await user.click(
+      screen.getByRole('button', { name: `Forward in ${name}` }),
+    );
+    expect(onJoke).not.toHaveBeenCalled();
+
+    const titleButton = screen.getByRole('button', { name });
+    await user.click(titleButton);
+    expect(onFocus).not.toHaveBeenCalled();
+    expect(onFrozenClick).toHaveBeenCalledTimes(7);
+
+    // And the drag never latches.
+    firePointer(titleButton, 'pointerdown', { clientX: 100, clientY: 50 });
+    firePointer(window, 'pointermove', { clientX: 300, clientY: 200 });
+    expect(onMove).not.toHaveBeenCalled();
   });
 });

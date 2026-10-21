@@ -13,14 +13,24 @@ interface TaskbarButtonProps {
   icon: string;
   title: string;
   focused: boolean;
+  frozen: boolean;
   onClick: () => void;
 }
 
-function TaskbarButton({ icon, title, focused, onClick }: TaskbarButtonProps) {
+function TaskbarButton({
+  icon,
+  title,
+  focused,
+  frozen,
+  onClick,
+}: TaskbarButtonProps) {
+  // A frozen window's button keeps its label but never promises a switch.
+  const displayTitle = frozen ? `${title} (Not responding)` : title;
+
   return (
     <button
       type="button"
-      aria-label={`Switch to ${title}`}
+      aria-label={frozen ? displayTitle : `Switch to ${displayTitle}`}
       onClick={() => {
         audio.play('click');
         onClick();
@@ -37,7 +47,7 @@ function TaskbarButton({ icon, title, focused, onClick }: TaskbarButtonProps) {
         draggable={false}
         className="pixelated size-4 shrink-0"
       />
-      <span className="truncate">{title}</span>
+      <span className="truncate">{displayTitle}</span>
     </button>
   );
 }
@@ -47,6 +57,7 @@ interface TaskbarProps {
   iconWindows: IconTaskbarItem[];
   focusedId: WindowId | undefined;
   focusedIconId: IconWindowId | undefined;
+  frozen: Record<WindowId, boolean>;
   startOpen: boolean;
   onStartToggle: () => void;
   onWindowClick: (windowId: WindowId) => void;
@@ -58,6 +69,7 @@ export function Taskbar({
   iconWindows,
   focusedId,
   focusedIconId,
+  frozen,
   startOpen,
   onStartToggle,
   onWindowClick,
@@ -96,6 +108,7 @@ export function Taskbar({
           icon={meta.icon}
           title={meta.title}
           focused={focusedId === meta.id}
+          frozen={frozen[meta.id]}
           onClick={() => {
             onWindowClick(meta.id);
           }}
@@ -108,6 +121,7 @@ export function Taskbar({
           icon={item.icon}
           title={item.title}
           focused={focusedIconId === item.id}
+          frozen={false}
           onClick={() => {
             onIconWindowClick(item.id);
           }}
