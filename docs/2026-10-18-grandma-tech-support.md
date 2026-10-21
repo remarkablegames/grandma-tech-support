@@ -162,11 +162,11 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
   `Shut down the computer?` (default) / `Restart the computer?` radios and an
   autofocused `OK` beside `Cancel`. Cancel just closes it. Shutting down and
   restarting both pause the theme and go full-screen black — the amber safe-off line
-  (click or keypress returns, state untouched) versus the `Starting Rainbows95...`
-  boot line, which hands off to the clouds splash before the reset desktop appears.
-  Each transition plays its power sound, and the desktop's return resumes the theme.
-  The splash also opens the game itself. Full spec:
-  [shutdown](./2026-10-20-shutdown-restart.md).
+  or the `Starting Rainbows95...` boot line — and both hand off to the clouds
+  splash: the safe wake back to an untouched desktop, the restart to the reset one,
+  each beat skippable by click. Each transition plays its power sound, and the
+  desktop's return resumes the theme. The splash also opens the game itself. Full
+  spec: [shutdown](./2026-10-20-shutdown-restart.md).
 - **Right-click.** The browser’s own context menu is suppressed everywhere. The
   bare desktop opens Win95’s menu — Arrange Icons, Line up Icons, greyed-out
   Paste and Paste Shortcut, Refresh, Properties — every live entry a grandma
@@ -258,8 +258,9 @@ src/
   as `'splash'`: the game boots through the clouds screen, which holds the whole
   desktop back until it lifts. `confirmShutdown(mode)` closes the dialog, plays
   the power sound, and pauses the theme; only restart also runs `playAgain()`
-  behind the screens. `leavePowerScreen()` walks boot → splash → desktop, where
-  the return sound and theme wait, and `playAgain()` clears both flags. See
+  behind the screens. `leavePowerScreen()` walks either black line → splash →
+  desktop, where the return sound and theme wait, and `playAgain()` clears both
+  flags. See
   [shutdown](./2026-10-20-shutdown-restart.md).
 - `openIconWindows`, `iconWindowPositions`, `iconZOrder`, `iconMinimized` — desktop
   mini-windows; `openIconWindow` cascades the default position per open window,

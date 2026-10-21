@@ -142,8 +142,6 @@ export function App() {
       className="bg-win-desktop relative h-dvh w-full overflow-hidden select-none"
       onContextMenu={handleRootContextMenu}
     >
-      {/* The clouds splash holds the whole desktop back at boot; it mounts
-          as the clouds lift, so grandma's intro greets the reveal. */}
       {game.powerScreen !== 'splash' && (
         <>
           <div className="absolute top-2 left-2 z-[5] flex flex-col gap-1">

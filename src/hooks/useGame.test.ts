@@ -598,6 +598,15 @@ describe('useGame hook', () => {
       result.current.leavePowerScreen();
     });
 
+    // The safe line powers up through the clouds splash, state untouched.
+    expect(result.current.powerScreen).toBe('splash');
+    expect(result.current.open.inbox).toBe(true);
+    expect(play).not.toHaveBeenCalledWith('startup');
+
+    act(() => {
+      result.current.leavePowerScreen();
+    });
+
     expect(result.current.powerScreen).toBeNull();
     expect(result.current.open.inbox).toBe(true);
     expect(play).toHaveBeenCalledWith('startup');

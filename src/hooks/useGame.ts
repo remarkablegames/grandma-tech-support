@@ -463,11 +463,13 @@ export function useGame() {
     setPowerScreen(mode === 'restart' ? 'boot' : 'safe');
   };
 
-  // Leaving a power screen: the boot line advances to the clouds splash;
-  // everything else brings the desktop back with the startup sound and the
-  // theme — the safe line over untouched state, the splash over a reset.
+  // Leaving a power screen: both black lines — the boot line after a
+  // restart, the safe-off toast after a shutdown — advance to the clouds
+  // splash, the way a machine comes back on either way. The splash itself
+  // brings the desktop back with the startup sound and the theme: the safe
+  // return over untouched state, the restart return over a reset.
   const leavePowerScreen = () => {
-    if (powerScreen === 'boot') {
+    if (powerScreen === 'boot' || powerScreen === 'safe') {
       setPowerScreen('splash');
       return;
     }

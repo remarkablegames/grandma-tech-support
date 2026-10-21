@@ -826,12 +826,24 @@ describe('App component', () => {
 
     await user.click(powerOff);
 
-    expect(play).toHaveBeenCalledWith('startup');
-    // Mount, the splash's gesture and its lift, then the wake itself.
-    expect(startMusic).toHaveBeenCalledTimes(4);
+    // Waking runs the same boot ritual: clouds up first, desktop held back.
+    expect(
+      screen.getByRole('button', { name: 'Rainbows95' }),
+    ).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: POWER_MESSAGES.safe }),
     ).toBeNull();
+
+    await waitFor(
+      () => {
+        expect(screen.queryByRole('button', { name: 'Rainbows95' })).toBeNull();
+      },
+      { timeout: 4000 },
+    );
+
+    expect(play).toHaveBeenCalledWith('startup');
+    // Mount, the load splash's gesture and lift, then the wake's own lift.
+    expect(startMusic).toHaveBeenCalledTimes(4);
     expect(
       screen.getByRole('region', { name: WINDOW_META[1].title }),
     ).toBeInTheDocument();
