@@ -55,7 +55,8 @@ describe('useGame hook', () => {
     expect(result.current.selectedIcon).toBeNull();
     expect(result.current.startOpen).toBe(false);
     expect(result.current.shutdownOpen).toBe(false);
-    expect(result.current.blackScreen).toBeNull();
+    // The game itself boots through the clouds splash.
+    expect(result.current.powerScreen).toBe('splash');
     expect(result.current.minimized).toEqual({
       shopping: false,
       inbox: false,
@@ -571,7 +572,8 @@ describe('useGame hook', () => {
       result.current.closeShutdown();
     });
     expect(result.current.shutdownOpen).toBe(false);
-    expect(result.current.blackScreen).toBeNull();
+    // Cancel never touches the power screen: the boot splash is still up.
+    expect(result.current.powerScreen).toBe('splash');
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.shutDown);
     expect(pauseMusic).not.toHaveBeenCalled();
   });
@@ -587,16 +589,16 @@ describe('useGame hook', () => {
     });
 
     expect(result.current.shutdownOpen).toBe(false);
-    expect(result.current.blackScreen).toBe('safe');
+    expect(result.current.powerScreen).toBe('safe');
     expect(result.current.open.inbox).toBe(true);
     expect(play).toHaveBeenCalledWith('shutdown');
     expect(pauseMusic).toHaveBeenCalledTimes(1);
 
     act(() => {
-      result.current.returnFromBlack();
+      result.current.leavePowerScreen();
     });
 
-    expect(result.current.blackScreen).toBeNull();
+    expect(result.current.powerScreen).toBeNull();
     expect(result.current.open.inbox).toBe(true);
     expect(play).toHaveBeenCalledWith('startup');
     expect(startMusic).toHaveBeenCalledTimes(1);
@@ -615,7 +617,7 @@ describe('useGame hook', () => {
       result.current.confirmShutdown('restart');
     });
 
-    expect(result.current.blackScreen).toBe('boot');
+    expect(result.current.powerScreen).toBe('boot');
     expect(result.current.open).toEqual({
       shopping: false,
       inbox: false,
@@ -626,11 +628,33 @@ describe('useGame hook', () => {
     expect(play).toHaveBeenCalledWith('shutdown');
     expect(pauseMusic).toHaveBeenCalledTimes(1);
 
+    // The boot line hands off to the clouds splash; the chime waits for
+    // the desktop, not for the middle of the sequence.
     act(() => {
-      result.current.returnFromBlack();
+      result.current.leavePowerScreen();
+    });
+    expect(result.current.powerScreen).toBe('splash');
+    expect(play).not.toHaveBeenCalledWith('startup');
+
+    act(() => {
+      result.current.leavePowerScreen();
     });
 
-    expect(result.current.blackScreen).toBeNull();
+    expect(result.current.powerScreen).toBeNull();
+    expect(play).toHaveBeenCalledWith('startup');
+    expect(startMusic).toHaveBeenCalledTimes(1);
+  });
+
+  it('boots through the clouds splash on load', () => {
+    const { result } = renderHook(() => useGame());
+
+    expect(result.current.powerScreen).toBe('splash');
+
+    act(() => {
+      result.current.leavePowerScreen();
+    });
+
+    expect(result.current.powerScreen).toBeNull();
     expect(play).toHaveBeenCalledWith('startup');
     expect(startMusic).toHaveBeenCalledTimes(1);
   });
@@ -646,7 +670,7 @@ describe('useGame hook', () => {
     });
 
     expect(result.current.shutdownOpen).toBe(false);
-    expect(result.current.blackScreen).toBeNull();
+    expect(result.current.powerScreen).toBeNull();
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.intro);
   });
 

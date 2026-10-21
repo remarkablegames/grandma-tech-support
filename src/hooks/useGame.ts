@@ -13,7 +13,6 @@ import {
 } from 'src/data/gameContent';
 import { audio } from 'src/services/audio';
 import type {
-  BlackScreenMode,
   DesktopIconConfig,
   GamePhase,
   IconWindowId,
@@ -23,6 +22,7 @@ import type {
   PopupButtonConfig,
   PopupId,
   PopupSpawn,
+  PowerScreenMode,
   ShutdownMode,
   StartMenuItem,
   WindowId,
@@ -113,10 +113,13 @@ export function useGame() {
   const [systemMessage, setSystemMessage] = useState<string | null>(null);
   const [messageVariant, setMessageVariant] = useState<MessageVariant>('joke');
 
-  // The power screens: the Shut Down dialog, and which full-screen black
-  // line (if any) is covering the desktop on top of everything else.
+  // The power screens: the Shut Down dialog, and which full-screen boot beat
+  // (if any) covers the desktop on top of everything. The game itself boots
+  // through the clouds splash, so that's where the screen state starts.
   const [shutdownOpen, setShutdownOpen] = useState(false);
-  const [blackScreen, setBlackScreen] = useState<BlackScreenMode | null>(null);
+  const [powerScreen, setPowerScreen] = useState<PowerScreenMode | null>(
+    'splash',
+  );
 
   // Jokes keep grandma's 😅 dialog; error copy opts into the red X and ding.
   const setMessage = (
@@ -431,7 +434,7 @@ export function useGame() {
     setLoggedIn(false);
     setStormTriggered(false);
     setShutdownOpen(false);
-    setBlackScreen(null);
+    setPowerScreen(null);
   };
 
   // Start > Shut Down... : grandma protests in the bubble (the dialog itself
@@ -446,7 +449,7 @@ export function useGame() {
   };
 
   // Both exits go black with the power sound and the theme paused; only
-  // restart resets the desktop, and it does so behind the screen so the
+  // restart resets the desktop, and it does so behind the screens so the
   // player never catches the swap.
   const confirmShutdown = (mode: ShutdownMode) => {
     setShutdownOpen(false);
@@ -457,13 +460,19 @@ export function useGame() {
       playAgain();
     }
 
-    setBlackScreen(mode === 'restart' ? 'boot' : 'safe');
+    setPowerScreen(mode === 'restart' ? 'boot' : 'safe');
   };
 
-  // Returning from either screen brings the theme back with the startup
-  // sound: the safe line over untouched state, the boot line over a reset.
-  const returnFromBlack = () => {
-    setBlackScreen(null);
+  // Leaving a power screen: the boot line advances to the clouds splash;
+  // everything else brings the desktop back with the startup sound and the
+  // theme — the safe line over untouched state, the splash over a reset.
+  const leavePowerScreen = () => {
+    if (powerScreen === 'boot') {
+      setPowerScreen('splash');
+      return;
+    }
+
+    setPowerScreen(null);
     audio.play('startup');
     audio.startMusic();
   };
@@ -532,7 +541,7 @@ export function useGame() {
     selectedIcon,
     startOpen,
     shutdownOpen,
-    blackScreen,
+    powerScreen,
     raise,
     moveWindow,
     minimize,
@@ -564,6 +573,6 @@ export function useGame() {
     openShutdown,
     closeShutdown,
     confirmShutdown,
-    returnFromBlack,
+    leavePowerScreen,
   };
 }

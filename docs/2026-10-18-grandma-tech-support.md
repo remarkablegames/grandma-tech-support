@@ -17,8 +17,10 @@ defuse a pop-up storm) while dodging fake warnings and misleading buttons.
 
 ## Core loop
 
-1. The desktop opens blank — desktop icons, taskbar, and Grandma’s instruction, the
-   current task, in her own words:
+1. Rainbows95 boots through the clouds splash (the `logo.svg` flag over
+   `backgrounds/clouds.jpg`), and as the clouds lift the desktop opens blank —
+   desktop icons, taskbar, and Grandma’s instruction, the current task, in her own
+   words:
    > I need to check my email, dear. It should be in the Start menu.
    > I wrote my password in a note somewhere.
 2. The player launches the Inbox from the Start menu, digs through desktop icon windows
@@ -161,8 +163,9 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
   autofocused `OK` beside `Cancel`. Cancel just closes it. Shutting down and
   restarting both pause the theme and go full-screen black — the amber safe-off line
   (click or keypress returns, state untouched) versus the `Starting Rainbows95...`
-  boot line (returns on its own, game reset behind it). Each transition plays its
-  power sound, and returning resumes the theme. Full spec:
+  boot line, which hands off to the clouds splash before the reset desktop appears.
+  Each transition plays its power sound, and the desktop's return resumes the theme.
+  The splash also opens the game itself. Full spec:
   [shutdown](./2026-10-20-shutdown-restart.md).
 - **Right-click.** The browser’s own context menu is suppressed everywhere. The
   bare desktop opens Win95’s menu — Arrange Icons, Line up Icons, greyed-out
@@ -210,7 +213,7 @@ src/
 │   ├── Popup/           single pop-up dialog (liar buttons + real ×)
 │   ├── MessageDialog/   Win95 joke dialog (OK)
 │   ├── ShutdownDialog/  Win95 power dialog (shutdown vs restart radios)
-│   ├── BlackScreen/     full-screen safe-off / boot line over everything
+│   ├── PowerScreen/     clouds splash + safe-off / boot beats over everything
 │   ├── ShoppingWindow/  ad-crusted sale page (joke tiles)
 │   ├── InboxWindow/     log-on gate + toolbar pixels + email list
 │   ├── VirusWindow/     blinking red alert + two joke buttons
@@ -220,7 +223,7 @@ src/
 │   ├── StartMenu/       launchers (Inbox, Internet) + joke menu items
 │   └── WinScreen/       prop-driven task/win overlay
 ├── hooks/useDoubleClickOpen.ts shared double-click/Enter open gesture
-├── hooks/useGame.ts     z-order, positions, pop-ups, dialogs, mission chain, menu state
+├── hooks/useGame.ts     z-order, positions, pop-ups, dialogs, mission chain, menu state, power screens
 ├── utils/createWindowDrag.ts shared title-bar pointer-drag for both window kinds
 ├── services/audio.ts    SFX over HTMLAudioElement, volume/mute + localStorage
 ├── data/gameContent.ts  every title, URL, joke, popup config, email, menu item, objective
@@ -250,11 +253,13 @@ src/
 - `selectedIcon`, `startOpen` — desktop/menu state. The right-click context menu
   lives in App (not `useGame`): desktop vs. icon menu, coordinates, and the
   icon’s stored open action.
-- `shutdownOpen`, `blackScreen: 'safe' | 'boot' | null` — the power dialog and
-  the full-screen line above every other layer. `confirmShutdown(mode)` closes
-  the dialog, plays the power sound, and pauses the theme; only restart also
-  runs `playAgain()` behind the screen. `returnFromBlack()` resumes everything,
-  and `playAgain()` clears both flags. See
+- `shutdownOpen`, `powerScreen: 'safe' | 'boot' | 'splash' | null` — the power
+  dialog and the full-screen beats above every other layer. `powerScreen` starts
+  as `'splash'`: the game boots through the clouds screen, which holds the whole
+  desktop back until it lifts. `confirmShutdown(mode)` closes the dialog, plays
+  the power sound, and pauses the theme; only restart also runs `playAgain()`
+  behind the screens. `leavePowerScreen()` walks boot → splash → desktop, where
+  the return sound and theme wait, and `playAgain()` clears both flags. See
   [shutdown](./2026-10-20-shutdown-restart.md).
 - `openIconWindows`, `iconWindowPositions`, `iconZOrder`, `iconMinimized` — desktop
   mini-windows; `openIconWindow` cascades the default position per open window,

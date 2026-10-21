@@ -68,13 +68,38 @@ function getDesktop(container: HTMLElement): HTMLElement {
   return desktop;
 }
 
+// Every boot opens on the clouds splash; click it to reach the desktop
+// (the real game also auto-lifts it after a beat).
+async function skipSplash(user: UserEvent) {
+  await user.click(screen.getByRole('button', { name: 'Rainbows95' }));
+}
+
 describe('App component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('greets with grandma’s instructions', () => {
+  it('boots through the clouds splash before the desktop appears', async () => {
+    const user = userEvent.setup();
     render(<App />);
+
+    // The splash owns the screen until it lifts.
+    const splash = screen.getByRole('button', { name: 'Rainbows95' });
+    expect(splash.style.backgroundImage).toContain('backgrounds/clouds.jpg');
+    expect(screen.queryByRole('button', { name: 'Start' })).toBeNull();
+    expect(screen.queryByRole('status')).toBeNull();
+
+    await user.click(splash);
+
+    expect(screen.queryByRole('button', { name: 'Rainbows95' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Start' })).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
+  });
+
+  it('greets with grandma’s instructions', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
 
     expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
     expect(screen.queryByRole('menu')).toBeNull();
@@ -127,6 +152,7 @@ describe('App component', () => {
   it('opens browser windows from the Start menu and closes them for real', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     // The desktop starts with nothing open.
     expect(
@@ -165,8 +191,10 @@ describe('App component', () => {
     ).toBeInTheDocument();
   });
 
-  it('starts on a blank desktop with the icons and tray', () => {
+  it('starts on a blank desktop with the icons and tray', async () => {
+    const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     DESKTOP_ICONS.forEach((icon) => {
       expect(
@@ -190,6 +218,7 @@ describe('App component', () => {
   it('brings clicked windows to the front', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await openFromStart(user, 'Inbox');
     await openFromStart(user, 'Internet');
@@ -219,6 +248,7 @@ describe('App component', () => {
   it('minimizes a window to the taskbar and toggles it from there', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
     const meta = WINDOW_META[1];
 
     await openFromStart(user, 'Inbox');
@@ -248,6 +278,7 @@ describe('App component', () => {
   it('fills the desktop when maximized and restores back in place', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
     const meta = WINDOW_META[1];
 
     await openFromStart(user, 'Inbox');
@@ -275,6 +306,7 @@ describe('App component', () => {
   it('jokes about misleading buttons and lets the player retry', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await logInThroughStart(user);
 
@@ -297,6 +329,7 @@ describe('App component', () => {
   it('spawns extra popups when a liar Close button is clicked', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await logInThroughStart(user);
 
@@ -318,6 +351,7 @@ describe('App component', () => {
   it('logs in, dismisses the popup, and opens the email', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     // Task 1 — launch the mail, then the password lives on the other note.
     await openFromStart(user, 'Inbox');
@@ -368,6 +402,7 @@ describe('App component', () => {
   it('wires page, chrome, and product jokes through to the dialog', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await logInThroughStart(user);
 
@@ -396,6 +431,7 @@ describe('App component', () => {
   it('jokes about decoy emails and the broken desktop mail icon', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     // Get past the log-on gate first.
     await logInThroughStart(user);
@@ -426,6 +462,7 @@ describe('App component', () => {
   it('lets grandma re-read the mission after the decoy reaction', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await logInThroughStart(user);
     expect(screen.getByRole('status')).toHaveTextContent(
@@ -449,6 +486,7 @@ describe('App component', () => {
   it('serves Win95’s menu on a bare desktop right-click', async () => {
     const user = userEvent.setup();
     const { container } = render(<App />);
+    await skipSplash(user);
 
     // The native menu never stands a chance.
     const prevented = fireEvent.contextMenu(getDesktop(container), {
@@ -476,6 +514,7 @@ describe('App component', () => {
   it('puts the Start menu away when the desktop menu opens', async () => {
     const user = userEvent.setup();
     const { container } = render(<App />);
+    await skipSplash(user);
 
     await user.click(screen.getByRole('button', { name: 'Start' }));
     expect(
@@ -496,6 +535,7 @@ describe('App component', () => {
   it('swallows right-clicks on windows and the taskbar', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await openFromStart(user, 'Inbox');
     const meta = WINDOW_META[1];
@@ -516,6 +556,7 @@ describe('App component', () => {
   it('opens an icon’s menu with Open behaving like a double-click', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     const mailIcon = screen.getByRole('button', { name: 'Grandma’s Mail' });
     const prevented = fireEvent.contextMenu(mailIcon, {
@@ -541,6 +582,7 @@ describe('App component', () => {
   it('opens an icon window from its context menu', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     fireEvent.contextMenu(screen.getByRole('button', { name: 'My Computer' }));
     const menu = screen.getByRole('menu', { name: 'Context menu' });
@@ -555,6 +597,7 @@ describe('App component', () => {
   it('jokes about deleting an icon', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     fireEvent.contextMenu(screen.getByRole('button', { name: 'My Computer' }));
     const menu = screen.getByRole('menu', { name: 'Context menu' });
@@ -569,6 +612,7 @@ describe('App component', () => {
   it('opens the folder menu on a list window’s background', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await user.dblClick(screen.getByRole('button', { name: 'My Computer' }));
     const region = screen.getByRole('region', { name: 'My Computer' });
@@ -592,6 +636,7 @@ describe('App component', () => {
   it('opens the file menu on a row instead of the folder menu', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await user.dblClick(screen.getByRole('button', { name: 'My Computer' }));
     const region = screen.getByRole('region', { name: 'My Computer' });
@@ -622,6 +667,7 @@ describe('App component', () => {
   it('opens a file from its row menu', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await user.dblClick(screen.getByRole('button', { name: 'My Documents' }));
     const region = screen.getByRole('region', { name: 'My Documents' });
@@ -639,6 +685,7 @@ describe('App component', () => {
   it('keeps note windows suppress-only on right-click', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await user.dblClick(screen.getByRole('button', { name: 'Sticky Notes' }));
     const prevented = fireEvent.contextMenu(
@@ -652,6 +699,7 @@ describe('App component', () => {
   it('opens a desktop icon window on double-click and closes it', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await user.dblClick(screen.getByRole('button', { name: 'My Computer' }));
 
@@ -667,6 +715,7 @@ describe('App component', () => {
   it('drags an icon window across the desktop', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await user.dblClick(screen.getByRole('button', { name: 'My Computer' }));
 
@@ -692,6 +741,7 @@ describe('App component', () => {
   it('does not reward clicking the urgent virus warning', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     // The virus window springs open with the task-2 chaos.
     await logInThroughStart(user);
@@ -716,6 +766,7 @@ describe('App component', () => {
   it('opens the shut down dialog with grandma protesting in the bubble', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await user.click(screen.getByRole('button', { name: 'Start' }));
     expect(
@@ -739,6 +790,7 @@ describe('App component', () => {
   it('cancels the shut down dialog and keeps grandma’s protest', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await openFromStart(user, 'Shut Down...');
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
@@ -756,6 +808,7 @@ describe('App component', () => {
   it('shuts down to the safe screen and wakes with the desktop untouched', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await openFromStart(user, 'Inbox');
     await openFromStart(user, 'Shut Down...');
@@ -774,7 +827,8 @@ describe('App component', () => {
     await user.click(powerOff);
 
     expect(play).toHaveBeenCalledWith('startup');
-    expect(startMusic).toHaveBeenCalledTimes(3);
+    // Mount, the splash's gesture and its lift, then the wake itself.
+    expect(startMusic).toHaveBeenCalledTimes(4);
     expect(
       screen.queryByRole('button', { name: POWER_MESSAGES.safe }),
     ).toBeNull();
@@ -786,6 +840,7 @@ describe('App component', () => {
   it('restarts through the boot screen to a fresh desktop', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await openFromStart(user, 'Inbox');
     await openFromStart(user, 'Shut Down...');
@@ -797,7 +852,7 @@ describe('App component', () => {
     expect(pauseMusic).toHaveBeenCalledTimes(1);
     expect(play).toHaveBeenCalledWith('shutdown');
 
-    // The reset happens behind the screen: no windows, intro bubble back.
+    // The reset happens behind the boot line: no windows, intro bubble back.
     expect(
       screen.getByRole('button', { name: POWER_MESSAGES.boot }),
     ).toBeInTheDocument();
@@ -806,14 +861,22 @@ describe('App component', () => {
     ).toBeNull();
     expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
 
-    // The boot line returns on its own; no click this time.
+    // The boot line hands off to the clouds splash on its own; the splash
+    // holds even the bubble back, then lifts without a click.
+    await screen.findByRole(
+      'button',
+      { name: 'Rainbows95' },
+      {
+        timeout: 3000,
+      },
+    );
+    expect(screen.queryByRole('status')).toBeNull();
+
     await waitFor(
       () => {
-        expect(
-          screen.queryByRole('button', { name: POWER_MESSAGES.boot }),
-        ).toBeNull();
+        expect(screen.queryByRole('button', { name: 'Rainbows95' })).toBeNull();
       },
-      { timeout: 3000 },
+      { timeout: 4000 },
     );
     expect(play).toHaveBeenCalledWith('startup');
     expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
@@ -822,6 +885,7 @@ describe('App component', () => {
   it('drags a window across the desktop', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await openFromStart(user, 'Inbox');
 
@@ -848,6 +912,7 @@ describe('App component', () => {
   it('minimizes an icon window and toggles it from the taskbar', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await user.dblClick(screen.getByRole('button', { name: 'My Computer' }));
 
@@ -880,6 +945,7 @@ describe('App component', () => {
   it('orders icon taskbar buttons by raise order', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     await user.dblClick(screen.getByRole('button', { name: 'My Computer' }));
     await user.dblClick(screen.getByRole('button', { name: 'Sticky Notes' }));
@@ -901,6 +967,7 @@ describe('App component', () => {
   it('plays through the whole mission chain', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await skipSplash(user);
 
     // Task 1 — the sticky note points at the other note.
     await user.dblClick(screen.getByRole('button', { name: 'Sticky Notes' }));

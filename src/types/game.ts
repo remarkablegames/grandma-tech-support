@@ -179,9 +179,10 @@ export type StartMenuItem =
 // The Shut Down dialog's two radio choices.
 export type ShutdownMode = 'shutdown' | 'restart';
 
-// Which full-screen power line covers the desktop: Win95's amber safe-off
-// toast after a shutdown, or the boot line while a restart comes back.
-export type BlackScreenMode = 'safe' | 'boot';
+// Which full-screen power beat covers the desktop: the clouds splash the
+// game itself boots through, the boot line on the way back from a restart,
+// or Win95's amber safe-off toast after a shutdown.
+export type PowerScreenMode = 'safe' | 'boot' | 'splash';
 
 // Right-click menus. Joke items put a grandma line in the dialog, `open` runs
 // whatever the right-clicked target would have done on a double-click,

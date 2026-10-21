@@ -18,7 +18,6 @@ import type {
   IconTaskbarItem,
 } from 'src/types/game';
 
-import { BlackScreen } from '../BlackScreen';
 import { BrowserWindow } from '../BrowserWindow';
 import { ContextMenu } from '../ContextMenu';
 import { DesktopIcon } from '../DesktopIcon';
@@ -27,6 +26,7 @@ import { IconWindow } from '../IconWindow';
 import { InboxWindow } from '../InboxWindow';
 import { MessageDialog } from '../MessageDialog';
 import { Popups } from '../Popups';
+import { PowerScreen } from '../PowerScreen';
 import { ShoppingWindow } from '../ShoppingWindow';
 import { ShutdownDialog } from '../ShutdownDialog';
 import { StartMenu } from '../StartMenu';
@@ -142,176 +142,185 @@ export function App() {
       className="bg-win-desktop relative h-dvh w-full overflow-hidden select-none"
       onContextMenu={handleRootContextMenu}
     >
-      <div className="absolute top-2 left-2 z-[5] flex flex-col gap-1">
-        {DESKTOP_ICONS.map((icon) => {
-          const windowId = icon.windowId;
+      {/* The clouds splash holds the whole desktop back at boot; it mounts
+          as the clouds lift, so grandma's intro greets the reveal. */}
+      {game.powerScreen !== 'splash' && (
+        <>
+          <div className="absolute top-2 left-2 z-[5] flex flex-col gap-1">
+            {DESKTOP_ICONS.map((icon) => {
+              const windowId = icon.windowId;
 
-          return (
-            <DesktopIcon
-              key={icon.id}
-              icon={icon}
-              selected={game.selectedIcon === icon.id}
-              onSelect={game.selectIcon}
-              onOpen={
-                windowId === undefined
-                  ? game.openMailDecoy
-                  : () => {
-                      game.openIconWindow(windowId);
-                    }
-              }
-              onContextMenu={(x, y) => {
-                openContextMenu({
-                  x,
-                  y,
-                  items: ICON_CONTEXT_MENU,
-                  onOpen:
+              return (
+                <DesktopIcon
+                  key={icon.id}
+                  icon={icon}
+                  selected={game.selectedIcon === icon.id}
+                  onSelect={game.selectIcon}
+                  onOpen={
                     windowId === undefined
                       ? game.openMailDecoy
                       : () => {
                           game.openIconWindow(windowId);
-                        },
-                });
-              }}
-            />
-          );
-        })}
-      </div>
-
-      {openWindows
-        .filter((meta) => !game.minimized[meta.id])
-        .map((meta) => (
-          <BrowserWindow
-            key={meta.id}
-            windowId={meta.id}
-            title={meta.title}
-            icon={meta.icon}
-            url={meta.url}
-            position={game.positions[meta.id]}
-            isFront={game.focusedId === meta.id}
-            maximized={game.maximized[meta.id]}
-            zIndex={10 + game.zOrder.indexOf(meta.id)}
-            onFocus={game.raise}
-            onMove={game.moveWindow}
-            onMinimize={game.minimize}
-            onToggleMaximize={game.toggleMaximize}
-            onClose={game.closeWindow}
-            onJoke={game.showJoke}
-          >
-            {meta.id === 'shopping' && (
-              <ShoppingWindow onBuy={game.buyToaster} />
-            )}
-            {meta.id === 'inbox' && (
-              <InboxWindow
-                loggedIn={game.loggedIn}
-                onLogin={game.login}
-                onJoke={game.showJoke}
-                onOpenEmail={game.openEmail}
-              />
-            )}
-            {meta.id === 'virus' && <VirusWindow onJoke={game.showJoke} />}
-            <Popups
-              windowId={meta.id}
-              popups={game.openPopups}
-              onDismiss={game.dismissPopup}
-              onAction={game.popupAction}
-            />
-          </BrowserWindow>
-        ))}
-
-      {ICON_WINDOWS.filter(
-        (config) =>
-          game.openIconWindows[config.id] && !game.iconMinimized[config.id],
-      ).map((config) => (
-        <IconWindow
-          key={config.id}
-          config={config}
-          position={game.iconWindowPositions[config.id]}
-          zIndex={15 + game.iconZOrder.indexOf(config.id)}
-          onFocus={() => {
-            game.raiseIconWindow(config.id);
-          }}
-          onMove={(position) => {
-            game.moveIconWindow(config.id, position);
-          }}
-          onMinimize={() => {
-            game.minimizeIconWindow(config.id);
-          }}
-          onClose={() => {
-            game.closeIconWindow(config.id);
-          }}
-          onOpenWindow={game.openIconWindow}
-          onScanComplete={game.completeScan}
-          onContextMenu={
-            // Win95's folder menus nearly mirror the desktop's, so the list
-            // body shares it; a right-clicked row gets the file menu instead.
-            config.kind === 'list'
-              ? (x, y, row) => {
-                  if (row === undefined) {
-                    openContextMenu({ x, y, items: DESKTOP_CONTEXT_MENU });
-                    return;
+                        }
                   }
+                  onContextMenu={(x, y) => {
+                    openContextMenu({
+                      x,
+                      y,
+                      items: ICON_CONTEXT_MENU,
+                      onOpen:
+                        windowId === undefined
+                          ? game.openMailDecoy
+                          : () => {
+                              game.openIconWindow(windowId);
+                            },
+                    });
+                  }}
+                />
+              );
+            })}
+          </div>
 
-                  const opens = row.opens;
-                  openContextMenu({
-                    x,
-                    y,
-                    items: rowContextMenu(row),
-                    onOpen:
-                      opens === undefined
-                        ? undefined
-                        : () => {
-                            game.openIconWindow(opens);
-                          },
-                  });
-                }
-              : undefined
-          }
-        />
-      ))}
+          {openWindows
+            .filter((meta) => !game.minimized[meta.id])
+            .map((meta) => (
+              <BrowserWindow
+                key={meta.id}
+                windowId={meta.id}
+                title={meta.title}
+                icon={meta.icon}
+                url={meta.url}
+                position={game.positions[meta.id]}
+                isFront={game.focusedId === meta.id}
+                maximized={game.maximized[meta.id]}
+                zIndex={10 + game.zOrder.indexOf(meta.id)}
+                onFocus={game.raise}
+                onMove={game.moveWindow}
+                onMinimize={game.minimize}
+                onToggleMaximize={game.toggleMaximize}
+                onClose={game.closeWindow}
+                onJoke={game.showJoke}
+              >
+                {meta.id === 'shopping' && (
+                  <ShoppingWindow onBuy={game.buyToaster} />
+                )}
+                {meta.id === 'inbox' && (
+                  <InboxWindow
+                    loggedIn={game.loggedIn}
+                    onLogin={game.login}
+                    onJoke={game.showJoke}
+                    onOpenEmail={game.openEmail}
+                  />
+                )}
+                {meta.id === 'virus' && <VirusWindow onJoke={game.showJoke} />}
+                <Popups
+                  windowId={meta.id}
+                  popups={game.openPopups}
+                  onDismiss={game.dismissPopup}
+                  onAction={game.popupAction}
+                />
+              </BrowserWindow>
+            ))}
 
-      <GrandmaSpeech line={game.grandmaLine} onRepeat={game.repeatObjective} />
+          {ICON_WINDOWS.filter(
+            (config) =>
+              game.openIconWindows[config.id] && !game.iconMinimized[config.id],
+          ).map((config) => (
+            <IconWindow
+              key={config.id}
+              config={config}
+              position={game.iconWindowPositions[config.id]}
+              zIndex={15 + game.iconZOrder.indexOf(config.id)}
+              onFocus={() => {
+                game.raiseIconWindow(config.id);
+              }}
+              onMove={(position) => {
+                game.moveIconWindow(config.id, position);
+              }}
+              onMinimize={() => {
+                game.minimizeIconWindow(config.id);
+              }}
+              onClose={() => {
+                game.closeIconWindow(config.id);
+              }}
+              onOpenWindow={game.openIconWindow}
+              onScanComplete={game.completeScan}
+              onContextMenu={
+                // Win95's folder menus nearly mirror the desktop's, so the list
+                // body shares it; a right-clicked row gets the file menu instead.
+                config.kind === 'list'
+                  ? (x, y, row) => {
+                      if (row === undefined) {
+                        openContextMenu({ x, y, items: DESKTOP_CONTEXT_MENU });
+                        return;
+                      }
 
-      <Taskbar
-        windows={openWindows}
-        iconWindows={iconTaskbarItems}
-        focusedId={game.focusedId}
-        focusedIconId={game.iconFocusedId}
-        startOpen={game.startOpen}
-        onStartToggle={game.toggleStart}
-        onWindowClick={game.activateWindow}
-        onIconWindowClick={game.activateIconWindow}
-      />
+                      const opens = row.opens;
+                      openContextMenu({
+                        x,
+                        y,
+                        items: rowContextMenu(row),
+                        onOpen:
+                          opens === undefined
+                            ? undefined
+                            : () => {
+                                game.openIconWindow(opens);
+                              },
+                      });
+                    }
+                  : undefined
+              }
+            />
+          ))}
 
-      {game.startOpen && (
-        <StartMenu items={START_ITEMS} onSelect={game.selectStartItem} />
-      )}
+          <GrandmaSpeech
+            line={game.grandmaLine}
+            onRepeat={game.repeatObjective}
+          />
 
-      {contextMenu !== null && (
-        <ContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
-          items={contextMenu.items}
-          onSelect={handleContextMenuSelect}
-          onDismiss={closeContextMenu}
-        />
-      )}
+          <Taskbar
+            windows={openWindows}
+            iconWindows={iconTaskbarItems}
+            focusedId={game.focusedId}
+            focusedIconId={game.iconFocusedId}
+            startOpen={game.startOpen}
+            onStartToggle={game.toggleStart}
+            onWindowClick={game.activateWindow}
+            onIconWindowClick={game.activateIconWindow}
+          />
 
-      {game.message !== null && (
-        <MessageDialog
-          message={game.message}
-          variant={game.messageVariant}
-          onDismiss={game.dismissJoke}
-        />
-      )}
+          {game.startOpen && (
+            <StartMenu items={START_ITEMS} onSelect={game.selectStartItem} />
+          )}
 
-      {game.phase !== 'playing' && (
-        <WinScreen
-          title={objective.doneTitle}
-          message={objective.doneMessage}
-          icon={objective.icon}
-          buttonLabel={isFinalTask ? 'Play again' : 'Next task'}
-          onConfirm={isFinalTask ? game.playAgain : game.nextObjective}
-        />
+          {contextMenu !== null && (
+            <ContextMenu
+              x={contextMenu.x}
+              y={contextMenu.y}
+              items={contextMenu.items}
+              onSelect={handleContextMenuSelect}
+              onDismiss={closeContextMenu}
+            />
+          )}
+
+          {game.message !== null && (
+            <MessageDialog
+              message={game.message}
+              variant={game.messageVariant}
+              onDismiss={game.dismissJoke}
+            />
+          )}
+
+          {game.phase !== 'playing' && (
+            <WinScreen
+              title={objective.doneTitle}
+              message={objective.doneMessage}
+              icon={objective.icon}
+              buttonLabel={isFinalTask ? 'Play again' : 'Next task'}
+              onConfirm={isFinalTask ? game.playAgain : game.nextObjective}
+            />
+          )}
+        </>
       )}
 
       {game.shutdownOpen && (
@@ -321,8 +330,9 @@ export function App() {
         />
       )}
 
-      {game.blackScreen !== null && (
-        <BlackScreen mode={game.blackScreen} onReturn={game.returnFromBlack} />
+      {/* Above every dialog: the power screens own the whole desktop. */}
+      {game.powerScreen !== null && (
+        <PowerScreen mode={game.powerScreen} onLeave={game.leavePowerScreen} />
       )}
     </div>
   );

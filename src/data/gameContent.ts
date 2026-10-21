@@ -1,5 +1,4 @@
 import type {
-  BlackScreenMode,
   ContextMenuItem,
   DesktopIconConfig,
   EmailConfig,
@@ -85,9 +84,10 @@ export const GRANDMA_LINES = {
     'You saved it, my dear! The computer stays with me. Tell your grandfather it was a close call.',
 } as const;
 
-// The two full-screen power lines: Win95's safe-off toast verbatim, and
-// Rainbows95 booting back up (which gets a blinking cursor).
-export const POWER_MESSAGES: Record<BlackScreenMode, string> = {
+// The two text power lines: Win95's safe-off toast verbatim, and Rainbows95
+// booting back up (which gets a blinking cursor). The clouds splash wears
+// the logo and wordmark instead of a message.
+export const POWER_MESSAGES: Record<'safe' | 'boot', string> = {
   safe: 'It’s now safe to turn off your computer.',
   boot: 'Starting Rainbows95...',
 };
