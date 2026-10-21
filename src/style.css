@@ -100,7 +100,7 @@
 
   body {
     overflow: hidden;
-    background-color: var(--color-win-desktop);
+    background: url('backgrounds/clouds.jpg') center / cover no-repeat;
   }
 
   /* Win95-style dotted focus rectangle. */
