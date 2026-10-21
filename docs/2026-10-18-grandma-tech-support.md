@@ -129,9 +129,10 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
   Every asset path is **relative** (never a leading `/`) so subpath deploys (GitHub
   Pages, itch.io) resolve correctly.
 - **App icon:** `public/logo.svg` — the waving four-pane flag with its pixel-dissolve
-  trail, adapted from the Windows 95 logo (a deliberate parody homage; the game’s own
-  brand lives in the OS name "Rainbows95"). Flag-only, no wordmark, so it stays
-  legible at favicon sizes.
+  trail, silhouette-adapted from the Windows 95 logo (a deliberate parody homage) but
+  wearing its own rainbow quadrant palette — pink, yellow, violet, cyan, not
+  Microsoft's red, green, blue, yellow. Flag-only, no wordmark, so it stays legible at
+  favicon sizes.
 - **Motion:** CSS `@keyframes` only — popup scale-in, dialog wobble, win-screen pop,
   start-menu slide, ad blink. A new grandma line replays a bubble pop plus a wiggle from
   the emoji, keyed on the line change so unchanged text never re-animates. Honors
