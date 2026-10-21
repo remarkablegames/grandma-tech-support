@@ -3,6 +3,7 @@ import type {
   DesktopIconConfig,
   EmailConfig,
   IconWindowConfig,
+  IconWindowRow,
   ObjectiveConfig,
   PopupConfig,
   PopupId,
@@ -648,3 +649,22 @@ export const ICON_CONTEXT_MENU: ContextMenuItem[] = [
     message: JOKES.contextIconProperties,
   },
 ];
+
+// Right-click on a row inside a list window: Win95 shows the file menu, not
+// the folder menu. `Open` runs the row's own double-click path, greyed out
+// when the row has nothing to open; Delete and Properties share the icon
+// jokes.
+export function rowContextMenu(row: IconWindowRow): ContextMenuItem[] {
+  return [
+    row.opens === undefined
+      ? { id: 'row-open', label: 'Open', disabled: true }
+      : { id: 'row-open', label: 'Open', action: 'open' },
+    { id: 'row-sep', separator: true },
+    { id: 'row-delete', label: 'Delete', message: JOKES.contextDelete },
+    {
+      id: 'row-properties',
+      label: 'Properties',
+      message: JOKES.contextIconProperties,
+    },
+  ];
+}

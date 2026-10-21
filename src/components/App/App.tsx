@@ -5,6 +5,7 @@ import {
   ICON_CONTEXT_MENU,
   ICON_WINDOWS,
   OBJECTIVES,
+  rowContextMenu,
   START_ITEMS,
   WINDOW_META,
 } from 'src/data/gameContent';
@@ -240,10 +241,26 @@ export function App() {
           onScanComplete={game.completeScan}
           onContextMenu={
             // Win95's folder menus nearly mirror the desktop's, so the list
-            // windows share it; notes, calculator, and scanner just swallow.
+            // body shares it; a right-clicked row gets the file menu instead.
             config.kind === 'list'
-              ? (x, y) => {
-                  openContextMenu({ x, y, items: DESKTOP_CONTEXT_MENU });
+              ? (x, y, row) => {
+                  if (row === undefined) {
+                    openContextMenu({ x, y, items: DESKTOP_CONTEXT_MENU });
+                    return;
+                  }
+
+                  const opens = row.opens;
+                  openContextMenu({
+                    x,
+                    y,
+                    items: rowContextMenu(row),
+                    onOpen:
+                      opens === undefined
+                        ? undefined
+                        : () => {
+                            game.openIconWindow(opens);
+                          },
+                  });
                 }
               : undefined
           }

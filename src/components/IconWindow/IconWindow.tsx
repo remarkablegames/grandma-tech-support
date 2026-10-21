@@ -138,17 +138,20 @@ function Scanner({ onScanComplete }: { onScanComplete: () => void }) {
 }
 
 // Rows with an `opens` target behave like Windows Explorer files: quick
-// double-click (or Enter) opens the referenced window.
+// double-click (or Enter) opens the referenced window, and right-click gets
+// the file menu instead of the window's folder menu.
 function IconRow({
   row,
   selected,
   onSelect,
   onOpenWindow,
+  onContextMenu,
 }: {
   row: IconWindowRow;
   selected: boolean;
   onSelect: () => void;
   onOpenWindow: (windowId: IconWindowId) => void;
+  onContextMenu?: (x: number, y: number, row?: IconWindowRow) => void;
 }) {
   const opens = row.opens;
   const handleOpen = useDoubleClickOpen(
@@ -193,6 +196,12 @@ function IconRow({
           onSelect();
           handleOpen(event);
         }}
+        onContextMenu={(event) => {
+          // The row's file menu wins: hold the window's folder menu back.
+          event.preventDefault();
+          event.stopPropagation();
+          onContextMenu?.(event.clientX, event.clientY, row);
+        }}
         className={`flex w-full items-center gap-1.5 px-1 py-0.5 text-left ${
           selected ? 'bg-win-navy text-white' : ''
         }`}
@@ -208,9 +217,11 @@ function IconRow({
 function IconList({
   config,
   onOpenWindow,
+  onContextMenu,
 }: {
   config: ListIconWindow;
   onOpenWindow: (windowId: IconWindowId) => void;
+  onContextMenu?: (x: number, y: number, row?: IconWindowRow) => void;
 }) {
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
 
@@ -225,6 +236,7 @@ function IconList({
             setSelectedRow(index);
           }}
           onOpenWindow={onOpenWindow}
+          onContextMenu={onContextMenu}
         />
       ))}
     </ul>
@@ -235,14 +247,22 @@ function IconWindowContent({
   config,
   onOpenWindow,
   onScanComplete,
+  onContextMenu,
 }: {
   config: IconWindowConfig;
   onOpenWindow: (windowId: IconWindowId) => void;
   onScanComplete: () => void;
+  onContextMenu?: (x: number, y: number, row?: IconWindowRow) => void;
 }) {
   switch (config.kind) {
     case 'list':
-      return <IconList config={config} onOpenWindow={onOpenWindow} />;
+      return (
+        <IconList
+          config={config}
+          onOpenWindow={onOpenWindow}
+          onContextMenu={onContextMenu}
+        />
+      );
     case 'note':
       return (
         <div className="win-inset max-h-40 overflow-y-auto bg-white p-2 text-xs text-black">
@@ -270,7 +290,7 @@ interface IconWindowProps {
   onClose: () => void;
   onOpenWindow: (windowId: IconWindowId) => void;
   onScanComplete: () => void;
-  onContextMenu?: (x: number, y: number) => void;
+  onContextMenu?: (x: number, y: number, row?: IconWindowRow) => void;
 }
 
 export function IconWindow({
@@ -334,6 +354,7 @@ export function IconWindow({
         config={config}
         onOpenWindow={onOpenWindow}
         onScanComplete={onScanComplete}
+        onContextMenu={onContextMenu}
       />
     </section>
   );

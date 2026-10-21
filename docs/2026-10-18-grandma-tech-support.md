@@ -159,8 +159,11 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
   (the decoy still raises its MAIL.EXE error) plus joke `Delete` and
   `Properties` entries. Browser windows and the taskbar swallow the click with
   no replacement menu; the list windows (`My Computer`, `My Documents`,
-  `Recycle Bin`) open the same folder menu Win95 gives its folders, while notes,
-  Calculator, and Virus Shield just swallow. Opening a menu closes the Start
+  `Recycle Bin`) open the same folder menu Win95 gives their backgrounds, and a
+  right-clicked row gets the file menu instead — `Open` runs the row's own open
+  path (greyed out when the row has nothing to open) beside joke `Delete` and
+  `Properties` entries — while notes, Calculator, and Virus Shield just swallow.
+  Opening a menu closes the Start
   menu; the menu is clamped inside the viewport, focuses its first enabled
   entry, and dismisses on an outside press or Escape.
 

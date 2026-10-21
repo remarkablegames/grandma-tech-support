@@ -559,17 +559,15 @@ describe('App component', () => {
     expect(screen.queryByRole('menu', { name: 'Context menu' })).toBeNull();
   });
 
-  it('opens the folder menu inside a list window', async () => {
+  it('opens the folder menu on a list window’s background', async () => {
     const user = userEvent.setup();
     render(<App />);
 
     await user.dblClick(screen.getByRole('button', { name: 'My Computer' }));
     const region = screen.getByRole('region', { name: 'My Computer' });
 
-    // Right-clicking a row bubbles to the window: Win95's folder menu.
-    const prevented = fireEvent.contextMenu(
-      within(region).getByText('Hard disk (C:)'),
-    );
+    // The empty list keeps Win95's folder menu.
+    const prevented = fireEvent.contextMenu(within(region).getByRole('list'));
     expect(prevented).toBe(false);
 
     const menu = screen.getByRole('menu', { name: 'Context menu' });
@@ -581,6 +579,53 @@ describe('App component', () => {
     expect(
       screen.getByRole('alertdialog', { name: 'System Message' }),
     ).toHaveTextContent(JOKES.contextRefresh);
+    expect(screen.queryByRole('menu', { name: 'Context menu' })).toBeNull();
+  });
+
+  it('opens the file menu on a row instead of the folder menu', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.dblClick(screen.getByRole('button', { name: 'My Computer' }));
+    const region = screen.getByRole('region', { name: 'My Computer' });
+
+    const prevented = fireEvent.contextMenu(
+      within(region).getByText('Hard disk (C:)'),
+    );
+    expect(prevented).toBe(false);
+
+    // Win95's file menu: no Arrange Icons, and a drive has nothing to open.
+    const menu = screen.getByRole('menu', { name: 'Context menu' });
+    expect(
+      within(menu).queryByRole('menuitem', { name: 'Arrange Icons' }),
+    ).toBeNull();
+    expect(within(menu).getByRole('menuitem', { name: 'Open' })).toBeDisabled();
+    expect(
+      within(menu).getByRole('menuitem', { name: 'Delete' }),
+    ).toBeEnabled();
+
+    await user.click(
+      within(menu).getByRole('menuitem', { name: 'Properties' }),
+    );
+    expect(
+      screen.getByRole('alertdialog', { name: 'System Message' }),
+    ).toHaveTextContent(JOKES.contextIconProperties);
+  });
+
+  it('opens a file from its row menu', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.dblClick(screen.getByRole('button', { name: 'My Documents' }));
+    const region = screen.getByRole('region', { name: 'My Documents' });
+
+    fireEvent.contextMenu(within(region).getByText('recipe.txt'));
+    const menu = screen.getByRole('menu', { name: 'Context menu' });
+    await user.click(within(menu).getByRole('menuitem', { name: 'Open' }));
+
+    expect(
+      screen.getByRole('region', { name: 'recipe.txt — Notepad' }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole('menu', { name: 'Context menu' })).toBeNull();
   });
 

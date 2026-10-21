@@ -299,6 +299,20 @@ describe('IconWindow component', () => {
     expect(onContextMenu).toHaveBeenCalledWith(40, 64);
   });
 
+  it('reports a right-clicked row and holds the window menu back', () => {
+    renderIconWindow(listConfig, onContextMenu);
+
+    const prevented = fireEvent.contextMenu(
+      screen.getByText('Hard disk (C:)'),
+      { clientX: 48, clientY: 72 },
+    );
+
+    expect(prevented).toBe(false);
+    // Exactly once: the row stopped propagation before the window body.
+    expect(onContextMenu).toHaveBeenCalledTimes(1);
+    expect(onContextMenu).toHaveBeenCalledWith(48, 72, listConfig.rows[1]);
+  });
+
   it('still swallows the native menu without a handler', () => {
     renderIconWindow();
 
