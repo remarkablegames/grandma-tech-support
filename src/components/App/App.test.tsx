@@ -559,6 +559,44 @@ describe('App component', () => {
     expect(screen.queryByRole('menu', { name: 'Context menu' })).toBeNull();
   });
 
+  it('opens the folder menu inside a list window', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.dblClick(screen.getByRole('button', { name: 'My Computer' }));
+    const region = screen.getByRole('region', { name: 'My Computer' });
+
+    // Right-clicking a row bubbles to the window: Win95's folder menu.
+    const prevented = fireEvent.contextMenu(
+      within(region).getByText('Hard disk (C:)'),
+    );
+    expect(prevented).toBe(false);
+
+    const menu = screen.getByRole('menu', { name: 'Context menu' });
+    expect(
+      within(menu).getByRole('menuitem', { name: 'Arrange Icons' }),
+    ).toBeInTheDocument();
+
+    await user.click(within(menu).getByRole('menuitem', { name: 'Refresh' }));
+    expect(
+      screen.getByRole('alertdialog', { name: 'System Message' }),
+    ).toHaveTextContent(JOKES.contextRefresh);
+    expect(screen.queryByRole('menu', { name: 'Context menu' })).toBeNull();
+  });
+
+  it('keeps note windows suppress-only on right-click', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.dblClick(screen.getByRole('button', { name: 'Sticky Notes' }));
+    const prevented = fireEvent.contextMenu(
+      screen.getByRole('region', { name: 'Sticky Notes' }),
+    );
+
+    expect(prevented).toBe(false);
+    expect(screen.queryByRole('menu', { name: 'Context menu' })).toBeNull();
+  });
+
   it('opens a desktop icon window on double-click and closes it', async () => {
     const user = userEvent.setup();
     render(<App />);

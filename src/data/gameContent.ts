@@ -621,8 +621,9 @@ export const START_ITEMS: StartMenuItem[] = [
   },
 ];
 
-// Right-click on the bare desktop. Paste and Paste Shortcut stay greyed out
-// the way Win95 leaves them when the clipboard is empty.
+// Right-click on the bare desktop — and, Win95-style, inside the list icon
+// windows, whose folder menus are nearly identical. Paste and Paste Shortcut
+// stay greyed out the way Win95 leaves them when the clipboard is empty.
 export const DESKTOP_CONTEXT_MENU: ContextMenuItem[] = [
   { id: 'arrange', label: 'Arrange Icons', message: JOKES.contextArrange },
   { id: 'line-up', label: 'Line up Icons', message: JOKES.contextLineUp },

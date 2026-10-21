@@ -157,10 +157,12 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
   Paste and Paste Shortcut, Refresh, Properties — every live entry a grandma
   joke. An icon opens its own menu: `Open` runs the icon’s double-click path
   (the decoy still raises its MAIL.EXE error) plus joke `Delete` and
-  `Properties` entries. Windows and the taskbar swallow the click with no
-  replacement menu. Opening a menu closes the Start menu; the menu is clamped
-  inside the viewport, focuses its first enabled entry, and dismisses on an
-  outside press or Escape.
+  `Properties` entries. Browser windows and the taskbar swallow the click with
+  no replacement menu; the list windows (`My Computer`, `My Documents`,
+  `Recycle Bin`) open the same folder menu Win95 gives its folders, while notes,
+  Calculator, and Virus Shield just swallow. Opening a menu closes the Start
+  menu; the menu is clamped inside the viewport, focuses its first enabled
+  entry, and dismisses on an outside press or Escape.
 
 ## Accessibility
 

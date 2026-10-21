@@ -40,7 +40,10 @@ deliberately broken — double-clicking it opens a “Cannot find the file” sy
   `Delete` and `Properties` entries. Folder rows follow the same idiom: a single click highlights the row (navy
   fill, `aria-pressed`, hint text flips to white), and openable rows (`opens` in the row
   config) open on the same double-click gesture, shared through the `useDoubleClickOpen`
-  hook. Plain rows only select, nothing opens.
+  hook. Plain rows only select, nothing opens. Right-clicking inside a list window
+  (body or row) opens the same folder menu as the bare desktop — authentic, since
+  Win95's folder menus nearly mirror its desktop menu — while note, Calculator, and
+  Virus Shield bodies swallow the click with no menu.
 - **Sound.** No new SFX: the double-click's two ticks collapse into one audible `click`
   through the audio service's ~100 ms per-track throttle, and window interactions tick
   like every other plain button. The calculator keys and the scanner's scan button tick

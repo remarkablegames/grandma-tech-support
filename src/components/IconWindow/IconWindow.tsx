@@ -270,6 +270,7 @@ interface IconWindowProps {
   onClose: () => void;
   onOpenWindow: (windowId: IconWindowId) => void;
   onScanComplete: () => void;
+  onContextMenu?: (x: number, y: number) => void;
 }
 
 export function IconWindow({
@@ -282,6 +283,7 @@ export function IconWindow({
   onClose,
   onOpenWindow,
   onScanComplete,
+  onContextMenu,
 }: IconWindowProps) {
   const startDrag = createWindowDrag({ position, onMove });
 
@@ -293,6 +295,12 @@ export function IconWindow({
       onPointerDown={() => {
         audio.play('click');
         onFocus();
+      }}
+      onContextMenu={(event) => {
+        // Right-clicking here never shows the browser's menu; the desktop
+        // decides whether Win95's folder menu opens on top.
+        event.preventDefault();
+        onContextMenu?.(event.clientX, event.clientY);
       }}
     >
       <div

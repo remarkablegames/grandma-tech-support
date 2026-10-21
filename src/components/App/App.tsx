@@ -238,6 +238,15 @@ export function App() {
           }}
           onOpenWindow={game.openIconWindow}
           onScanComplete={game.completeScan}
+          onContextMenu={
+            // Win95's folder menus nearly mirror the desktop's, so the list
+            // windows share it; notes, calculator, and scanner just swallow.
+            config.kind === 'list'
+              ? (x, y) => {
+                  openContextMenu({ x, y, items: DESKTOP_CONTEXT_MENU });
+                }
+              : undefined
+          }
         />
       ))}
 

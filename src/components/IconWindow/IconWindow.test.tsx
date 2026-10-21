@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ICON_WINDOWS } from 'src/data/gameContent';
 import { firePointer } from 'src/tests/firePointer';
@@ -43,8 +43,12 @@ const onMinimize = vi.fn();
 const onClose = vi.fn();
 const onOpenWindow = vi.fn();
 const onScanComplete = vi.fn();
+const onContextMenu = vi.fn();
 
-function renderIconWindow(config: IconWindowConfig = listConfig) {
+function renderIconWindow(
+  config: IconWindowConfig = listConfig,
+  contextMenuHandler?: (x: number, y: number) => void,
+) {
   return render(
     <IconWindow
       config={config}
@@ -56,6 +60,7 @@ function renderIconWindow(config: IconWindowConfig = listConfig) {
       onClose={onClose}
       onOpenWindow={onOpenWindow}
       onScanComplete={onScanComplete}
+      onContextMenu={contextMenuHandler}
     />,
   );
 }
@@ -280,5 +285,28 @@ describe('IconWindow component', () => {
     firePointer(window, 'pointermove', { clientX: 300, clientY: 200 });
 
     expect(onMove).not.toHaveBeenCalled();
+  });
+
+  it('reports a right-click for the folder menu', () => {
+    renderIconWindow(listConfig, onContextMenu);
+
+    const prevented = fireEvent.contextMenu(
+      screen.getByRole('region', { name: 'My Computer' }),
+      { clientX: 40, clientY: 64 },
+    );
+
+    expect(prevented).toBe(false);
+    expect(onContextMenu).toHaveBeenCalledWith(40, 64);
+  });
+
+  it('still swallows the native menu without a handler', () => {
+    renderIconWindow();
+
+    const prevented = fireEvent.contextMenu(
+      screen.getByRole('region', { name: 'My Computer' }),
+    );
+
+    expect(prevented).toBe(false);
+    expect(onContextMenu).not.toHaveBeenCalled();
   });
 });
