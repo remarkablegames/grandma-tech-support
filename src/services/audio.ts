@@ -4,7 +4,8 @@
  * suite can run against fakes (jsdom cannot decode or play audio).
  */
 
-export type SfxName = 'click' | 'open' | 'error' | 'win';
+export type SfxName =
+  'click' | 'open' | 'error' | 'win' | 'shutdown' | 'startup';
 
 interface Player {
   volume: number;
@@ -39,6 +40,8 @@ const SFX_TRACKS: Record<SfxName, string> = {
   open: 'interface_sounds/drop_004.mp3',
   error: 'interface_sounds/back_001.mp3',
   win: 'interface_sounds/confirmation_004.mp3',
+  shutdown: 'interface_sounds/question_004.mp3',
+  startup: 'interface_sounds/confirmation_001.mp3',
 };
 
 const MUSIC_TRACK = 'music/title_theme.mp3';

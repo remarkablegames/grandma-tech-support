@@ -81,7 +81,14 @@ describe('AudioService', () => {
   });
 
   it('maps every sound to a relative MP3 in interface_sounds', () => {
-    const names: SfxName[] = ['click', 'open', 'error', 'win'];
+    const names: SfxName[] = [
+      'click',
+      'open',
+      'error',
+      'win',
+      'shutdown',
+      'startup',
+    ];
     const { deps, sources, advance } = createHarness();
     const service = new AudioService(deps);
 
@@ -90,11 +97,25 @@ describe('AudioService', () => {
       advance(100);
     });
 
-    expect(sources).toHaveLength(4);
+    expect(sources).toHaveLength(6);
     for (const src of sources) {
       expect(src.startsWith('interface_sounds/')).toBe(true);
       expect(src.endsWith('.mp3')).toBe(true);
     }
+  });
+
+  it('maps the power transitions to the question and confirmation sounds', () => {
+    const { deps, sources, advance } = createHarness();
+    const service = new AudioService(deps);
+
+    service.play('shutdown');
+    advance(100);
+    service.play('startup');
+
+    expect(sources).toEqual([
+      'interface_sounds/question_004.mp3',
+      'interface_sounds/confirmation_001.mp3',
+    ]);
   });
 
   it('throttles repeats of one track but not other tracks', () => {

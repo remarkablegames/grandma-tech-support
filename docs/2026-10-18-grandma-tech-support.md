@@ -58,8 +58,9 @@ above applies once they're open (virus on top, tempting).
   (restores a minimized window or else raises it, pressed style for the focused
   window), tray with a live clock showing the current time in the player's locale.
 - Start menu: `Inbox` and `Internet` launch the two browser windows; `Programs`,
-  `Documents`, `Settings`, `Find`, `Run...`, `Shut Down...` close the menu and
-  show a joke dialog, while `Help` re-reads the current mission. Its vertical
+  `Documents`, `Settings`, `Find`, `Run...` close the menu and show a joke dialog,
+  `Help` re-reads the current mission, and `Shut Down...` opens Win95's power
+  dialog — see [shutdown](./2026-10-20-shutdown-restart.md). Its vertical
   side stripe brands the fictional OS as **Rainbows95**.
 - Desktop icons (single click selects, Win95 style): `My Computer`, `Recycle Bin`,
   `My Documents`, `Sticky Notes`, `Calculator`, `Virus Shield`, and the decoy
@@ -118,7 +119,8 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
 - **Fictional Win95 pastiche:** teal `#008080` desktop, `#c0c0c0` faces with 3D
   outset/inset borders, navy→blue gradient title bars (gray gradient when inactive),
   raised buttons that press when active, gray taskbar, blinking sale banner.
-- **Typography:** system Tahoma/Verdana stack (no web fonts, offline friendly).
+- **Typography:** system Tahoma/Verdana stack (no web fonts, offline friendly);
+  the black power screens use the system monospace stack in VGA text-mode spirit.
 - **Icons:** `public/windows_icons_32x32/` (Windows 95 ~Calming~ Icon Pack, credited in
   the README). Shown at their native 32px where they fit (desktop icons, pop-ups) and
   scaled to 16–48px elsewhere, always with `image-rendering: pixelated` to stay crisp.
@@ -152,6 +154,16 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
 - **Mission recall.** Reactions overwrite Grandma’s line, so clicking her speech
   bubble puts the current task back (the bubble is a real button with an `sr-only`
   hint); Start → `Help` shows the same instruction as a dialog instead.
+- **Shut Down.** Start → `Shut Down...` closes the menu, puts Grandma’s protest
+  (“Don’t shut it down! I’m expecting an email.”) in her speech bubble, and opens
+  the plain Win95 `Shut Down` dialog (no backdrop): `Are you sure you want to:` with
+  `Shut down the computer?` (default) / `Restart the computer?` radios and an
+  autofocused `OK` beside `Cancel`. Cancel just closes it. Shutting down and
+  restarting both pause the theme and go full-screen black — the amber safe-off line
+  (click or keypress returns, state untouched) versus the `Starting Rainbows95...`
+  boot line (returns on its own, game reset behind it). Each transition plays its
+  power sound, and returning resumes the theme. Full spec:
+  [shutdown](./2026-10-20-shutdown-restart.md).
 - **Right-click.** The browser’s own context menu is suppressed everywhere. The
   bare desktop opens Win95’s menu — Arrange Icons, Line up Icons, greyed-out
   Paste and Paste Shortcut, Refresh, Properties — every live entry a grandma
@@ -197,6 +209,8 @@ src/
 │   ├── Popups/          filters pop-ups for a window, renders backdrop + stack
 │   ├── Popup/           single pop-up dialog (liar buttons + real ×)
 │   ├── MessageDialog/   Win95 joke dialog (OK)
+│   ├── ShutdownDialog/  Win95 power dialog (shutdown vs restart radios)
+│   ├── BlackScreen/     full-screen safe-off / boot line over everything
 │   ├── ShoppingWindow/  ad-crusted sale page (joke tiles)
 │   ├── InboxWindow/     log-on gate + toolbar pixels + email list
 │   ├── VirusWindow/     blinking red alert + two joke buttons
@@ -231,10 +245,17 @@ src/
   (mission recall). `repeatObjective()` puts the current task back in
   `grandmaLine`; the Start menu’s `Help` shows it as a dialog instead.
 - `grandmaLine: string` — intro → task instructions → "little X" line on safe
-  dismiss → decoy-mail line.
+  dismiss → decoy-mail line → the Shut Down protest (her bubble gets the last
+  word, not the dialog).
 - `selectedIcon`, `startOpen` — desktop/menu state. The right-click context menu
   lives in App (not `useGame`): desktop vs. icon menu, coordinates, and the
   icon’s stored open action.
+- `shutdownOpen`, `blackScreen: 'safe' | 'boot' | null` — the power dialog and
+  the full-screen line above every other layer. `confirmShutdown(mode)` closes
+  the dialog, plays the power sound, and pauses the theme; only restart also
+  runs `playAgain()` behind the screen. `returnFromBlack()` resumes everything,
+  and `playAgain()` clears both flags. See
+  [shutdown](./2026-10-20-shutdown-restart.md).
 - `openIconWindows`, `iconWindowPositions`, `iconZOrder`, `iconMinimized` — desktop
   mini-windows; `openIconWindow` cascades the default position per open window,
   `iconFocusedId` is the top visible one, and `playAgain` closes them all.
@@ -246,8 +267,9 @@ src/
 
 ## Sound
 
-Interface sound design — the four SFX events, the tray Volume Control popup, and the
-BGM plan — lives in [audio-support](./2026-10-18-audio-support.md).
+Interface sound design — the SFX event table (button ticks, joke dings, the win
+jingle, the power transitions), the tray Volume Control popup, and the BGM plan —
+lives in [audio-support](./2026-10-18-audio-support.md).
 
 ## Out of scope
 

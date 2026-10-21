@@ -3,16 +3,18 @@
 Companion spec to [Grandma Tech Support](./2026-10-18-grandma-tech-support.md):
 how sound works in Rainbows95.
 
-Four sparse interface sounds — short MP3s from [Kenney's Interface Sounds](https://kenney.nl/assets/interface-sounds)
+Six sparse interface sounds — short MP3s from [Kenney's Interface Sounds](https://kenney.nl/assets/interface-sounds)
 pack (CC0) — plus a looped background theme (`music/title_theme.mp3`). Joke dialogs
 stay silent; text does the comedy.
 
-| Event                                                                                                                                                              | SFX key | File                                    |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- | --------------------------------------- |
-| Plain button tick — window raise (pointer-down, safe × included), taskbar switch, Start, Start menu items, desktop icons, tray speaker, joke-dialog OK, Play again | `click` | `interface_sounds/click.mp3`            |
-| Liar “Close” opens extra spam pop-ups                                                                                                                              | `open`  | `interface_sounds/drop_004.mp3`         |
-| Misleading pop-up button (“Fix now!”, “Buy”, “Claim”)                                                                                                              | `error` | `interface_sounds/back_001.mp3`         |
-| Win — email found                                                                                                                                                  | `win`   | `interface_sounds/confirmation_004.mp3` |
+| Event                                                                                                                                                                                       | SFX key    | File                                    |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | --------------------------------------- |
+| Plain button tick — window raise (pointer-down, safe × included), taskbar switch, Start, Start menu items, desktop icons, tray speaker, joke-dialog OK, Shut Down `OK`/`Cancel`, Play again | `click`    | `interface_sounds/click.mp3`            |
+| Liar “Close” opens extra spam pop-ups                                                                                                                                                       | `open`     | `interface_sounds/drop_004.mp3`         |
+| Misleading pop-up button (“Fix now!”, “Buy”, “Claim”)                                                                                                                                       | `error`    | `interface_sounds/back_001.mp3`         |
+| Win — email found                                                                                                                                                                           | `win`      | `interface_sounds/confirmation_004.mp3` |
+| Shut Down confirmed — any screen powering down to black                                                                                                                                     | `shutdown` | `interface_sounds/question_004.mp3`     |
+| Return from a black screen — wake or boot line done                                                                                                                                         | `startup`  | `interface_sounds/confirmation_001.mp3` |
 
 The safe little × plays no sound of its own — its pointer-down bubbles to the window’s
 `click` tick.
@@ -26,7 +28,10 @@ The safe little × plays no sound of its own — its pointer-down bubbles to the
   long-lived element with `loop = true`, created and preloaded when App mounts, with
   playback starting on the first user gesture (browsers gate autoplay: the mount
   attempt plus a gesture retry, both rejections swallowed). Hiding the tab pauses the
-  loop and returning resumes it from the same spot. Music is its own channel, fully
+  loop and returning resumes it from the same spot. A black power screen (shutdown or
+  restart) does the same, so the `shutdown`/`startup` sounds punch through the
+  silence — see [shutdown](./2026-10-20-shutdown-restart.md). Music is its own
+  channel, fully
   independent of Sounds — mute sets its gain to 0 so the loop keeps its position, like
   a real mixer. If the MP3 loop point ever sounds like a seam (encoder delay), upgrade
   to a Web Audio buffer loop.

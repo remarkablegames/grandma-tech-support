@@ -9,11 +9,29 @@ import {
 } from 'src/data/gameContent';
 import { useGame } from 'src/hooks/useGame';
 
+const { play, startMusic, pauseMusic } = vi.hoisted(() => ({
+  play: vi.fn(),
+  startMusic: vi.fn(),
+  pauseMusic: vi.fn(),
+}));
+
+vi.mock('src/services/audio', () => ({
+  audio: {
+    play,
+    startMusic,
+    pauseMusic,
+  },
+}));
+
 function countInboxPopups(openPopups: { windowId: string }[]) {
   return openPopups.filter((popup) => popup.windowId === 'inbox').length;
 }
 
 describe('useGame hook', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('starts with the intro state', () => {
     const { result } = renderHook(() => useGame());
 
@@ -36,6 +54,8 @@ describe('useGame hook', () => {
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.intro);
     expect(result.current.selectedIcon).toBeNull();
     expect(result.current.startOpen).toBe(false);
+    expect(result.current.shutdownOpen).toBe(false);
+    expect(result.current.blackScreen).toBeNull();
     expect(result.current.minimized).toEqual({
       shopping: false,
       inbox: false,
@@ -523,7 +543,111 @@ describe('useGame hook', () => {
       result.current.selectStartItem(START_ITEMS[8]);
     });
     expect(result.current.startOpen).toBe(false);
-    expect(result.current.message).toBe(JOKES.startShutDown);
+    expect(result.current.shutdownOpen).toBe(true);
+    expect(result.current.message).toBeNull();
+    expect(result.current.grandmaLine).toBe(GRANDMA_LINES.shutDown);
+
+    // The joke entries still land in the System Message dialog.
+    act(() => {
+      result.current.toggleStart();
+    });
+    act(() => {
+      result.current.selectStartItem(START_ITEMS[2]);
+    });
+    expect(result.current.startOpen).toBe(false);
+    expect(result.current.message).toBe(JOKES.startPrograms);
+  });
+
+  it('cancels the power dialog but keeps the protest standing', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.openShutdown();
+    });
+    expect(result.current.shutdownOpen).toBe(true);
+    expect(result.current.grandmaLine).toBe(GRANDMA_LINES.shutDown);
+
+    act(() => {
+      result.current.closeShutdown();
+    });
+    expect(result.current.shutdownOpen).toBe(false);
+    expect(result.current.blackScreen).toBeNull();
+    expect(result.current.grandmaLine).toBe(GRANDMA_LINES.shutDown);
+    expect(pauseMusic).not.toHaveBeenCalled();
+  });
+
+  it('goes black on shutdown and wakes with the desktop untouched', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.openWindow('inbox');
+    });
+    act(() => {
+      result.current.confirmShutdown('shutdown');
+    });
+
+    expect(result.current.shutdownOpen).toBe(false);
+    expect(result.current.blackScreen).toBe('safe');
+    expect(result.current.open.inbox).toBe(true);
+    expect(play).toHaveBeenCalledWith('shutdown');
+    expect(pauseMusic).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      result.current.returnFromBlack();
+    });
+
+    expect(result.current.blackScreen).toBeNull();
+    expect(result.current.open.inbox).toBe(true);
+    expect(play).toHaveBeenCalledWith('startup');
+    expect(startMusic).toHaveBeenCalledTimes(1);
+  });
+
+  it('restarts behind the boot screen to a fresh desktop', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.openWindow('inbox');
+    });
+    act(() => {
+      result.current.openIconWindow('notes');
+    });
+    act(() => {
+      result.current.confirmShutdown('restart');
+    });
+
+    expect(result.current.blackScreen).toBe('boot');
+    expect(result.current.open).toEqual({
+      shopping: false,
+      inbox: false,
+      virus: false,
+    });
+    expect(result.current.openIconWindows.notes).toBe(false);
+    expect(result.current.grandmaLine).toBe(GRANDMA_LINES.intro);
+    expect(play).toHaveBeenCalledWith('shutdown');
+    expect(pauseMusic).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      result.current.returnFromBlack();
+    });
+
+    expect(result.current.blackScreen).toBeNull();
+    expect(play).toHaveBeenCalledWith('startup');
+    expect(startMusic).toHaveBeenCalledTimes(1);
+  });
+
+  it('clears a half-open power dialog on play again', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.openShutdown();
+    });
+    act(() => {
+      result.current.playAgain();
+    });
+
+    expect(result.current.shutdownOpen).toBe(false);
+    expect(result.current.blackScreen).toBeNull();
+    expect(result.current.grandmaLine).toBe(GRANDMA_LINES.intro);
   });
 
   it('completes a task and resets everything on play again', () => {

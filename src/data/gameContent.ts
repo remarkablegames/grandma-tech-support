@@ -1,4 +1,5 @@
 import type {
+  BlackScreenMode,
   ContextMenuItem,
   DesktopIconConfig,
   EmailConfig,
@@ -62,7 +63,6 @@ export const JOKES = {
   startSettings: 'Everything’s set to “don’t touch”.',
   startFind: 'It was open in the internet thing.',
   startRun: 'That’s how the toaster got installed.',
-  startShutDown: 'Don’t shut it down! I’m expecting an email.',
   contextArrange: 'They’re already arranged by importance.',
   contextLineUp: 'They’re as lined up as they’re going to get.',
   contextRefresh: 'Refreshed! Nothing was broken, so nothing changed.',
@@ -78,11 +78,19 @@ export const GRANDMA_LINES = {
     'That’s it! The little X in the corner. Never trust a big button.',
   mailDecoy:
     'That one’s been broken since 2000. Your email’s in the internet thing.',
+  shutDown: 'Don’t shut it down! I’m expecting an email.',
   win: 'You did it, my dear! You found my email, and you didn’t fall for the toaster. Tell your grandfather the computer stays with me.',
   wrongPassword: 'Incorrect password.',
   saved:
     'You saved it, my dear! The computer stays with me. Tell your grandfather it was a close call.',
 } as const;
+
+// The two full-screen power lines: Win95's safe-off toast verbatim, and
+// Rainbows95 booting back up (which gets a blinking cursor).
+export const POWER_MESSAGES: Record<BlackScreenMode, string> = {
+  safe: 'It’s now safe to turn off your computer.',
+  boot: 'Starting Rainbows95...',
+};
 
 // The password the mail log-on form expects — it lives on the other note.
 export const MAIL_PASSWORD = 'password';
@@ -563,8 +571,8 @@ export const PRODUCTS: ProductConfig[] = [
 ];
 
 // The Start menu doubles as the desktop's launcher: the first two items open
-// the browser windows, Help re-reads the current mission, and the rest are
-// grandma's joke entries.
+// the browser windows, Help re-reads the current mission, Shut Down... opens
+// the power dialog, and the rest are grandma's joke entries.
 export const START_ITEMS: StartMenuItem[] = [
   {
     id: 'inbox',
@@ -618,7 +626,7 @@ export const START_ITEMS: StartMenuItem[] = [
     id: 'shutdown',
     label: 'Shut Down...',
     icon: `${ICONS}/password_manager.png`,
-    message: JOKES.startShutDown,
+    action: 'shutdown',
   },
 ];
 

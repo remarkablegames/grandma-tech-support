@@ -18,6 +18,7 @@ import type {
   IconTaskbarItem,
 } from 'src/types/game';
 
+import { BlackScreen } from '../BlackScreen';
 import { BrowserWindow } from '../BrowserWindow';
 import { ContextMenu } from '../ContextMenu';
 import { DesktopIcon } from '../DesktopIcon';
@@ -27,6 +28,7 @@ import { InboxWindow } from '../InboxWindow';
 import { MessageDialog } from '../MessageDialog';
 import { Popups } from '../Popups';
 import { ShoppingWindow } from '../ShoppingWindow';
+import { ShutdownDialog } from '../ShutdownDialog';
 import { StartMenu } from '../StartMenu';
 import { Taskbar } from '../Taskbar';
 import { VirusWindow } from '../VirusWindow';
@@ -310,6 +312,17 @@ export function App() {
           buttonLabel={isFinalTask ? 'Play again' : 'Next task'}
           onConfirm={isFinalTask ? game.playAgain : game.nextObjective}
         />
+      )}
+
+      {game.shutdownOpen && (
+        <ShutdownDialog
+          onConfirm={game.confirmShutdown}
+          onCancel={game.closeShutdown}
+        />
+      )}
+
+      {game.blackScreen !== null && (
+        <BlackScreen mode={game.blackScreen} onReturn={game.returnFromBlack} />
       )}
     </div>
   );

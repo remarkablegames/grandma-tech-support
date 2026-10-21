@@ -11,7 +11,9 @@ import {
   MAX_POPUPS_PER_WINDOW,
   OBJECTIVES,
 } from 'src/data/gameContent';
+import { audio } from 'src/services/audio';
 import type {
+  BlackScreenMode,
   DesktopIconConfig,
   GamePhase,
   IconWindowId,
@@ -21,6 +23,7 @@ import type {
   PopupButtonConfig,
   PopupId,
   PopupSpawn,
+  ShutdownMode,
   StartMenuItem,
   WindowId,
   WindowPosition,
@@ -109,6 +112,11 @@ export function useGame() {
   const [openPopups, setOpenPopups] = useState<OpenPopup[]>([]);
   const [systemMessage, setSystemMessage] = useState<string | null>(null);
   const [messageVariant, setMessageVariant] = useState<MessageVariant>('joke');
+
+  // The power screens: the Shut Down dialog, and which full-screen black
+  // line (if any) is covering the desktop on top of everything else.
+  const [shutdownOpen, setShutdownOpen] = useState(false);
+  const [blackScreen, setBlackScreen] = useState<BlackScreenMode | null>(null);
 
   // Jokes keep grandma's 😅 dialog; error copy opts into the red X and ding.
   const setMessage = (
@@ -422,6 +430,42 @@ export function useGame() {
     setObjectiveIndex(0);
     setLoggedIn(false);
     setStormTriggered(false);
+    setShutdownOpen(false);
+    setBlackScreen(null);
+  };
+
+  // Start > Shut Down... : grandma protests in the bubble (the dialog itself
+  // stays plain Win95), and Cancel leaves her protest standing.
+  const openShutdown = () => {
+    setGrandmaLine(GRANDMA_LINES.shutDown);
+    setShutdownOpen(true);
+  };
+
+  const closeShutdown = () => {
+    setShutdownOpen(false);
+  };
+
+  // Both exits go black with the power sound and the theme paused; only
+  // restart resets the desktop, and it does so behind the screen so the
+  // player never catches the swap.
+  const confirmShutdown = (mode: ShutdownMode) => {
+    setShutdownOpen(false);
+    audio.play('shutdown');
+    audio.pauseMusic();
+
+    if (mode === 'restart') {
+      playAgain();
+    }
+
+    setBlackScreen(mode === 'restart' ? 'boot' : 'safe');
+  };
+
+  // Returning from either screen brings the theme back with the startup
+  // sound: the safe line over untouched state, the boot line over a reset.
+  const returnFromBlack = () => {
+    setBlackScreen(null);
+    audio.play('startup');
+    audio.startMusic();
   };
 
   const selectIcon = (icon: DesktopIconConfig) => {
@@ -453,6 +497,11 @@ export function useGame() {
     }
 
     if ('action' in item) {
+      if (item.action === 'shutdown') {
+        openShutdown();
+        return;
+      }
+
       setMessage(OBJECTIVES[objectiveIndex].instruction, 'info');
       return;
     }
@@ -482,6 +531,8 @@ export function useGame() {
     grandmaLine,
     selectedIcon,
     startOpen,
+    shutdownOpen,
+    blackScreen,
     raise,
     moveWindow,
     minimize,
@@ -510,5 +561,9 @@ export function useGame() {
     repeatObjective,
     toggleStart,
     selectStartItem,
+    openShutdown,
+    closeShutdown,
+    confirmShutdown,
+    returnFromBlack,
   };
 }

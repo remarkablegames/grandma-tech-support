@@ -1,10 +1,17 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import {
   DESKTOP_ICONS,
   GRANDMA_LINES,
   JOKES,
   OBJECTIVES,
+  POWER_MESSAGES,
   WINDOW_META,
 } from 'src/data/gameContent';
 import { firePointer } from 'src/tests/firePointer';
@@ -706,7 +713,7 @@ describe('App component', () => {
     );
   }, 15000);
 
-  it('opens the start menu and jokes about shut down', async () => {
+  it('opens the shut down dialog with grandma protesting in the bubble', async () => {
     const user = userEvent.setup();
     render(<App />);
 
@@ -716,11 +723,101 @@ describe('App component', () => {
     ).toBeInTheDocument();
 
     await user.click(screen.getByRole('menuitem', { name: 'Shut Down...' }));
-    expect(
-      screen.getByRole('alertdialog', { name: 'System Message' }),
-    ).toHaveTextContent(JOKES.startShutDown);
     expect(screen.queryByRole('menu')).toBeNull();
+    expect(screen.queryByRole('alertdialog')).toBeNull();
+
+    const dialog = screen.getByRole('dialog', { name: 'Shut Down' });
+    expect(dialog).toHaveTextContent('Are you sure you want to:');
+    expect(
+      screen.getByRole('radio', { name: 'Shut down the computer?' }),
+    ).toBeChecked();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      GRANDMA_LINES.shutDown,
+    );
   });
+
+  it('cancels the shut down dialog and keeps grandma’s protest', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await openFromStart(user, 'Shut Down...');
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(screen.queryByRole('dialog', { name: 'Shut Down' })).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: POWER_MESSAGES.safe }),
+    ).toBeNull();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      GRANDMA_LINES.shutDown,
+    );
+    expect(pauseMusic).not.toHaveBeenCalled();
+  });
+
+  it('shuts down to the safe screen and wakes with the desktop untouched', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await openFromStart(user, 'Inbox');
+    await openFromStart(user, 'Shut Down...');
+    await user.click(screen.getByRole('button', { name: 'OK' }));
+
+    expect(pauseMusic).toHaveBeenCalledTimes(1);
+    expect(play).toHaveBeenCalledWith('shutdown');
+
+    const powerOff = await screen.findByRole('button', {
+      name: POWER_MESSAGES.safe,
+    });
+    expect(
+      screen.getByRole('region', { name: WINDOW_META[1].title }),
+    ).toBeInTheDocument();
+
+    await user.click(powerOff);
+
+    expect(play).toHaveBeenCalledWith('startup');
+    expect(startMusic).toHaveBeenCalledTimes(3);
+    expect(
+      screen.queryByRole('button', { name: POWER_MESSAGES.safe }),
+    ).toBeNull();
+    expect(
+      screen.getByRole('region', { name: WINDOW_META[1].title }),
+    ).toBeInTheDocument();
+  }, 15000);
+
+  it('restarts through the boot screen to a fresh desktop', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await openFromStart(user, 'Inbox');
+    await openFromStart(user, 'Shut Down...');
+    await user.click(
+      screen.getByRole('radio', { name: 'Restart the computer?' }),
+    );
+    await user.click(screen.getByRole('button', { name: 'OK' }));
+
+    expect(pauseMusic).toHaveBeenCalledTimes(1);
+    expect(play).toHaveBeenCalledWith('shutdown');
+
+    // The reset happens behind the screen: no windows, intro bubble back.
+    expect(
+      screen.getByRole('button', { name: POWER_MESSAGES.boot }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('region', { name: WINDOW_META[1].title }),
+    ).toBeNull();
+    expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
+
+    // The boot line returns on its own; no click this time.
+    await waitFor(
+      () => {
+        expect(
+          screen.queryByRole('button', { name: POWER_MESSAGES.boot }),
+        ).toBeNull();
+      },
+      { timeout: 3000 },
+    );
+    expect(play).toHaveBeenCalledWith('startup');
+    expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
+  }, 15000);
 
   it('drags a window across the desktop', async () => {
     const user = userEvent.setup();

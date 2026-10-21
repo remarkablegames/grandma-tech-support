@@ -166,14 +166,22 @@ export interface StartMenuAppItem extends StartMenuBaseItem {
   windowId: WindowId;
 }
 
-// A menu item whose effect isn't a fixed string: Help re-reads whatever the
-// current mission is, so it can't live in the static content file.
-export interface StartMenuMissionItem extends StartMenuBaseItem {
-  action: 'show-mission';
+// Menu items whose effect isn't a fixed string: Help re-reads whatever the
+// current mission is, and Shut Down... opens the power dialog, so neither can
+// live as a message in the static content file.
+export interface StartMenuActionItem extends StartMenuBaseItem {
+  action: 'show-mission' | 'shutdown';
 }
 
 export type StartMenuItem =
-  StartMenuJokeItem | StartMenuAppItem | StartMenuMissionItem;
+  StartMenuJokeItem | StartMenuAppItem | StartMenuActionItem;
+
+// The Shut Down dialog's two radio choices.
+export type ShutdownMode = 'shutdown' | 'restart';
+
+// Which full-screen power line covers the desktop: Win95's amber safe-off
+// toast after a shutdown, or the boot line while a restart comes back.
+export type BlackScreenMode = 'safe' | 'boot';
 
 // Right-click menus. Joke items put a grandma line in the dialog, `open` runs
 // whatever the right-clicked target would have done on a double-click,
