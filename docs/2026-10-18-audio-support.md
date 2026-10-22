@@ -3,25 +3,33 @@
 Companion spec to [Grandma Tech Support](./2026-10-18-grandma-tech-support.md):
 how sound works in Rainbows95.
 
-Six sparse interface sounds — short MP3s from [Kenney's Interface Sounds](https://kenney.nl/assets/interface-sounds)
+Seven sparse interface sounds — short MP3s from [Kenney's Interface Sounds](https://kenney.nl/assets/interface-sounds)
 pack (CC0) — plus a looped background theme (`music/title_theme.mp3`). Joke dialogs
 stay silent; text does the comedy.
 
-| Event                                                                                                                                                                                       | SFX key    | File                                    |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | --------------------------------------- |
-| Plain button tick — window raise (pointer-down, safe × included), taskbar switch, Start, Start menu items, desktop icons, tray speaker, joke-dialog OK, Shut Down `OK`/`Cancel`, Play again | `click`    | `interface_sounds/click.mp3`            |
-| Liar “Close” opens extra spam pop-ups                                                                                                                                                       | `open`     | `interface_sounds/drop_004.mp3`         |
-| Misleading pop-up button (“Fix now!”, “Buy”, “Claim”)                                                                                                                                       | `error`    | `interface_sounds/back_001.mp3`         |
-| Win — email found                                                                                                                                                                           | `win`      | `interface_sounds/confirmation_004.mp3` |
-| Shut Down confirmed — any screen powering down to black                                                                                                                                     | `shutdown` | `interface_sounds/question_004.mp3`     |
-| Return from a black screen — wake or boot line done                                                                                                                                         | `startup`  | `interface_sounds/confirmation_001.mp3` |
+| Event                                                                                                                                                                                                                          | SFX key    | File                                    |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | --------------------------------------- |
+| Plain button tick — window raise (pointer-down, safe × included), taskbar switch, Start, Start menu items, desktop icon press (keyboard Enter ticks it too), tray speaker, joke-dialog OK, Shut Down `OK`/`Cancel`, Play again | `click`    | `interface_sounds/click.mp3`            |
+| Icon drop lands — on a free cell, into the bin, or into My Documents                                                                                                                                                           | `drop`     | `interface_sounds/drop_002.mp3`         |
+| Liar “Close” opens extra spam pop-ups                                                                                                                                                                                          | `open`     | `interface_sounds/drop_004.mp3`         |
+| Misleading pop-up button (“Fix now!”, “Buy”, “Claim”)                                                                                                                                                                          | `error`    | `interface_sounds/back_001.mp3`         |
+| Win — email found                                                                                                                                                                                                              | `win`      | `interface_sounds/confirmation_004.mp3` |
+| Shut Down confirmed — any screen powering down to black                                                                                                                                                                        | `shutdown` | `interface_sounds/question_004.mp3`     |
+| Return from a black screen — wake or boot line done                                                                                                                                                                            | `startup`  | `interface_sounds/confirmation_001.mp3` |
 
 The safe little × plays no sound of its own — its pointer-down bubbles to the window’s
 `click` tick.
 
+Icon gestures sound only their moments: the press ticks `click`, the ride is silent
+the Win95 way, and the landing answers with `drop` — one tick whether the icon lands
+on a free cell, in the bin, or in My Documents. A refused drop (a system icon, or the
+containers themselves) keeps the `error` ding.
+
 - **Zero audio libraries.** `src/services/audio.ts` drives `HTMLAudioElement` directly:
-  one fresh element per play (overlap-safe), a ~100 ms per-track throttle (which also
-  absorbs React StrictMode's double effects), swallowed autoplay rejections. The player
+  one fresh element per play (overlap-safe), a ~100 ms per-track throttle (tracks
+  throttle independently, so a press tick never eats the landing tick that follows;
+  it also absorbs React StrictMode's double effects), swallowed autoplay rejections.
+  The player
   factory, clock, and storage are injectable, so the suite runs against fakes — jsdom
   cannot decode or play audio.
 - **Background music.** `music/title_theme.mp3` loops for the whole session — one

@@ -83,6 +83,7 @@ describe('AudioService', () => {
   it('maps every sound to a relative MP3 in interface_sounds', () => {
     const names: SfxName[] = [
       'click',
+      'drop',
       'open',
       'error',
       'win',
@@ -97,7 +98,7 @@ describe('AudioService', () => {
       advance(100);
     });
 
-    expect(sources).toHaveLength(6);
+    expect(sources).toHaveLength(7);
     for (const src of sources) {
       expect(src.startsWith('interface_sounds/')).toBe(true);
       expect(src.endsWith('.mp3')).toBe(true);

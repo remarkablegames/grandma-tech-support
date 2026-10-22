@@ -107,6 +107,7 @@ describe('DesktopIcon component', () => {
     await user.keyboard('{Enter}');
 
     expect(onOpen).toHaveBeenCalledTimes(1);
+    expect(play).toHaveBeenCalledWith('click');
   });
 
   it('selects itself and reports a right-click', () => {
@@ -174,13 +175,14 @@ describe('DesktopIcon component', () => {
     expect(button.style.transform).toBe('');
   });
 
-  it('selects the instant it is pressed, Win95 mouse-down style', () => {
+  it('selects and ticks the instant it is pressed, Win95 mouse-down style', () => {
     const button = renderIcon();
 
     firePointer(button, 'pointerdown', { clientX: 100, clientY: 100 });
 
     expect(onSelect).toHaveBeenCalledTimes(1);
     expect(onSelect).toHaveBeenCalledWith(icon);
+    expect(play).toHaveBeenCalledWith('click');
   });
 
   it('stays a click below the drag threshold', () => {
@@ -231,6 +233,7 @@ describe('DesktopIcon component', () => {
 
     expect(onMove).not.toHaveBeenCalled();
     expect(onSelect).not.toHaveBeenCalled();
+    expect(play).not.toHaveBeenCalled();
   });
 
   it('lets a cancelled drag fall back into place', () => {

@@ -267,6 +267,10 @@ export function App() {
                         return;
                       }
 
+                      // Every landing sounds the same: the grid, the bin,
+                      // and My Documents all take the icon with one tick.
+                      audio.play('drop');
+
                       if (drop === 'recycle') {
                         iconPositions.recycleIcon(icon.id);
                         return;

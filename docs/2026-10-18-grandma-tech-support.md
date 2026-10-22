@@ -96,8 +96,10 @@ above applies once they're open (virus on top, tempting).
   once its row is selected), letting go over My Documents files it (the folder
   window and Start > Documents both list it with a `shortcut` hint, double-click
   opens it like the desktop icon it was, and the same selected-row Restore undoes
-  the filing), and system icons refuse drops with an
-  error ding — the containers themselves bounce off each other. Recycled and filed
+  the filing), and system icons refuse drops with an error ding — the containers
+  themselves bounce off each other. Landings tick (`drop`), refusals already ding
+  (`error`), and the ride itself stays silent — see
+  [audio-support](./2026-10-18-audio-support.md) for the table. Recycled and filed
   shortcuts ride out reboots alongside the layout, inside the app's single
   `localStorage` document — root sections `audio` and `icons` under one shared key —
   so Grandma's desktop stays exactly as scrambled (and as hoarded) as the player

@@ -11,7 +11,7 @@ import {
 } from 'src/services/appStorage';
 
 export type SfxName =
-  'click' | 'open' | 'error' | 'win' | 'shutdown' | 'startup';
+  'click' | 'drop' | 'open' | 'error' | 'win' | 'shutdown' | 'startup';
 
 interface Player {
   volume: number;
@@ -38,6 +38,7 @@ export interface AudioDeps {
 
 const SFX_TRACKS: Record<SfxName, string> = {
   click: 'interface_sounds/click.mp3',
+  drop: 'interface_sounds/drop_002.mp3',
   open: 'interface_sounds/drop_004.mp3',
   error: 'interface_sounds/back_001.mp3',
   win: 'interface_sounds/confirmation_004.mp3',

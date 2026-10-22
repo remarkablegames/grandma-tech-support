@@ -40,6 +40,10 @@ export function DesktopIcon({
       return;
     }
 
+    // The press is the click: one tick marks the gesture's beginning
+    // whether it ends as a plain click or a drop.
+    audio.play('click');
+
     droppedRef.current = false;
 
     // Win95 highlights the icon on mouse-down, so the label is already
@@ -118,7 +122,11 @@ export function DesktopIcon({
           return;
         }
 
-        audio.play('click');
+        // A pressed pointer already ticked on the way down; only the
+        // keyboard's Enter/Space click has no pointerdown of its own.
+        if (event.detail === 0) {
+          audio.play('click');
+        }
         onSelect(icon);
         handleOpen(event);
       }}

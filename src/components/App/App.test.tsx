@@ -603,6 +603,8 @@ describe('App component', () => {
     firePointer(window, 'pointermove', { clientX: 200, clientY: 130 });
     firePointer(window, 'pointerup', {});
 
+    expect(play).toHaveBeenCalledWith('drop');
+
     // dx 160 → col 2, dy 90 → row 1: 8 + 160 = 168px, 8 + 80 = 88px.
     expect(icon.style.left).toBe('168px');
     expect(icon.style.top).toBe('88px');
@@ -628,6 +630,8 @@ describe('App component', () => {
     firePointer(notes, 'pointerdown', { clientX: 40, clientY: 400 });
     firePointer(window, 'pointermove', { clientX: 40, clientY: 240 });
     firePointer(window, 'pointerup', {});
+
+    expect(play).toHaveBeenCalledWith('drop');
 
     // The icon is gone, and the bin shows Win95's full face.
     expect(screen.queryByRole('button', { name: 'Sticky Notes' })).toBeNull();
@@ -676,6 +680,8 @@ describe('App component', () => {
     firePointer(calculator, 'pointerdown', { clientX: 40, clientY: 300 });
     firePointer(window, 'pointermove', { clientX: 40, clientY: 140 });
     firePointer(window, 'pointerup', {});
+
+    expect(play).toHaveBeenCalledWith('drop');
 
     expect(screen.queryByRole('button', { name: 'Calculator' })).toBeNull();
 
@@ -736,8 +742,10 @@ describe('App component', () => {
     firePointer(window, 'pointermove', { clientX: 40, clientY: 80 });
     firePointer(window, 'pointerup', {});
 
-    // The drop bounces: the icon stays put and the system complains.
+    // The drop bounces: the icon stays put and the system complains,
+    // with no landing tick of its own.
     expect(play).toHaveBeenCalledWith('error');
+    expect(play).not.toHaveBeenCalledWith('drop');
     expect(inbox).toHaveStyle({ left: '8px', top: '408px' });
   }, 15000);
 
