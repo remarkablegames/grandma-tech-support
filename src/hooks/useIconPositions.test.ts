@@ -78,6 +78,7 @@ describe('useIconPositions hook', () => {
           positions: result.current.positions,
           recycled: [],
           filed: [],
+          binEmptied: false,
         },
       });
   });
@@ -123,6 +124,7 @@ describe('useIconPositions hook', () => {
       positions: result.current.positions,
       recycled: ['internet'],
       filed: ['notes', 'calculator'],
+      binEmptied: false,
     });
 
     // Restore takes an icon out of whichever container holds it.
@@ -137,7 +139,61 @@ describe('useIconPositions hook', () => {
       positions: result.current.positions,
       recycled: [],
       filed: ['calculator'],
+      binEmptied: false,
     });
+  });
+
+  it('empties the bin for real and puts the junk back on the reset', () => {
+    const { result } = renderHook(() => useIconPositions());
+
+    // The folder is a separate container: emptying never touches it.
+    act(() => {
+      result.current.fileIcon('calculator');
+      result.current.recycleIcon('notes');
+    });
+
+    act(() => {
+      result.current.emptyBin();
+    });
+    expect(result.current.recycled).toEqual([]);
+    expect(result.current.binEmptied).toBe(true);
+    expect(result.current.filed).toEqual(['calculator']);
+    expect(
+      JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? '{}'),
+    ).toEqual({
+      icons: {
+        positions: result.current.positions,
+        recycled: [],
+        filed: ['calculator'],
+        binEmptied: true,
+      },
+    });
+
+    // Play again (and the restart behind the boot screens) puts the joke
+    // junk back in the bin.
+    act(() => {
+      result.current.resetBin();
+    });
+    expect(result.current.binEmptied).toBe(false);
+    expect(result.current.filed).toEqual(['calculator']);
+  });
+
+  it('reads back a bin that has been emptied', () => {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ icons: { binEmptied: true } }),
+    );
+
+    const { result } = renderHook(() => useIconPositions());
+
+    expect(result.current.binEmptied).toBe(true);
+    // Junk values never count as emptied.
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ icons: { binEmptied: 'purple' } }),
+    );
+    const junked = renderHook(() => useIconPositions());
+    expect(junked.result.current.binEmptied).toBe(false);
   });
 
   it('shares one app document with the audio settings', () => {
@@ -161,6 +217,7 @@ describe('useIconPositions hook', () => {
       positions: result.current.positions,
       recycled: [],
       filed: [],
+      binEmptied: false,
     });
 
     // ...and a later volume change must not wipe the layout.
@@ -169,6 +226,7 @@ describe('useIconPositions hook', () => {
       positions: result.current.positions,
       recycled: [],
       filed: [],
+      binEmptied: false,
     });
     expect(readDoc().audio?.sfx?.volume).toBe(55);
   });

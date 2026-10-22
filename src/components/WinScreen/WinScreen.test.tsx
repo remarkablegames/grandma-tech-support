@@ -26,7 +26,7 @@ describe('WinScreen component', () => {
   it('shows the given task dialog', () => {
     render(
       <WinScreen
-        title="Task 1 of 6 complete"
+        title="Task 1 of 7 complete"
         message={message}
         icon="windows_icons_32x32/sticky_note.png"
         buttonLabel="Next task"
@@ -35,7 +35,7 @@ describe('WinScreen component', () => {
     );
 
     expect(
-      screen.getByRole('dialog', { name: 'Task 1 of 6 complete' }),
+      screen.getByRole('dialog', { name: 'Task 1 of 7 complete' }),
     ).toBeInTheDocument();
     expect(screen.getByText(message)).toBeInTheDocument();
   });

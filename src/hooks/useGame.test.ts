@@ -1074,19 +1074,62 @@ describe('useGame hook', () => {
     expect(result.current.openPopups).toHaveLength(9);
     expect(result.current.open.shopping).toBe(true);
 
-    // The scan completes the finale and sweeps the storm in one motion.
+    // The scan sweeps the storm and hands over to the finale task.
     act(() => {
       result.current.completeScan();
     });
-    expect(result.current.phase).toBe('won');
+    expect(result.current.phase).toBe('taskDone');
     expect(result.current.openPopups).toHaveLength(0);
 
-    // Winning again is impossible; the final reset starts a fresh evening.
+    // Winning again is impossible; a second scan changes nothing.
     act(() => {
       result.current.completeScan();
     });
+    expect(result.current.phase).toBe('taskDone');
+
+    // Task 7 — grandma clicked Toaster Setup: the low-disk error takes
+    // over, and grandma points at the culprits on the desktop.
+    act(() => {
+      result.current.nextObjective();
+    });
+    expect(result.current.objectiveIndex).toBe(6);
+    expect(result.current.message).toBe(JOKES.diskFull);
+    expect(result.current.messageVariant).toBe('error');
+    expect(result.current.grandmaLine).toBe(OBJECTIVES[6].instruction);
+
+    // Opening a culprit re-raises the error it came from.
+    act(() => {
+      result.current.openDesktopIcon('toaster-8-install');
+    });
+    expect(result.current.message).toBe(JOKES.diskFull);
+
+    // The milestones talk through the beats; none of them ends the task.
+    act(() => {
+      result.current.noteDiskMilestone('binned');
+    });
+    expect(result.current.grandmaLine).toBe(GRANDMA_LINES.diskBinned);
+    act(() => {
+      result.current.noteDiskMilestone('emptied');
+    });
+    expect(result.current.grandmaLine).toBe(GRANDMA_LINES.diskFreed);
+
+    // Stopping jokes; leaving early jokes harder; only a finished run wins.
+    act(() => {
+      result.current.stopDefrag();
+    });
+    expect(result.current.message).toBe(JOKES.defragStopped);
+    act(() => {
+      result.current.exitDefrag(false);
+    });
+    expect(result.current.message).toBe(JOKES.defragEarlyExit);
+    expect(result.current.phase).toBe('playing');
+
+    act(() => {
+      result.current.exitDefrag(true);
+    });
     expect(result.current.phase).toBe('won');
 
+    // The final reset starts a fresh evening.
     act(() => {
       result.current.playAgain();
     });
@@ -1107,6 +1150,77 @@ describe('useGame hook', () => {
       inbox: false,
       virus: false,
     });
+  });
+
+  it('opens the defragmenter from Start and resets it on play again', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.toggleStart();
+    });
+    act(() => {
+      result.current.selectStartItem(startLeaf('programs', 'defrag'));
+    });
+    expect(result.current.startOpen).toBe(false);
+    expect(result.current.defragOpen).toBe(true);
+
+    act(() => {
+      result.current.playAgain();
+    });
+    expect(result.current.defragOpen).toBe(false);
+  });
+
+  it('finishes the drive harmlessly when the disk-full task is elsewhere', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.exitDefrag(true);
+    });
+    expect(result.current.message).toBe(JOKES.defragIdleDone);
+    expect(result.current.messageVariant).toBe('joke');
+    expect(result.current.phase).toBe('playing');
+    expect(result.current.objectiveIndex).toBe(0);
+  });
+
+  it('keeps the disk milestones out of every other task and the win screen', () => {
+    const { result } = renderHook(() => useGame());
+
+    // Task 1: the bin beat means nothing here.
+    act(() => {
+      result.current.noteDiskMilestone('binned');
+    });
+    expect(result.current.grandmaLine).toBe(GRANDMA_LINES.intro);
+
+    // Walk to the finale: end the frozen page, sweep the spam, full drive.
+    walkToFrozenTask(result);
+    act(() => {
+      result.current.endTask('shopping');
+    });
+    act(() => {
+      result.current.nextObjective();
+    });
+    act(() => {
+      result.current.completeScan();
+    });
+    act(() => {
+      result.current.nextObjective();
+    });
+    expect(result.current.objectiveIndex).toBe(6);
+
+    act(() => {
+      result.current.noteDiskMilestone('emptied');
+    });
+    expect(result.current.grandmaLine).toBe(GRANDMA_LINES.diskFreed);
+
+    // Behind the win screen the milestones stay quiet.
+    act(() => {
+      result.current.exitDefrag(true);
+    });
+    expect(result.current.phase).toBe('won');
+    act(() => {
+      result.current.noteDiskMilestone('binned');
+    });
+    expect(result.current.grandmaLine).toBe(GRANDMA_LINES.diskFreed);
   });
 
   it('reboots for the update without losing any progress', () => {

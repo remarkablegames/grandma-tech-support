@@ -691,6 +691,68 @@ describe('App component', () => {
     );
   }, 15000);
 
+  it('empties the bin behind Win95’s confirm, junk included', async () => {
+    window.localStorage.clear();
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
+
+    const bin = screen.getByRole('button', { name: 'Recycle Bin' });
+
+    // The bin's old joke junk counts as contents: the empty entry is live.
+    fireEvent.contextMenu(bin, { clientX: 40, clientY: 120 });
+    await user.click(
+      within(screen.getByRole('menu', { name: 'Context menu' })).getByRole(
+        'menuitem',
+        { name: 'Empty Recycle Bin' },
+      ),
+    );
+
+    // No leaves the joke exactly where it was.
+    const confirm = screen.getByRole('alertdialog', {
+      name: 'Confirm File Delete',
+    });
+    expect(confirm).toHaveTextContent(
+      'Are you sure you want to delete these items?',
+    );
+    await user.click(within(confirm).getByRole('button', { name: 'No' }));
+    expect(screen.queryByRole('alertdialog')).toBeNull();
+
+    await user.dblClick(bin);
+    const binWindow = screen.getByRole('region', { name: 'Recycle Bin' });
+    expect(
+      within(binWindow).getByText('toaster_7_install.exe'),
+    ).toBeInTheDocument();
+
+    // Yes empties it for real: the junk goes too, and the bin shows its
+    // empty face again.
+    fireEvent.contextMenu(bin, { clientX: 40, clientY: 120 });
+    await user.click(
+      within(screen.getByRole('menu', { name: 'Context menu' })).getByRole(
+        'menuitem',
+        { name: 'Empty Recycle Bin' },
+      ),
+    );
+    await user.click(
+      within(
+        screen.getByRole('alertdialog', { name: 'Confirm File Delete' }),
+      ).getByRole('button', { name: 'Yes' }),
+    );
+    expect(within(binWindow).queryByText('toaster_7_install.exe')).toBeNull();
+    expect(bin.querySelector('img')?.getAttribute('src')).toContain(
+      'recycle_bin_empty.png',
+    );
+
+    // With nothing left to empty, the entry greys out Win95 style.
+    fireEvent.contextMenu(bin, { clientX: 40, clientY: 120 });
+    expect(
+      within(screen.getByRole('menu', { name: 'Context menu' })).getByRole(
+        'menuitem',
+        { name: 'Empty Recycle Bin' },
+      ),
+    ).toBeDisabled();
+  }, 15000);
+
   it('files a shortcut into My Documents, mirrored in Start > Documents', async () => {
     window.localStorage.clear();
     const user = userEvent.setup();
@@ -1317,9 +1379,18 @@ describe('App component', () => {
   }, 30000);
 
   it('plays through the update, the force-quit, and the finale', async () => {
+    window.localStorage.clear();
     const user = userEvent.setup();
     render(<App />);
     await skipSplash(user);
+
+    // The finale's culprits wait offstage until their task starts.
+    expect(
+      screen.queryByRole('button', { name: 'toaster_8_install.exe' }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: 'toasters_the_movie.avi' }),
+    ).toBeNull();
 
     // Tasks 1–3 walk quickly: the mail gate opens, the toaster ships.
     await logInThroughStart(user);
@@ -1465,6 +1536,122 @@ describe('App component', () => {
     expect(
       screen.queryAllByRole('button', { name: 'Close popup' }),
     ).toHaveLength(0);
+    await user.click(screen.getByRole('button', { name: 'Next task' }));
+
+    // Task 7 — grandma clicked Toaster Setup: the low-disk error takes
+    // over the moment the task starts.
+    expect(
+      screen.getByRole('alertdialog', { name: 'System Message' }),
+    ).toHaveTextContent(JOKES.diskFull);
+    await user.click(screen.getByRole('button', { name: 'OK' }));
+    expect(screen.getByRole('status')).toHaveTextContent(
+      OBJECTIVES[6].instruction,
+    );
+
+    // The culprits sit at the top of the second column...
+    const installer = screen.getByRole('button', {
+      name: 'toaster_8_install.exe',
+    });
+    const movie = screen.getByRole('button', {
+      name: 'toasters_the_movie.avi',
+    });
+    expect(installer).toHaveStyle({ left: '88px', top: '8px' });
+    expect(movie).toHaveStyle({ left: '88px', top: '88px' });
+
+    // ...and opening one re-raises the error it came from.
+    await user.dblClick(installer);
+    expect(
+      screen.getByRole('alertdialog', { name: 'System Message' }),
+    ).toHaveTextContent(JOKES.diskFull);
+    await user.click(screen.getByRole('button', { name: 'OK' }));
+
+    // Both drag into the bin like any shortcut.
+    firePointer(installer, 'pointerdown', { clientX: 128, clientY: 48 });
+    firePointer(window, 'pointermove', { clientX: 48, clientY: 128 });
+    firePointer(window, 'pointerup', {});
+    firePointer(movie, 'pointerdown', { clientX: 128, clientY: 128 });
+    firePointer(window, 'pointermove', { clientX: 48, clientY: 128 });
+    firePointer(window, 'pointerup', {});
+
+    expect(
+      screen.queryByRole('button', { name: 'toaster_8_install.exe' }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: 'toasters_the_movie.avi' }),
+    ).toBeNull();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      GRANDMA_LINES.diskBinned,
+    );
+
+    // The empty step asks first, Win95 style.
+    const bin = screen.getByRole('button', { name: 'Recycle Bin' });
+    fireEvent.contextMenu(bin, { clientX: 40, clientY: 120 });
+    await user.click(
+      within(screen.getByRole('menu', { name: 'Context menu' })).getByRole(
+        'menuitem',
+        { name: 'Empty Recycle Bin' },
+      ),
+    );
+    await user.click(
+      within(
+        screen.getByRole('alertdialog', { name: 'Confirm File Delete' }),
+      ).getByRole('button', { name: 'Yes' }),
+    );
+
+    // The freed space turns grandma at the defragmenter.
+    expect(screen.getByRole('status')).toHaveTextContent(
+      GRANDMA_LINES.diskFreed,
+    );
+    expect(bin.querySelector('img')?.getAttribute('src')).toContain(
+      'recycle_bin_empty.png',
+    );
+
+    // The drive's tidy-up lives in Start > Programs.
+    await openFromStart(user, 'Programs');
+    await user.click(
+      screen.getByRole('menuitem', { name: 'Disk Defragmenter' }),
+    );
+    const defrag = screen.getByRole('dialog', { name: 'Disk Defragmenter' });
+    expect(
+      within(defrag).getByRole('progressbar', { name: 'Defragment progress' }),
+    ).toBeInTheDocument();
+
+    // Stopping is a dead end with a joke; only a finished run wins.
+    await user.click(within(defrag).getByRole('button', { name: 'Stop' }));
+    expect(
+      screen.getByRole('alertdialog', { name: 'System Message' }),
+    ).toHaveTextContent(JOKES.defragStopped);
+    await user.click(screen.getByRole('button', { name: 'OK' }));
+    expect(within(defrag).getByRole('button', { name: 'Stop' })).toBeDisabled();
+
+    await user.click(within(defrag).getByRole('button', { name: 'Exit' }));
+    expect(
+      screen.getByRole('alertdialog', { name: 'System Message' }),
+    ).toHaveTextContent(JOKES.defragEarlyExit);
+    await user.click(screen.getByRole('button', { name: 'OK' }));
+    expect(
+      screen.queryByRole('dialog', { name: 'Disk Defragmenter' }),
+    ).toBeNull();
+
+    // Back in: this time let the blocks settle all the way.
+    await openFromStart(user, 'Programs');
+    await user.click(
+      screen.getByRole('menuitem', { name: 'Disk Defragmenter' }),
+    );
+    await waitFor(
+      () => {
+        expect(
+          screen.getByRole('progressbar', { name: 'Defragment progress' }),
+        ).toHaveAttribute('aria-valuenow', '100');
+      },
+      { timeout: 15000, interval: 200 },
+    );
+    await user.click(screen.getByRole('button', { name: 'Exit' }));
+
+    // The finished drive ends the game on the last Computer saved! screen.
+    expect(
+      await screen.findByRole('dialog', { name: OBJECTIVES[6].doneTitle }),
+    ).toBeInTheDocument();
 
     // Play again puts the whole evening back to its blank, quiet start.
     await user.click(screen.getByRole('button', { name: 'Play again' }));
@@ -1473,7 +1660,18 @@ describe('App component', () => {
       screen.queryAllByRole('button', { name: 'Close popup' }),
     ).toHaveLength(0);
     expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
-  }, 60000);
+
+    // The culprits stay in the past; the bin's joke junk came back.
+    expect(
+      screen.queryByRole('button', { name: 'toaster_8_install.exe' }),
+    ).toBeNull();
+    await user.dblClick(screen.getByRole('button', { name: 'Recycle Bin' }));
+    expect(
+      within(screen.getByRole('region', { name: 'Recycle Bin' })).getByText(
+        'toaster_7_install.exe',
+      ),
+    ).toBeInTheDocument();
+  }, 90000);
 
   it('opens the task manager from the three-key chord where the browser delivers it', async () => {
     const user = userEvent.setup();

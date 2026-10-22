@@ -92,6 +92,22 @@ describe('ContextMenu component', () => {
     expect(onDismiss).not.toHaveBeenCalled();
   });
 
+  it('hands a real action entry back to the desktop', async () => {
+    const user = userEvent.setup();
+    renderMenu([
+      { id: 'empty-bin', label: 'Empty Recycle Bin', effect: 'empty-bin' },
+    ]);
+
+    await user.click(
+      screen.getByRole('menuitem', { name: 'Empty Recycle Bin' }),
+    );
+
+    expect(onSelect).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'empty-bin', effect: 'empty-bin' }),
+    );
+    expect(play).toHaveBeenCalledWith('click');
+  });
+
   it('dismisses on an outside press or Escape', () => {
     renderMenu();
 

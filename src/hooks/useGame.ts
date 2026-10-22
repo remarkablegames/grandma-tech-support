@@ -10,6 +10,7 @@ import {
   JOKES,
   MAIL_PASSWORD,
   MAX_POPUPS_PER_WINDOW,
+  MISSION_FILES,
   OBJECTIVES,
 } from 'src/data/gameContent';
 import { audio } from 'src/services/audio';
@@ -165,6 +166,9 @@ export function useGame() {
     useState<Record<WindowId, boolean>>(INITIAL_WINDOW_FLAGS);
   const [taskManagerOpen, setTaskManagerOpen] = useState(false);
   const [pendingEvent, setPendingEvent] = useState<ObjectiveEvent | null>(null);
+  // The finale's Disk Defragmenter: Start > Programs opens it any time, and
+  // only a finished run's Exit ends the disk-full task.
+  const [defragOpen, setDefragOpen] = useState(false);
 
   const spawnCounter = useRef(0);
 
@@ -355,6 +359,12 @@ export function useGame() {
       setUpdateStage('installing');
     }
 
+    // The disk-full task's error takes over the way the update dialog does:
+    // grandma clicked Toaster Setup, and Drive C: has 4 bytes left.
+    if (config.lowDisk) {
+      setMessage(JOKES.diskFull, 'error');
+    }
+
     const freeze = config.freeze;
 
     if (freeze !== undefined) {
@@ -458,6 +468,39 @@ export function useGame() {
     completeObjective('frozen-ended');
   };
 
+  // Task 7's milestones: grandma talks the player through the beats — the
+  // bin still holds the space, then the drive has room — but only the
+  // defragmenter's finished run completes the task.
+  const noteDiskMilestone = (kind: 'binned' | 'emptied') => {
+    if (phase !== 'playing' || !onCurrentObjective('defrag-done')) {
+      return;
+    }
+
+    setGrandmaLine(
+      kind === 'binned' ? GRANDMA_LINES.diskBinned : GRANDMA_LINES.diskFreed,
+    );
+  };
+
+  // Stop freezes the run where it stands (with a joke); Exit closes the
+  // dialog and, only at 100%, finishes the task. Defragmenting the drive
+  // any other evening is harmless.
+  const stopDefrag = () => {
+    setMessage(JOKES.defragStopped);
+  };
+
+  const exitDefrag = (finished: boolean) => {
+    setDefragOpen(false);
+
+    if (!finished) {
+      setMessage(JOKES.defragEarlyExit);
+      return;
+    }
+
+    if (!completeObjective('defrag-done')) {
+      setMessage(JOKES.defragIdleDone);
+    }
+  };
+
   const showJoke = (joke: string) => {
     setMessage(joke);
   };
@@ -525,6 +568,7 @@ export function useGame() {
     setFrozen(INITIAL_WINDOW_FLAGS);
     setTaskManagerOpen(false);
     setPendingEvent(null);
+    setDefragOpen(false);
     setShutdownOpen(false);
     setPowerScreen(null);
   };
@@ -624,6 +668,12 @@ export function useGame() {
     const icon = DESKTOP_ICONS.find((entry) => entry.id === id);
 
     if (icon === undefined) {
+      // The disk-full task's culprits aren't programs that run: opening one
+      // re-raises the low-disk error it was installed from.
+      if (MISSION_FILES.some((entry) => entry.id === id)) {
+        setMessage(JOKES.diskFull, 'error');
+      }
+
       return;
     }
 
@@ -671,6 +721,11 @@ export function useGame() {
 
       if (item.action === 'task-manager') {
         openTaskManager();
+        return;
+      }
+
+      if (item.action === 'defrag') {
+        setDefragOpen(true);
         return;
       }
 
@@ -741,6 +796,7 @@ export function useGame() {
     updateStage,
     frozen,
     taskManagerOpen,
+    defragOpen,
     raise,
     moveWindow,
     minimize,
@@ -768,6 +824,9 @@ export function useGame() {
     rebootUpdate,
     reactFrozen,
     endTask,
+    noteDiskMilestone,
+    stopDefrag,
+    exitDefrag,
     nextObjective,
     playAgain,
     selectIcon,

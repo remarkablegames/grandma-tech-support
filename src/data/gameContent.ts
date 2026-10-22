@@ -4,6 +4,7 @@ import type {
   EmailConfig,
   IconWindowConfig,
   IconWindowRow,
+  MissionFileConfig,
   ObjectiveConfig,
   PopupConfig,
   PopupId,
@@ -48,7 +49,7 @@ export const JOKES = {
   updateLater: '“Later” has always meant “now” to Windows Update.',
   endTaskAlive: 'That one’s running fine. End Task is only for the frozen one.',
   goBack: 'There’s nowhere to go back to. The internet only goes forward.',
-  goForward: 'Forward is where the pop-ups live.',
+  goForward: 'Forward is where the popups live.',
   emailDog: 'Attached: the dog. Also attached: the same dog again.',
   emailUpdate: 'That’s the update that broke the internet in year 2000.',
   emailPrize: 'You’ve been selected for a free toaster!',
@@ -65,7 +66,7 @@ export const JOKES = {
     'Your cart has one thing in it. It’s been that one thing for years.',
   mailError:
     'Cannot find the file “MAIL.EXE” (or one of its components). Make sure the path and filename are correct and that all required libraries are available.',
-  buyBlocked: 'The page is buried in pop-ups. Close them all first.',
+  buyBlocked: 'The page is buried in popups. Close them all first.',
   startPrograms: 'There are 20 programs. 19 of them are Solitaire.',
   startSettings: 'Everything’s set to “don’t touch”.',
   startFind: 'It was open in the internet thing.',
@@ -89,6 +90,14 @@ export const JOKES = {
   contextProperties: 'It’s set to “don’t touch”. Same as everything else.',
   contextDelete: 'You can’t delete that.',
   contextIconProperties: 'The main property is that it’s not a toaster.',
+  diskFull:
+    'Cannot run Toaster Setup: not enough free disk space on Drive C:. (4 bytes free)',
+  defragStopped:
+    'Defrag stopped. The drive has decided it’s had enough for today.',
+  defragEarlyExit:
+    'Early exit confirmed. The drive will try not to take it personally.',
+  defragIdleDone:
+    'Defrag complete. The drive finished rearranging the little squares.',
 } as const;
 
 export const GRANDMA_LINES = {
@@ -105,6 +114,11 @@ export const GRANDMA_LINES = {
   wrongPassword: 'Incorrect password.',
   saved:
     'You saved it, my dear! The computer stays with me. Tell your grandfather it was a close call.',
+  diskFullInstruction:
+    'The drive is full! There are some big files on the desktop. We’ll need to delete them.',
+  diskBinned: 'Still no space. Should we empty the bin?',
+  diskFreed:
+    'There’s room now! Let’s tidy up the drive with the Disk Defragmenter.',
 } as const;
 
 // The two text power lines: Win95's safe-off toast verbatim, and Rainbows95
@@ -128,13 +142,13 @@ export const UPDATE_MESSAGES: Record<UpdateStage, string> = {
 // The password the mail log-on form expects — it lives on the other note.
 export const MAIL_PASSWORD = 'password';
 
-// The six-task mission chain. Each entry completes on its event; when the
+// The seven-task mission chain. Each entry completes on its event; when the
 // next task starts, its instruction becomes grandma's line, its `open`
-// windows spring up, and its `spawn` pop-ups land on top of those.
+// windows spring up, and its `spawn` popups land on top of those.
 export const OBJECTIVES: ObjectiveConfig[] = [
   {
     instruction: GRANDMA_LINES.intro,
-    doneTitle: 'Task 1 of 6 complete',
+    doneTitle: 'Task 1 of 7 complete',
     doneMessage:
       'That’s it, dear! I’m in. Now find the real email, not the ones offering you toasters.',
     icon: `${ICONS}/sticky_note.png`,
@@ -143,7 +157,7 @@ export const OBJECTIVES: ObjectiveConfig[] = [
   {
     instruction:
       'That’s my mail popping open, dear! Find the one from the grandkids. The toaster ones are nonsense.',
-    doneTitle: 'Task 2 of 6 complete',
+    doneTitle: 'Task 2 of 7 complete',
     doneMessage: GRANDMA_LINES.win,
     icon: `${ICONS}/mail.png`,
     completesOn: 'email-opened',
@@ -157,7 +171,7 @@ export const OBJECTIVES: ObjectiveConfig[] = [
   {
     instruction:
       'Would you order me a toaster, dear? The burning shopping page.',
-    doneTitle: 'Task 3 of 6 complete',
+    doneTitle: 'Task 3 of 7 complete',
     doneMessage:
       'Ordered! ...though I may have clicked something while we waited, dear.',
     icon: `${ICONS}/world.png`,
@@ -165,7 +179,7 @@ export const OBJECTIVES: ObjectiveConfig[] = [
   },
   {
     instruction: 'It’s auto-updating! When it gives up, click Restart now.',
-    doneTitle: 'Task 4 of 6 complete',
+    doneTitle: 'Task 4 of 7 complete',
     doneMessage: 'New and improved! Although the toaster page broke.',
     icon: `${ICONS}/tools.png`,
     completesOn: 'update-rebooted',
@@ -174,7 +188,7 @@ export const OBJECTIVES: ObjectiveConfig[] = [
   {
     instruction:
       'The bargain page stopped responding! Use the Task Manager to end it.',
-    doneTitle: 'Task 5 of 6 complete',
+    doneTitle: 'Task 5 of 7 complete',
     doneMessage:
       'It stopped yelping! And I may have clicked one little thing while you were in there.',
     icon: `${ICONS}/program.png`,
@@ -185,8 +199,9 @@ export const OBJECTIVES: ObjectiveConfig[] = [
   {
     instruction:
       'The whole screen is yelling, dear! Don’t touch the urgent ones. Use the shield program on the desktop!',
-    doneTitle: 'Computer saved!',
-    doneMessage: GRANDMA_LINES.saved,
+    doneTitle: 'Task 6 of 7 complete',
+    doneMessage:
+      'The popups are gone! Although I may have clicked one more Install button while you were in there.',
     icon: `${ICONS}/password_manager.png`,
     completesOn: 'scan-complete',
     spawn: [
@@ -194,6 +209,35 @@ export const OBJECTIVES: ObjectiveConfig[] = [
       { windowId: 'inbox', popupId: 'spam', count: 3 },
       { windowId: 'virus', popupId: 'spam', count: 3 },
     ],
+  },
+  {
+    // The finale: the toaster install filled the drive. The error dialog
+    // takes over at task start, the culprits land on the desktop, and only
+    // the defragmenter finishes it off.
+    instruction: GRANDMA_LINES.diskFullInstruction,
+    doneTitle: 'Computer saved!',
+    doneMessage: GRANDMA_LINES.saved,
+    icon: `${ICONS}/parsec.png`,
+    completesOn: 'defrag-done',
+    lowDisk: true,
+  },
+];
+
+// The disk-full task's culprits: they sit at the top of the desktop's
+// second column until the player drags them into the Recycle Bin, and they
+// live only inside that task (the layout store never learns their ids).
+export const MISSION_FILES: MissionFileConfig[] = [
+  {
+    id: 'toaster-8-install',
+    label: 'toaster_8_install.exe',
+    icon: `${ICONS}/program.png`,
+    home: { col: 1, row: 0 },
+  },
+  {
+    id: 'toasters-movie',
+    label: 'toasters_the_movie.avi',
+    icon: `${ICONS}/video_file.png`,
+    home: { col: 1, row: 1 },
   },
 ];
 
@@ -633,9 +677,9 @@ export const PRODUCTS: ProductConfig[] = [
 ];
 
 // The Start menu doubles as the desktop's launcher: the first two items open
-// the browser windows, Help re-reads the current mission, Task Manager opens
-// the task list, Shut Down... opens the power dialog, and the
-// rest are grandma's joke entries.
+// the browser windows, Programs' Disk Defragmenter opens the drive tool, Help
+// re-reads the current mission, Task Manager opens the task list, Shut
+// Down... opens the power dialog, and the rest are grandma's joke entries.
 export const START_ITEMS: StartMenuItem[] = [
   {
     id: 'inbox',
@@ -683,6 +727,12 @@ export const START_ITEMS: StartMenuItem[] = [
         label: 'Toaster Setup',
         icon: `${ICONS}/script_file.png`,
         message: JOKES.startToasterSetup,
+      },
+      {
+        id: 'defrag',
+        label: 'Disk Defragmenter',
+        icon: `${ICONS}/3d_graphics_program.png`,
+        action: 'defrag',
       },
     ],
   },
@@ -835,17 +885,44 @@ export const DESKTOP_CONTEXT_MENU: ContextMenuItem[] = [
 ];
 
 // Right-click on a desktop icon: `open` runs the icon's own double-click
-// path, so the broken mail shortcut still raises the MAIL.EXE error.
-export const ICON_CONTEXT_MENU: ContextMenuItem[] = [
-  { id: 'open', label: 'Open', action: 'open' },
-  { id: 'sep-icon', separator: true },
-  { id: 'delete', label: 'Delete', message: JOKES.contextDelete },
-  {
-    id: 'icon-properties',
-    label: 'Properties',
-    message: JOKES.contextIconProperties,
-  },
-];
+// path, so the broken mail shortcut still raises the MAIL.EXE error. The
+// Recycle Bin gets Win95's extra entry — Empty Recycle Bin, greyed out the
+// way Win95 greys it when the bin holds nothing left to empty.
+export function iconContextMenu(
+  icon: DesktopIconConfig,
+  canEmpty: boolean,
+): ContextMenuItem[] {
+  const menu: ContextMenuItem[] = [
+    { id: 'open', label: 'Open', action: 'open' },
+  ];
+
+  if (icon.container === 'recycle') {
+    menu.push(
+      canEmpty
+        ? { id: 'empty-bin', label: 'Empty Recycle Bin', effect: 'empty-bin' }
+        : { id: 'empty-bin', label: 'Empty Recycle Bin', disabled: true },
+    );
+  }
+
+  menu.push(
+    { id: 'sep-icon', separator: true },
+    { id: 'delete', label: 'Delete', message: JOKES.contextDelete },
+    {
+      id: 'icon-properties',
+      label: 'Properties',
+      message: JOKES.contextIconProperties,
+    },
+  );
+
+  return menu;
+}
+
+// Win95 asks before emptying the bin: the classic two-button confirm, Yes
+// or No, with the full bin graphic looking on.
+export const CONFIRM_EMPTY_BIN = {
+  title: 'Confirm File Delete',
+  message: 'Are you sure you want to delete these items?',
+} as const;
 
 // Right-click on a row inside a list window: Win95 shows the file menu, not
 // the folder menu. `Open` runs the row's own double-click path, greyed out

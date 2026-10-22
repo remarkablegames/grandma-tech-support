@@ -4,18 +4,18 @@
 
 A short, funny browser game about being Grandma’s tech support. The player lands on a
 playful, **fictional** Windows 95-style desktop (an homage, not a copy of a real OS) and
-works through a chain of six silly tasks (log in, find the email, order a toaster, sit
-through a botched update, end-task a frozen page, defuse a pop-up storm) while dodging
-fake warnings and misleading buttons.
+works through a chain of seven silly tasks (log in, find the email, order a toaster, sit
+through a botched update, end-task a frozen page, defuse a pop-up storm, rescue a full
+drive) while dodging fake warnings and misleading buttons.
 
 - **Genre:** comedy point-and-click / puzzle vignette
-- **Session length:** 10–12 minutes for the full six-task chain
+- **Session length:** 10–13 minutes for the full seven-task chain
 - **Tone:** warm, silly, grandma-flavored; nothing scary, nothing real
 - **Lose state:** none. Wrong clicks produce jokes and the player retries.
-- **Win condition:** complete all six tasks — log in, open the email, order the
-  toaster, reboot through the update, end-task the frozen page, run the scanner. Each
-  task ends in a Win95 dialog; the sixth ends in the final screen. See
-  [missions](./2026-10-19-missions.md).
+- **Win condition:** complete all seven tasks — log in, open the email, order the
+  toaster, reboot through the update, end-task the frozen page, run the scanner, free
+  the full drive. Each task ends in a Win95 dialog; the seventh ends in the final
+  screen. See [missions](./2026-10-19-missions.md).
 
 ## Core loop
 
@@ -32,10 +32,11 @@ fake warnings and misleading buttons.
    Only the tiny `×` in the pop-up’s title bar is safe.
 4. Clicking a misleading button opens a Win95-style joke dialog. After clicking `OK`
    everything resets for another try (pop-up stays open; liar `Close` spawns extras).
-5. Each completed task opens a `Next task` dialog with a line from Grandma; the tasks
-   escalate into a pop-up storm that the scanner program sweeps away. The last task
-   ends in the final screen and `Play again`, which resets the whole evening back to
-   the blank desktop.
+5. Each completed task opens a `Next task` dialog with a line from Grandma (the seventh
+   opens the final screen instead); the tasks escalate into a pop-up storm that the
+   scanner program sweeps away, then a full drive that the defragmenter tidies up. The
+   last task ends in the final screen and `Play again`, which resets the whole evening
+   back to the blank desktop.
 
 ## Desktop contents
 
@@ -65,7 +66,8 @@ above applies once they're open (virus on top, tempting).
   `Programs`, `Documents`, `Settings`, and `Find` cascade into flyouts.
   Programs is a time capsule: `Solitaire` keeps the old “20 programs, 19
   Solitaires” line beside `Minecraft`, `Steam`, `Discord`, and
-  `Toaster Setup`. Documents mirrors the real `My Documents` folder: the
+  `Toaster Setup`, while `Disk Defragmenter` runs the little drive tool.
+  Documents mirrors the real `My Documents` folder: the
   opener opens the window itself, and every file leaf opens that file's
   actual Notepad window (password note included) — plus any shortcuts the player
   files into the folder from the desktop, mirrored with their `shortcut` hint.
@@ -142,7 +144,7 @@ Toolbar pixels are decorative (not interactive). Email list:
 ### Task and win screens
 
 Every task ends in the same Win95 dialog, dressed with the task's title, message, and
-icon: `Next task` for tasks 1–5, `Computer saved!` and `Play again` for the sixth.
+icon: `Next task` for tasks 1–6, `Computer saved!` and `Play again` for the seventh.
 Each one plays the `win` jingle. The final screen's closing line from Grandma:
 
 > "You saved it, my dear! The computer stays with me. Tell your grandfather it was a
@@ -208,7 +210,12 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
   Paste and Paste Shortcut, Refresh, Properties — every live entry a grandma
   joke. An icon opens its own menu: `Open` runs the icon’s double-click path
   (the decoy still raises its MAIL.EXE error) plus joke `Delete` and
-  `Properties` entries. Browser windows and the taskbar swallow the click with
+  `Properties` entries. The Recycle Bin’s menu adds `Empty Recycle Bin` — live
+  whenever the bin holds anything (its joke junk counts), greyed out once it’s
+  truly empty — which asks Win95’s `Confirm File Delete` first (`Yes`
+  autofocused, `No` cancels); `Yes` empties the bin for real and sends the
+  joke junk away until the next reset. Browser windows and the taskbar swallow
+  the click with
   no replacement menu; the list windows (`My Computer`, `My Documents`,
   `Recycle Bin`) open the same folder menu Win95 gives their backgrounds, and a
   right-clicked row gets the file menu instead — `Open` runs the row's own open
@@ -248,6 +255,10 @@ src/
 │   ├── Popups/          filters pop-ups for a window, renders backdrop + stack
 │   ├── Popup/           single pop-up dialog (liar buttons + real ×)
 │   ├── MessageDialog/   Win95 joke dialog (OK)
+│   ├── ConfirmDialog/   Win95 two-button confirm (Yes autofocus, No)
+│   ├── DefragDialog/    Disk Defragmenter (settling block grid, Stop/Exit)
+│   ├── UpdateDialog/    Windows Update stages (99% stall, rollback, failure)
+│   ├── TaskManager/     Close Program list with a working End Task
 │   ├── ShutdownDialog/  Win95 power dialog (shutdown vs restart radios)
 │   ├── PowerScreen/     clouds splash + safe-off / boot beats over everything
 │   ├── ShoppingWindow/  ad-crusted sale page (joke tiles)

@@ -13,11 +13,11 @@ ding) instead, backed by Grandma’s “broken since 2000” redirect line.
 | Icon           | Window contents                                                                                                                                                                                                                                                                          |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `My Computer`  | drive list: `3½ Floppy (A:)` — hint "cupholder", `Hard disk (C:)` — hint "mostly toasters", `CD-ROM (D:)` — hint "1 song", `CD-RW (E:)` — hint "still burning", `Printer (LPT1:)` — hint "jammed", `Network (N:)` — hint "the neighbors’ stuff", `Games (G:)` — hint "Solitaire, mostly" |
-| `Recycle Bin`  | "deleted" files: `untitled_final_v2.doc`, `toaster_7_install.exe`, `do_not_open.jpg`, `final_final_v3.doc`, `totally_not_a_virus.exe`                                                                                                                                                    |
+| `Recycle Bin`  | "deleted" files: `untitled_final_v2.doc`, `toaster_7_install.exe`, `do_not_open.jpg`, `final_final_v3.doc`, `totally_not_a_virus.exe` — real victims list above them, and `Empty Recycle Bin` clears both                                                                                |
 | `My Documents` | every file opens its own Notepad window: `untitled`, `untitled (2)`, `untitled (3)`, `asdf`, `the_other_note.txt` (the password), `todo.txt`, `recipe.txt`                                                                                                                               |
 | `Sticky Notes` | the note itself: "THE PASSWORD" — "(it's on the other note)"                                                                                                                                                                                                                             |
 | `Calculator`   | clickable keypad; the display accepts digits, but every `=` shows **42**                                                                                                                                                                                                                 |
-| `Virus Shield` | task 4’s scanner: idle → `Scanning C:\` → “1 threat quarantined: toaster_7_install.exe”; one scan sweeps the whole pop-up storm                                                                                                                                                          |
+| `Virus Shield` | task 6’s scanner: idle → `Scanning C:\` → “1 threat quarantined: toaster_7_install.exe”; one scan sweeps the whole pop-up storm                                                                                                                                                          |
 
 - **Window behavior.** Mini-chrome: navy titlebar, title, and **working** `–` (minimize)
   and `×` (close) buttons — unlike the browser chrome's decorative close, these are our
@@ -55,8 +55,10 @@ ding) instead, backed by Grandma’s “broken since 2000” redirect line.
   title-bar buttons are named `Minimize <title>` and `Close <title>`; the calculator
   display is a `role="status"` live region so screen readers hear the punchline, and the
   scanner's progress/result area is an `aria-live="polite"` region.
-- **Reset.** `Play again` closes every icon window (minimized or not) and returns
-  positions to defaults.
+- **Reset.** `Play again` closes every icon window (minimized or not). The layout
+  otherwise rides out the reset — positions, the bin, and My Documents persist —
+  except `Empty Recycle Bin`'s one-way change: the joke junk rows come back with the
+  rest of the new evening (see [missions](./2026-10-19-missions.md)).
 - **Out of scope.** Genuinely working programs — the joke is that these are barely
   functional Win95 programs — plus maximize (the windows are already small) and
   inactive-titlebar graying within the icon stack.

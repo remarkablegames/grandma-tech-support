@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { audio } from 'src/services/audio';
 import type {
+  ContextMenuEffectItem,
   ContextMenuItem,
   ContextMenuJokeItem,
   ContextMenuOpenItem,
@@ -10,7 +11,9 @@ interface ContextMenuProps {
   x: number;
   y: number;
   items: ContextMenuItem[];
-  onSelect: (item: ContextMenuJokeItem | ContextMenuOpenItem) => void;
+  onSelect: (
+    item: ContextMenuJokeItem | ContextMenuOpenItem | ContextMenuEffectItem,
+  ) => void;
   onDismiss: () => void;
 }
 

@@ -1,9 +1,11 @@
 import { type MouseEvent, useEffect, useState } from 'react';
 import {
+  CONFIRM_EMPTY_BIN,
   DESKTOP_CONTEXT_MENU,
   DESKTOP_ICONS,
-  ICON_CONTEXT_MENU,
   ICON_WINDOWS,
+  iconContextMenu,
+  MISSION_FILES,
   OBJECTIVES,
   RECYCLE_BIN_ICONS,
   rowContextMenu,
@@ -11,9 +13,13 @@ import {
   WINDOW_META,
 } from 'src/data/gameContent';
 import { useGame } from 'src/hooks/useGame';
-import { useIconPositions } from 'src/hooks/useIconPositions';
+import {
+  type IconPositions,
+  useIconPositions,
+} from 'src/hooks/useIconPositions';
 import { audio } from 'src/services/audio';
 import type {
+  ContextMenuEffectItem,
   ContextMenuItem,
   ContextMenuJokeItem,
   ContextMenuOpenItem,
@@ -21,13 +27,18 @@ import type {
   IconTaskbarItem,
   IconWindowId,
   IconWindowRow,
+  ListIconWindow,
+  MissionFileConfig,
+  ShutdownMode,
   StartMenuDesktopItem,
   StartMenuItem,
 } from 'src/types/game';
 import { resolveIconDrop } from 'src/utils/resolveIconDrop';
 
 import { BrowserWindow } from '../BrowserWindow';
+import { ConfirmDialog } from '../ConfirmDialog';
 import { ContextMenu } from '../ContextMenu';
+import { DefragDialog } from '../DefragDialog';
 import { DesktopIcon } from '../DesktopIcon';
 import { GrandmaSpeech } from '../GrandmaSpeech';
 import { IconWindow } from '../IconWindow';
@@ -53,7 +64,9 @@ interface OpenContextMenu {
   onOpen?: () => void;
 }
 
-const ICON_BY_ID = new Map(DESKTOP_ICONS.map((icon) => [icon.id, icon]));
+const ICON_BY_ID = new Map(
+  [...DESKTOP_ICONS, ...MISSION_FILES].map((icon) => [icon.id, icon]),
+);
 
 // Stored ids the current desktop still knows, in the order they were
 // consumed.
@@ -61,6 +74,14 @@ const knownIcons = (ids: string[]) =>
   ids
     .map((id) => ICON_BY_ID.get(id))
     .filter((icon): icon is DesktopIconConfig => icon !== undefined);
+
+// The disk-full task's culprits are all in the bin once every one of them
+// is; with no active culprits (every other evening) the answer is no.
+const missionFilesBinned = (
+  files: MissionFileConfig[],
+  recycled: string[],
+): boolean =>
+  files.length > 0 && files.every((file) => recycled.includes(file.id));
 
 // Win95's folder action: the windows holding restorable shortcuts (the
 // bin, My Documents) all speak its own word for putting one back on the
@@ -78,6 +99,23 @@ export function App() {
   // message, and icon dress the task-complete dialog.
   const objective = OBJECTIVES[game.objectiveIndex];
   const isFinalTask = game.phase === 'won';
+
+  // The disk-full task's culprits live on the desktop only while it runs,
+  // at the cells their configs carry: the persisted layout never learns
+  // their ids, so they arrive fresh (and in place) every time.
+  const activeFiles: MissionFileConfig[] =
+    objective.lowDisk === true ? MISSION_FILES : [];
+  const desktopIcons: DesktopIconConfig[] = [...DESKTOP_ICONS, ...activeFiles];
+  const cells: IconPositions = { ...iconPositions.positions };
+
+  for (const file of activeFiles) {
+    cells[file.id] ??= file.home;
+  }
+
+  // Emptying is live whenever the bin holds anything at all: the old joke
+  // junk counts until it has been emptied for real once.
+  const canEmpty =
+    iconPositions.recycled.length > 0 || !iconPositions.binEmptied;
 
   // Open icon windows in raise order, so the active one sits rightmost,
   // closest to the tray — Win95 taskbar style.
@@ -97,6 +135,9 @@ export function App() {
   const openWindows = WINDOW_META.filter((meta) => game.open[meta.id]);
 
   const [contextMenu, setContextMenu] = useState<OpenContextMenu | null>(null);
+  // The bin's confirm dialog: the menu's Empty entry asks first, Win95
+  // style, and either answer just closes it.
+  const [confirmingEmpty, setConfirmingEmpty] = useState(false);
 
   const closeContextMenu = () => {
     setContextMenu(null);
@@ -131,6 +172,14 @@ export function App() {
 
     return [];
   };
+
+  // What a list window shows of its config: the bin's recent victims first,
+  // minus the joke junk once the bin has been emptied for real — and the
+  // evening's reset puts that junk back.
+  const windowRows = (config: ListIconWindow): IconWindowRow[] => [
+    ...dynamicRows(config.id),
+    ...(config.id === 'recycle' && iconPositions.binEmptied ? [] : config.rows),
+  ];
 
   // A right-clicked row's Open entry runs the row's own double-click path.
   const openRowAction = (row: IconWindowRow): (() => void) | undefined => {
@@ -192,9 +241,14 @@ export function App() {
   };
 
   const handleContextMenuSelect = (
-    item: ContextMenuJokeItem | ContextMenuOpenItem,
+    item: ContextMenuJokeItem | ContextMenuOpenItem | ContextMenuEffectItem,
   ) => {
     setContextMenu(null);
+
+    if ('effect' in item) {
+      setConfirmingEmpty(true);
+      return;
+    }
 
     if ('action' in item) {
       contextMenu?.onOpen?.();
@@ -202,6 +256,36 @@ export function App() {
     }
 
     game.showJoke(item.message);
+  };
+
+  // Emptying the bin only counts as the disk-full task's beat when the
+  // culprits were the ones in there: an empty of the old joke junk alone
+  // frees no space for grandma to point at.
+  const confirmEmptyBin = () => {
+    setConfirmingEmpty(false);
+
+    const filesBinned = missionFilesBinned(activeFiles, iconPositions.recycled);
+
+    iconPositions.emptyBin();
+
+    if (filesBinned) {
+      game.noteDiskMilestone('emptied');
+    }
+  };
+
+  // Play again and the restart behind the boot screens reset the evening —
+  // the bin's joke junk rides back along with everything else.
+  const handlePlayAgain = () => {
+    game.playAgain();
+    iconPositions.resetBin();
+  };
+
+  const handleShutdown = (mode: ShutdownMode) => {
+    game.confirmShutdown(mode);
+
+    if (mode === 'restart') {
+      iconPositions.resetBin();
+    }
   };
 
   // Win95's icon highlight is focus: press anywhere that isn't an icon
@@ -259,8 +343,9 @@ export function App() {
       {game.powerScreen !== 'splash' && (
         <>
           <div className="pointer-events-none absolute inset-0 z-[5]">
-            {DESKTOP_ICONS.filter((icon) => !concealed.has(icon.id)).map(
-              (icon) => {
+            {desktopIcons
+              .filter((icon) => !concealed.has(icon.id))
+              .map((icon) => {
                 // Win95 fills the bin the moment anything lands in it.
                 const binFull =
                   icon.id === 'recycle' && iconPositions.recycled.length > 0;
@@ -271,15 +356,15 @@ export function App() {
                     icon={
                       binFull ? { ...icon, icon: RECYCLE_BIN_ICONS.full } : icon
                     }
-                    position={iconPositions.positions[icon.id]}
+                    position={cells[icon.id]}
                     selected={game.selectedIcon === icon.id}
                     onSelect={game.selectIcon}
                     onMove={(cell) => {
                       const drop = resolveIconDrop(
                         icon,
                         cell,
-                        iconPositions.positions,
-                        DESKTOP_ICONS,
+                        cells,
+                        desktopIcons,
                       );
 
                       if (drop === 'refuse') {
@@ -293,6 +378,20 @@ export function App() {
 
                       if (drop === 'recycle') {
                         iconPositions.recycleIcon(icon.id);
+
+                        // Both culprits in the bin: grandma points at the
+                        // empty step next.
+                        const binned = [
+                          icon.id,
+                          ...iconPositions.recycled.filter(
+                            (kept) => kept !== icon.id,
+                          ),
+                        ];
+
+                        if (missionFilesBinned(activeFiles, binned)) {
+                          game.noteDiskMilestone('binned');
+                        }
+
                         return;
                       }
 
@@ -310,7 +409,7 @@ export function App() {
                       openContextMenu({
                         x,
                         y,
-                        items: ICON_CONTEXT_MENU,
+                        items: iconContextMenu(icon, canEmpty),
                         onOpen: () => {
                           game.openDesktopIcon(icon.id);
                         },
@@ -318,8 +417,7 @@ export function App() {
                     }}
                   />
                 );
-              },
-            )}
+              })}
           </div>
 
           {openWindows
@@ -373,10 +471,7 @@ export function App() {
               key={config.id}
               config={
                 config.kind === 'list'
-                  ? {
-                      ...config,
-                      rows: [...dynamicRows(config.id), ...config.rows],
-                    }
+                  ? { ...config, rows: windowRows(config) }
                   : config
               }
               position={game.iconWindowPositions[config.id]}
@@ -464,6 +559,13 @@ export function App() {
             />
           )}
 
+          {game.defragOpen && (
+            <DefragDialog
+              onStopped={game.stopDefrag}
+              onExit={game.exitDefrag}
+            />
+          )}
+
           {game.taskManagerOpen && (
             <TaskManager
               windows={openWindows}
@@ -482,13 +584,25 @@ export function App() {
             />
           )}
 
+          {confirmingEmpty && (
+            <ConfirmDialog
+              title={CONFIRM_EMPTY_BIN.title}
+              message={CONFIRM_EMPTY_BIN.message}
+              icon={RECYCLE_BIN_ICONS.full}
+              onConfirm={confirmEmptyBin}
+              onCancel={() => {
+                setConfirmingEmpty(false);
+              }}
+            />
+          )}
+
           {game.phase !== 'playing' && (
             <WinScreen
               title={objective.doneTitle}
               message={objective.doneMessage}
               icon={objective.icon}
               buttonLabel={isFinalTask ? 'Play again' : 'Next task'}
-              onConfirm={isFinalTask ? game.playAgain : game.nextObjective}
+              onConfirm={isFinalTask ? handlePlayAgain : game.nextObjective}
             />
           )}
         </>
@@ -496,7 +610,7 @@ export function App() {
 
       {game.shutdownOpen && (
         <ShutdownDialog
-          onConfirm={game.confirmShutdown}
+          onConfirm={handleShutdown}
           onCancel={game.closeShutdown}
         />
       )}

@@ -9,7 +9,8 @@ export type ObjectiveEvent =
   | 'order-placed'
   | 'update-rebooted'
   | 'frozen-ended'
-  | 'scan-complete';
+  | 'scan-complete'
+  | 'defrag-done';
 
 // The Windows Update dialog's click-driven stages: the stall at 99%, the
 // rollback gag, then the failure that asks for a reboot. No timers.
@@ -47,6 +48,13 @@ export interface DesktopIconConfig {
   // refuse drops both ways.
   container?: 'recycle' | 'folder';
   system?: boolean;
+}
+
+// The disk-full task's culprits: ordinary draggable files that live on the
+// desktop only while that task is on, so their cells come from the config
+// instead of the persisted default layout.
+export interface MissionFileConfig extends DesktopIconConfig {
+  home: IconCell;
 }
 
 // Windows that show grandma’s notes and joke files inside a Notepad frame.
@@ -134,6 +142,9 @@ export interface ObjectiveConfig {
   spawn?: PopupSpawn[];
   // The update task: its Windows Update dialog takes over at task start.
   update?: boolean;
+  // The disk-full task: its low-disk error takes over at task start, and
+  // the two culprit files land on the desktop.
+  lowDisk?: boolean;
   // Windows that spring open frozen — dead to every input until End Task.
   freeze?: WindowId[];
 }
@@ -202,10 +213,11 @@ export interface StartMenuIconWindowItem extends StartMenuBaseItem {
 }
 
 // Menu items whose effect isn't a fixed string: Help re-reads whatever the
-// current mission is, Shut Down... opens the power dialog, and Task Manager
-// opens the task list, so none of them live in the content file.
+// current mission is, Shut Down... opens the power dialog, Task Manager
+// opens the task list, and Disk Defragmenter opens the drive tool, so none
+// of them live in the content file.
 export interface StartMenuActionItem extends StartMenuBaseItem {
-  action: 'show-mission' | 'shutdown' | 'task-manager';
+  action: 'show-mission' | 'shutdown' | 'task-manager' | 'defrag';
 }
 
 // A filed shortcut in Start > Documents: it launches the same desktop
@@ -238,7 +250,8 @@ export type ShutdownMode = 'shutdown' | 'restart';
 export type PowerScreenMode = 'safe' | 'boot' | 'splash';
 
 // Right-click menus. Joke items put a grandma line in the dialog, `open` runs
-// whatever the right-clicked target would have done on a double-click,
+// whatever the right-clicked target would have done on a double-click, effect
+// items hand a real action back to the desktop (the bin's Empty Recycle Bin),
 // disabled items are the greyed-out entries Win95 never lets you pick, and
 // separators are the horizontal rules it draws between groups.
 export interface ContextMenuBaseItem {
@@ -254,6 +267,12 @@ export interface ContextMenuOpenItem extends ContextMenuBaseItem {
   action: 'open';
 }
 
+// The only effect so far: emptying the Recycle Bin, which the desktop turns
+// into a confirm dialog instead of acting on the spot.
+export interface ContextMenuEffectItem extends ContextMenuBaseItem {
+  effect: 'empty-bin';
+}
+
 export interface ContextMenuDisabledItem extends ContextMenuBaseItem {
   disabled: true;
 }
@@ -266,5 +285,6 @@ export interface ContextMenuSeparator {
 export type ContextMenuItem =
   | ContextMenuJokeItem
   | ContextMenuOpenItem
+  | ContextMenuEffectItem
   | ContextMenuDisabledItem
   | ContextMenuSeparator;
