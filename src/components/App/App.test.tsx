@@ -550,6 +550,28 @@ describe('App component', () => {
     expect(screen.queryByRole('menu', { name: 'Context menu' })).toBeNull();
   });
 
+  it('selects an icon on the press and lets go when the press is elsewhere', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<App />);
+    await skipSplash(user);
+
+    const computer = screen.getByRole('button', { name: 'My Computer' });
+
+    // Win95 highlights on mouse-down, not on the click that follows.
+    fireEvent.pointerDown(computer);
+    expect(computer).toHaveAttribute('aria-pressed', 'true');
+
+    // A press on any other icon moves the highlight rather than clearing it.
+    const bin = screen.getByRole('button', { name: 'Recycle Bin' });
+    fireEvent.pointerDown(bin);
+    expect(computer).toHaveAttribute('aria-pressed', 'false');
+    expect(bin).toHaveAttribute('aria-pressed', 'true');
+
+    // A press on the bare desktop clears it.
+    fireEvent.pointerDown(getDesktop(container));
+    expect(bin).toHaveAttribute('aria-pressed', 'false');
+  });
+
   it('puts the Start menu away when the desktop menu opens', async () => {
     const user = userEvent.setup();
     const { container } = render(<App />);

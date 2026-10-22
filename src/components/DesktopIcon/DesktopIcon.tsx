@@ -113,6 +113,7 @@ export function DesktopIcon({
     <button
       type="button"
       aria-pressed={selected}
+      data-desktop-icon
       onPointerDown={handlePointerDown}
       onClick={(event) => {
         // The tail of a drop: the icon is already selected and placed.

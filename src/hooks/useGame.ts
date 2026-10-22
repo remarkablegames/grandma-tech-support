@@ -606,6 +606,12 @@ export function useGame() {
     setSelectedIcon(icon.id);
   };
 
+  // Win95's icon highlight is really focus: a press anywhere that isn't
+  // an icon lets the selected one go.
+  const clearSelection = () => {
+    setSelectedIcon(null);
+  };
+
   // The mail shortcut fails the Win95 way: only when you try to open it.
   const openMailDecoy = () => {
     setMessage(JOKES.mailError, 'error');
@@ -765,6 +771,7 @@ export function useGame() {
     nextObjective,
     playAgain,
     selectIcon,
+    clearSelection,
     openMailDecoy,
     repeatObjective,
     toggleStart,

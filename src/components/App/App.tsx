@@ -204,6 +204,26 @@ export function App() {
     game.showJoke(item.message);
   };
 
+  // Win95's icon highlight is focus: press anywhere that isn't an icon
+  // and the selected icon lets go. The marker lives on the icon itself,
+  // so this fires for desktop, window, taskbar, and menu presses alike.
+  useEffect(() => {
+    const clearIconSelection = (event: PointerEvent) => {
+      if (
+        event.target instanceof Element &&
+        event.target.closest('[data-desktop-icon]') === null
+      ) {
+        game.clearSelection();
+      }
+    };
+
+    document.addEventListener('pointerdown', clearIconSelection);
+
+    return () => {
+      document.removeEventListener('pointerdown', clearIconSelection);
+    };
+  });
+
   useEffect(() => {
     audio.startMusic();
 

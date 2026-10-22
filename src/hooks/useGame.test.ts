@@ -541,6 +541,12 @@ describe('useGame hook', () => {
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.intro);
     expect(result.current.messageVariant).toBe('joke');
 
+    // A press outside any icon lets the highlight go.
+    act(() => {
+      result.current.clearSelection();
+    });
+    expect(result.current.selectedIcon).toBeNull();
+
     // The decoy "Inbox" shortcut: selecting stays silent.
     const mailIcon = DESKTOP_ICONS[5];
 
