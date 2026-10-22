@@ -60,7 +60,6 @@ export const JOKES = {
     'Cannot find the file “MAIL.EXE” (or one of its components). Make sure the path and filename are correct and that all required libraries are available.',
   buyBlocked: 'The page is buried in pop-ups. Close them all first.',
   startPrograms: 'There are 20 programs. 19 of them are Solitaire.',
-  startDocuments: 'They’re all called “untitled_final_v2”.',
   startSettings: 'Everything’s set to “don’t touch”.',
   startFind: 'It was open in the internet thing.',
   startRun: 'That’s how the toaster got installed.',
@@ -68,7 +67,7 @@ export const JOKES = {
   startSteam:
     'It’s updating again. Hundreds of games in the library and only Solitaire gets played.',
   startDiscord:
-    'That’s where your cousins talk now. It used to be the telephone.',
+    'That’s where your cousins talk now. It used to be on the telephone.',
   startToasterSetup:
     'Setup has been installing since the day it was installed.',
   startPrinters:
@@ -424,7 +423,7 @@ export const ICON_WINDOWS: IconWindowConfig[] = [
     lines: [
       'GRANDMA’S FAMOUS TOAST',
       'INGREDIENTS: bread',
-      '1. turn on toaster',
+      '1. turn on the toaster',
       '2. toast the bread',
       '3. spread the butter',
     ],
@@ -681,6 +680,8 @@ export const START_ITEMS: StartMenuItem[] = [
     id: 'documents',
     label: 'Documents',
     icon: `${ICONS}/folder_closed.png`,
+    // The folder's real contents, in folder order — a drift test keeps this
+    // list in step with the My Documents window below.
     children: [
       {
         id: 'my-documents',
@@ -690,21 +691,45 @@ export const START_ITEMS: StartMenuItem[] = [
       },
       {
         id: 'doc-untitled',
-        label: 'untitled_final_v2',
+        label: 'untitled',
         icon: `${ICONS}/text_file.png`,
-        message: JOKES.startDocuments,
+        iconWindowId: 'untitled',
       },
       {
         id: 'doc-untitled-2',
-        label: 'untitled_final_v2',
+        label: 'untitled (2)',
         icon: `${ICONS}/text_file.png`,
-        message: JOKES.startDocuments,
+        iconWindowId: 'untitled-2',
       },
       {
-        id: 'doc-final',
-        label: 'final_final_v3',
-        icon: `${ICONS}/text_file_2.png`,
-        message: JOKES.startDocuments,
+        id: 'doc-untitled-3',
+        label: 'untitled (3)',
+        icon: `${ICONS}/text_file.png`,
+        iconWindowId: 'untitled-3',
+      },
+      {
+        id: 'doc-asdf',
+        label: 'asdf',
+        icon: `${ICONS}/text_file.png`,
+        iconWindowId: 'asdf',
+      },
+      {
+        id: 'doc-other-note',
+        label: 'the_other_note.txt',
+        icon: `${ICONS}/text_file.png`,
+        iconWindowId: 'other-note',
+      },
+      {
+        id: 'doc-todo',
+        label: 'todo.txt',
+        icon: `${ICONS}/text_file.png`,
+        iconWindowId: 'todo',
+      },
+      {
+        id: 'doc-recipe',
+        label: 'recipe.txt',
+        icon: `${ICONS}/text_file.png`,
+        iconWindowId: 'recipe',
       },
     ],
   },

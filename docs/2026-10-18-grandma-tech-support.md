@@ -62,12 +62,13 @@ above applies once they're open (virus on top, tempting).
   (restores a minimized window or else raises it, pressed style for the focused
   window), tray with a live clock showing the current time in the player's locale.
 - Start menu: `Inbox` and `Internet` launch the two browser windows;
-  `Programs`, `Documents`, `Settings`, and `Find` cascade into flyouts whose
-  leaves are joke dialogs. Programs is a time capsule: `Solitaire` keeps the
-  old “20 programs, 19 Solitaires” line beside `Minecraft`, `Steam`,
-  `Discord`, and `Toaster Setup`. Documents mixes a working `My Documents`
-  launcher among identically named recent files; Settings offers
-  `Control Panel`, `Printers`, and `Taskbar...`; Find offers
+  `Programs`, `Documents`, `Settings`, and `Find` cascade into flyouts.
+  Programs is a time capsule: `Solitaire` keeps the old “20 programs, 19
+  Solitaires” line beside `Minecraft`, `Steam`, `Discord`, and
+  `Toaster Setup`. Documents mirrors the real `My Documents` folder: the
+  opener opens the window itself, and every file leaf opens that file's
+  actual Notepad window (password note included). Settings and Find still
+  tell their jokes through `Control Panel`, `Printers`, `Taskbar...`,
   `Files or Folders...`, `Computer...`, and `On the Internet...`. Flyouts
   open on hover or tap, follow the pointer between parents, and peel away on
   Escape before the menu itself closes; an outside press takes only the

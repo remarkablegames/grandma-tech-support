@@ -604,6 +604,21 @@ describe('App component', () => {
     expect(screen.queryByRole('menu', { name: 'Start menu' })).toBeNull();
   }, 15000);
 
+  it('opens a real note from the Documents flyout', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
+
+    await user.click(screen.getByRole('button', { name: 'Start' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Documents' }));
+    await user.click(screen.getByRole('menuitem', { name: 'todo.txt' }));
+
+    expect(
+      screen.getByRole('region', { name: 'todo.txt — Notepad' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('menu', { name: 'Start menu' })).toBeNull();
+  }, 15000);
+
   it('swallows right-clicks on windows and the taskbar', async () => {
     const user = userEvent.setup();
     render(<App />);
