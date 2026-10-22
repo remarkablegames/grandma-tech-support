@@ -21,7 +21,17 @@ const onDismiss = vi.fn();
 
 function renderMenu() {
   render(
-    <StartMenu items={START_ITEMS} onSelect={onSelect} onDismiss={onDismiss} />,
+    <>
+      {/* The taskbar's Start button: the outside-press handler spares it. */}
+      <button type="button" data-start-toggle="">
+        Start
+      </button>
+      <StartMenu
+        items={START_ITEMS}
+        onSelect={onSelect}
+        onDismiss={onDismiss}
+      />
+    </>,
   );
 }
 
@@ -148,7 +158,7 @@ describe('StartMenu component', () => {
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 
-  it('takes the flyout down on an outside press but not on its own entries', async () => {
+  it('takes the menu down on an outside press but not on its own entries', async () => {
     const user = userEvent.setup();
     renderMenu();
 
@@ -159,17 +169,31 @@ describe('StartMenu component', () => {
     expect(
       screen.getByRole('menu', { name: 'Programs submenu' }),
     ).toBeInTheDocument();
+    expect(onDismiss).not.toHaveBeenCalled();
     fireEvent.pointerDown(screen.getByRole('menu', { name: 'Start menu' }));
     expect(
       screen.getByRole('menu', { name: 'Programs submenu' }),
     ).toBeInTheDocument();
+    expect(onDismiss).not.toHaveBeenCalled();
 
-    // ...while an outside press peels the flyout off; the menu itself waits
-    // for a pick or Escape.
+    // ...while a press anywhere outside dismisses the whole menu. The frame
+    // stays up here because closing it is the parent's job: onDismiss.
     fireEvent.pointerDown(document.body);
     expect(screen.queryByRole('menu', { name: 'Programs submenu' })).toBeNull();
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('spares the Start button so its own click keeps toggling the menu', async () => {
+    const user = userEvent.setup();
+    renderMenu();
+
+    await user.click(screen.getByRole('menuitem', { name: 'Programs' }));
+    fireEvent.pointerDown(screen.getByRole('button', { name: 'Start' }));
+
+    // No dismiss on pointerdown: the button's click handles closing on its
+    // own, and a press here must not race it open again.
     expect(
-      screen.getByRole('menu', { name: 'Start menu' }),
+      screen.getByRole('menu', { name: 'Programs submenu' }),
     ).toBeInTheDocument();
     expect(onDismiss).not.toHaveBeenCalled();
   });

@@ -81,6 +81,7 @@ export function Taskbar({
     <div className="bg-win-face win-outset absolute inset-x-0 bottom-0 z-40 flex h-10 items-center gap-1 px-1">
       <button
         type="button"
+        data-start-toggle=""
         aria-haspopup="menu"
         aria-expanded={startOpen}
         onClick={() => {

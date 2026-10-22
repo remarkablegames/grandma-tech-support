@@ -35,8 +35,9 @@ function MenuIcon({ icon }: { icon: string }) {
 
 // Win95's Start menu with its second layer: Programs and friends cascade
 // into flyouts that open on hover or tap, moving between parents switches
-// them, Escape peels one layer at a time, and an outside press takes the
-// flyout away while the menu itself waits for a pick.
+// them, Escape peels one layer at a time, and a press anywhere outside
+// takes the whole menu away. The Start button itself is exempt: its click
+// toggles the menu, so a press there must not close it a beat too early.
 export function StartMenu({ items, onSelect, onDismiss }: StartMenuProps) {
   const [anchor, setAnchor] = useState<FlyoutAnchor | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -87,8 +88,19 @@ export function StartMenu({ items, onSelect, onDismiss }: StartMenuProps) {
       flyoutRef.current?.contains(target as Node) === true;
 
     const handlePointerDown = (event: PointerEvent) => {
+      // Pressing Start while the menu is open must reach the button's own
+      // toggle alone: closing on pointerdown here would reopen on the click
+      // that follows, trapping the menu on screen.
+      if (
+        event.target instanceof Element &&
+        event.target.closest('[data-start-toggle]') !== null
+      ) {
+        return;
+      }
+
       if (!isInside(event.target)) {
         setAnchor(null);
+        onDismiss();
       }
     };
     const handleKeyDown = (event: KeyboardEvent) => {

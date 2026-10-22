@@ -71,8 +71,9 @@ above applies once they're open (virus on top, tempting).
   tell their jokes through `Control Panel`, `Printers`, `Taskbar...`,
   `Files or Folders...`, `Computer...`, and `On the Internet...`. Flyouts
   open on hover or tap, follow the pointer between parents, and peel away on
-  Escape before the menu itself closes; an outside press takes only the
-  flyout. `Run...` closes the menu and shows a joke dialog, `Help` re-reads
+  Escape before the menu itself closes; a press anywhere outside closes the
+  whole menu (the Start button excepted, so it keeps toggling). `Run...`
+  closes the menu and shows a joke dialog, `Help` re-reads
   the current mission, `Task Manager` opens the task list dialog (Win95's
   Close Program under its NT-era name), and `Shut Down...` opens Win95's
   power dialog — see [shutdown](./2026-10-20-shutdown-restart.md). Its

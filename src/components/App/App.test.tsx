@@ -571,6 +571,27 @@ describe('App component', () => {
     expect(screen.queryByRole('menu', { name: 'Context menu' })).toBeNull();
   });
 
+  it('closes the Start menu from its own button and from a click outside', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
+
+    // Start closes what it opened: the outside-press handler spares the
+    // button, so its click toggles instead of reopening a beat later.
+    await user.click(screen.getByRole('button', { name: 'Start' }));
+    expect(
+      screen.getByRole('menu', { name: 'Start menu' }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Start' }));
+    expect(screen.queryByRole('menu', { name: 'Start menu' })).toBeNull();
+
+    // Clicking anywhere else on the desktop takes the menu away, the way
+    // Win95 does it.
+    await user.click(screen.getByRole('button', { name: 'Start' }));
+    await user.click(screen.getByRole('button', { name: 'My Computer' }));
+    expect(screen.queryByRole('menu', { name: 'Start menu' })).toBeNull();
+  }, 15000);
+
   it('opens a joke from the Programs flyout', async () => {
     const user = userEvent.setup();
     render(<App />);
