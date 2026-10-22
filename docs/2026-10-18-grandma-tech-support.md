@@ -92,10 +92,11 @@ above applies once they're open (virus on top, tempting).
   carries the icon, and the drop snaps onto an 80px desktop grid, clamped so it can
   never land off-screen. Drops matter too: letting go over the Recycle Bin recycles
   the shortcut (the bin graphic fills, its window lists the victim above the old
-  junk, and a selected-row Restore puts it back on its old cell), letting go over
-  My Documents files it (the folder window and Start > Documents both list it with
-  a `shortcut` hint, double-click opens it like the desktop icon it was, and a
-  selected-row Take back undoes the filing), and system icons refuse drops with an
+  junk, and the Restore toolbar under the title bar puts it back on its old cell
+  once its row is selected), letting go over My Documents files it (the folder
+  window and Start > Documents both list it with a `shortcut` hint, double-click
+  opens it like the desktop icon it was, and the same selected-row Restore undoes
+  the filing), and system icons refuse drops with an
   error ding — the containers themselves bounce off each other. Recycled and filed
   shortcuts ride out reboots alongside the layout, inside the app's single
   `localStorage` document — root sections `audio` and `icons` under one shared key —

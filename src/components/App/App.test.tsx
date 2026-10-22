@@ -711,12 +711,12 @@ describe('App component', () => {
     await user.keyboard('{Escape}');
     await user.keyboard('{Escape}');
 
-    // Take back: select the row, press the button.
+    // Restore: select the row, press the button.
     await user.click(screen.getByRole('button', { name: 'Close Calculator' }));
     await user.click(
       within(folder).getByRole('button', { name: /Calculator/ }),
     );
-    await user.click(within(folder).getByRole('button', { name: 'Take back' }));
+    await user.click(within(folder).getByRole('button', { name: 'Restore' }));
     expect(within(folder).queryByText('Calculator')).toBeNull();
     expect(screen.getByRole('button', { name: 'Calculator' })).toHaveStyle({
       left: '8px',

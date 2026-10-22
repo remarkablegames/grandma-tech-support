@@ -237,8 +237,9 @@ function IconRow({
 // Folder rows highlight on a single click, exactly like desktop icons;
 // rows with an `opens` target open on top of that selection. List windows
 // with restore duties (the bin, My Documents) get Win95's select-then-act
-// toolbar: one button, greyed out until the selected row is one it can
-// take back.
+// toolbar — one button, greyed out until the selected row is one it can
+// restore — parked under the title bar above the list, the way Explorer
+// toolbars sit.
 function IconList({
   config,
   restoreLabel,
@@ -260,23 +261,8 @@ function IconList({
 
   return (
     <>
-      <ul className="win-inset max-h-40 overflow-y-auto bg-white p-1 text-xs text-black">
-        {config.rows.map((row, index) => (
-          <IconRow
-            key={`${row.label}-${String(index)}`}
-            row={row}
-            selected={selectedRow === index}
-            onSelect={() => {
-              setSelectedRow(index);
-            }}
-            onOpenWindow={onOpenWindow}
-            onOpenDesktop={onOpenDesktop}
-            onContextMenu={onContextMenu}
-          />
-        ))}
-      </ul>
       {restoreLabel !== undefined && (
-        <div className="mt-1 flex justify-end px-0.5">
+        <div className="m-0.5 flex px-0.5">
           <button
             type="button"
             disabled={restorableId === undefined}
@@ -293,6 +279,21 @@ function IconList({
           </button>
         </div>
       )}
+      <ul className="win-inset max-h-40 overflow-y-auto bg-white p-1 text-xs text-black">
+        {config.rows.map((row, index) => (
+          <IconRow
+            key={`${row.label}-${String(index)}`}
+            row={row}
+            selected={selectedRow === index}
+            onSelect={() => {
+              setSelectedRow(index);
+            }}
+            onOpenWindow={onOpenWindow}
+            onOpenDesktop={onOpenDesktop}
+            onContextMenu={onContextMenu}
+          />
+        ))}
+      </ul>
     </>
   );
 }

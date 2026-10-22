@@ -62,11 +62,12 @@ const knownIcons = (ids: string[]) =>
     .map((id) => ICON_BY_ID.get(id))
     .filter((icon): icon is DesktopIconConfig => icon !== undefined);
 
-// Win95's folder actions: the bin restores what it ate, My Documents
-// hands back what was filed into it.
+// Win95's folder action: the windows holding restorable shortcuts (the
+// bin, My Documents) all speak its own word for putting one back on the
+// desktop.
 const RESTORE_LABELS: Partial<Record<IconWindowId, string>> = {
   recycle: 'Restore',
-  documents: 'Take back',
+  documents: 'Restore',
 };
 
 export function App() {
