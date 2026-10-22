@@ -41,11 +41,13 @@ The safe little × plays no sound of its own — its pointer-down bubbles to the
   made vertical with CSS `writing-mode: vertical-rl` and `direction: rtl`), its own
   Mute checkbox, and a decorative 100/50/0 tick scale. Click-outside or Escape closes
   it; the tray icon dims whenever either channel is muted.
-- **Persistence.** Both channels live under one `localStorage` key —
-  `org.remarkablegames.grandma-tech-support` — as a single JSON document
-  (`{"audio":{"sfx":{"volume":100,"muted":false},"music":{"volume":100,"muted":false}}}`):
+- **Persistence.** Both channels live in the app's single `localStorage` document —
+  key `org.remarkablegames.grandma-tech-support`, one JSON value at the root holding a
+  section per feature (`{"audio":{"sfx":{"volume":100,"muted":false},"music":{"volume":100,"muted":false}}, ...}`):
   one atomic read/write for the whole settings picture, trivial to inspect, reset, or
-  export. Both channels default to 100, unmuted. Missing or corrupt data falls back to
-  defaults and self-heals on the next change.
+  export. Saves merge their section into the current document, so the desktop icon
+  layout (`icons`) and any future sibling survive every volume change. Both channels
+  default to 100, unmuted. Missing or corrupt data falls back to defaults and
+  self-heals on the next change.
 - All ~120 pack files ship until the playtest; afterward unused ones get pruned and this
   table locks to the final picks and levels.

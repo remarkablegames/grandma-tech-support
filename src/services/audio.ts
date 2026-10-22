@@ -4,6 +4,12 @@
  * suite can run against fakes (jsdom cannot decode or play audio).
  */
 
+import {
+  loadSection,
+  saveSection,
+  type StorageLike,
+} from 'src/services/appStorage';
+
 export type SfxName =
   'click' | 'open' | 'error' | 'win' | 'shutdown' | 'startup';
 
@@ -24,11 +30,6 @@ interface AudioSettings {
   music: ChannelSettings;
 }
 
-interface StorageLike {
-  getItem(key: string): string | null;
-  setItem(key: string, value: string): void;
-}
-
 export interface AudioDeps {
   createPlayer: (src: string) => Player;
   now: () => number;
@@ -46,7 +47,6 @@ const SFX_TRACKS: Record<SfxName, string> = {
 
 const MUSIC_TRACK = 'music/title_theme.mp3';
 const THROTTLE_MS = 100;
-const STORAGE_KEY = 'org.remarkablegames.grandma-tech-support';
 const DEFAULT_SETTINGS: AudioSettings = {
   sfx: { volume: 100, muted: false },
   music: { volume: 75, muted: false },
@@ -76,35 +76,17 @@ function readChannel(
 }
 
 function readSettings(storage: StorageLike): AudioSettings {
-  const raw = storage.getItem(STORAGE_KEY);
-
-  if (raw === null) {
-    return DEFAULT_SETTINGS;
-  }
-
-  try {
-    const parsed: unknown = JSON.parse(raw);
-
-    if (typeof parsed !== 'object' || parsed === null) {
-      return DEFAULT_SETTINGS;
-    }
-
-    const audioDoc = (
-      parsed as {
-        audio?: {
-          sfx?: Partial<ChannelSettings>;
-          music?: Partial<ChannelSettings>;
-        };
+  const audioDoc = loadSection(storage, 'audio') as
+    | {
+        sfx?: Partial<ChannelSettings>;
+        music?: Partial<ChannelSettings>;
       }
-    ).audio;
+    | undefined;
 
-    return {
-      sfx: readChannel(audioDoc?.sfx, DEFAULT_SETTINGS.sfx),
-      music: readChannel(audioDoc?.music, DEFAULT_SETTINGS.music),
-    };
-  } catch {
-    return DEFAULT_SETTINGS;
-  }
+  return {
+    sfx: readChannel(audioDoc?.sfx, DEFAULT_SETTINGS.sfx),
+    music: readChannel(audioDoc?.music, DEFAULT_SETTINGS.music),
+  };
 }
 
 export class AudioService {
@@ -233,21 +215,16 @@ export class AudioService {
   }
 
   private persist(): void {
-    this.deps.storage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        audio: {
-          sfx: {
-            volume: this.volume,
-            muted: this.muted,
-          },
-          music: {
-            volume: this.musicVolume,
-            muted: this.musicMuted,
-          },
-        },
-      }),
-    );
+    saveSection(this.deps.storage, 'audio', {
+      sfx: {
+        volume: this.volume,
+        muted: this.muted,
+      },
+      music: {
+        volume: this.musicVolume,
+        muted: this.musicMuted,
+      },
+    });
   }
 }
 
