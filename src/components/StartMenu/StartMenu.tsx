@@ -144,8 +144,8 @@ export function StartMenu({ items, onSelect, onDismiss }: StartMenuProps) {
           aria-hidden="true"
           className="bg-win-navy flex w-7 items-end justify-center pb-3"
         >
-          <span className="rotate-180 text-sm font-bold tracking-widest text-white [writing-mode:vertical-rl]">
-            Rainbows95
+          <span className="text-win-face rotate-180 text-sm font-bold tracking-widest [writing-mode:vertical-rl]">
+            Rainbows<span className="font-light text-white">95</span>
           </span>
         </div>
 

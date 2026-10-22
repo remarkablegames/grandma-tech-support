@@ -53,8 +53,8 @@ export function PowerScreen({ mode, onLeave }: PowerScreenProps) {
           draggable={false}
           className="pixelated size-32"
         />
-        <span className="text-4xl font-bold text-white drop-shadow-md">
-          Rainbows95
+        <span className="text-4xl font-bold text-black drop-shadow-md">
+          Rainbows<span className="font-light text-white">95</span>
         </span>
       </button>
     );

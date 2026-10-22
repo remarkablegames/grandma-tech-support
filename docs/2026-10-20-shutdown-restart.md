@@ -68,7 +68,9 @@ as well as a click, and a click skips every beat.
   (`aria-hidden`), auto-advancing after about a second (its own timer, cleared on
   unmount).
 - **Clouds splash** — the Win95 splash beat: `backgrounds/clouds.jpg` behind the
-  `logo.svg` flag and a bold white `Rainbows95` wordmark, auto-lifting after about
+  `logo.svg` flag and a two-tone `Rainbows95` wordmark — thick black `Rainbows`
+  beside a thin white `95`, lifted straight out of the era's version-number style —
+  auto-lifting after about
   a second and a half. The style URL is inline and page-relative so the clouds
   survive subpath deploys. The splash is the machine coming up: the third beat of
   both exits (restart over a reset, shutdown over untouched state) and the way the
