@@ -84,7 +84,11 @@ above applies once they're open (virus on top, tempting).
   [icon-windows](./2026-10-19-desktop-icon-windows.md). `The Internet` opens Bargain
   Barn, the same window as Start → Internet. Double-clicking the decoy fails the way
   Win95 fails: a “Cannot find the file MAIL.EXE” system error (red X, error ding), and
-  Grandma points the player back to “the internet thing”.
+  Grandma points the player back to “the internet thing”. Icons drag like the real
+  ones: a press past a four-pixel threshold (Win95's `SM_CXDRAG`) carries the icon and
+  snaps the drop onto an 80px desktop grid, clamped so it can never land off-screen.
+  The layout rides out reboots through `localStorage` next to the saved volume, so
+  Grandma's desktop stays exactly as scrambled as the player left it.
 
 ### Pop-ups
 
@@ -241,7 +245,9 @@ src/
 │   └── WinScreen/       prop-driven task/win overlay
 ├── hooks/useDoubleClickOpen.ts shared double-click/Enter open gesture
 ├── hooks/useGame.ts     z-order, positions, pop-ups, dialogs, mission chain, menu state, power screens
+├── hooks/useIconPositions.ts desktop icon grid cells, persisted across reboots
 ├── utils/createWindowDrag.ts shared title-bar pointer-drag for both window kinds
+├── utils/snapIconCell.ts icon drag → grid snap, clamped to the viewport
 ├── services/audio.ts    SFX over HTMLAudioElement, volume/mute + localStorage
 ├── data/gameContent.ts  every title, URL, joke, popup config, email, menu item, objective
 ├── types/game.ts        WindowId, PopupId, configs, phases, mission types (excluded from coverage)

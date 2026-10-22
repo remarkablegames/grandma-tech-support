@@ -592,6 +592,31 @@ describe('App component', () => {
     expect(screen.queryByRole('menu', { name: 'Start menu' })).toBeNull();
   }, 15000);
 
+  it('drops a dragged desktop icon onto the grid and remembers it', async () => {
+    window.localStorage.clear();
+    const user = userEvent.setup();
+    const first = render(<App />);
+    await skipSplash(user);
+
+    const icon = screen.getByRole('button', { name: 'My Computer' });
+    firePointer(icon, 'pointerdown', { clientX: 40, clientY: 40 });
+    firePointer(window, 'pointermove', { clientX: 200, clientY: 130 });
+    firePointer(window, 'pointerup', {});
+
+    // dx 160 → col 2, dy 90 → row 1: 8 + 160 = 168px, 8 + 80 = 88px.
+    expect(icon.style.left).toBe('168px');
+    expect(icon.style.top).toBe('88px');
+
+    // The layout rides out a reboot: a fresh boot finds it in storage.
+    first.unmount();
+    render(<App />);
+    await skipSplash(user);
+    expect(screen.getByRole('button', { name: 'My Computer' })).toHaveStyle({
+      left: '168px',
+      top: '88px',
+    });
+  }, 15000);
+
   it('opens a joke from the Programs flyout', async () => {
     const user = userEvent.setup();
     render(<App />);

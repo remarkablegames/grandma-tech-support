@@ -22,6 +22,13 @@ export interface WindowPosition {
   y: number;
 }
 
+// A desktop icon's home: grid cells out from the desktop's top-left corner,
+// Win95 style, instead of free-floating pixels.
+export interface IconCell {
+  col: number;
+  row: number;
+}
+
 export interface WindowMeta {
   id: WindowId;
   title: string;

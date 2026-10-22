@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { firePointer } from 'src/tests/firePointer';
 import type { DesktopIconConfig } from 'src/types/game';
 
 import { DesktopIcon } from '.';
@@ -18,6 +19,7 @@ vi.mock('src/services/audio', () => ({
 
 const onSelect = vi.fn();
 const onOpen = vi.fn();
+const onMove = vi.fn();
 
 const icon: DesktopIconConfig = {
   id: 'notes',
@@ -26,13 +28,28 @@ const icon: DesktopIconConfig = {
   windowId: 'notes',
 };
 
+function renderIcon(position = { col: 0, row: 0 }) {
+  render(
+    <DesktopIcon
+      icon={icon}
+      position={position}
+      selected={false}
+      onSelect={onSelect}
+      onMove={onMove}
+      onOpen={onOpen}
+    />,
+  );
+
+  return screen.getByRole('button', { name: 'Sticky Notes' });
+}
+
 describe('DesktopIcon component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('renders its label unselected', () => {
-    render(<DesktopIcon icon={icon} selected={false} onSelect={onSelect} />);
+    renderIcon();
 
     expect(
       screen.getByRole('button', { name: 'Sticky Notes' }),
@@ -42,7 +59,14 @@ describe('DesktopIcon component', () => {
   it('reports clicks and reflects selection', async () => {
     const user = userEvent.setup();
     const { rerender } = render(
-      <DesktopIcon icon={icon} selected={false} onSelect={onSelect} />,
+      <DesktopIcon
+        icon={icon}
+        position={{ col: 0, row: 0 }}
+        selected={false}
+        onSelect={onSelect}
+        onMove={onMove}
+        onOpen={onOpen}
+      />,
     );
 
     await user.click(screen.getByRole('button', { name: 'Sticky Notes' }));
@@ -50,7 +74,16 @@ describe('DesktopIcon component', () => {
     expect(play).toHaveBeenCalledWith('click');
     expect(onOpen).not.toHaveBeenCalled();
 
-    rerender(<DesktopIcon icon={icon} selected onSelect={onSelect} />);
+    rerender(
+      <DesktopIcon
+        icon={icon}
+        position={{ col: 0, row: 0 }}
+        selected
+        onSelect={onSelect}
+        onMove={onMove}
+        onOpen={onOpen}
+      />,
+    );
     expect(
       screen.getByRole('button', { name: 'Sticky Notes' }),
     ).toHaveAttribute('aria-pressed', 'true');
@@ -58,14 +91,7 @@ describe('DesktopIcon component', () => {
 
   it('opens on a double-click while still selecting', async () => {
     const user = userEvent.setup();
-    render(
-      <DesktopIcon
-        icon={icon}
-        selected={false}
-        onSelect={onSelect}
-        onOpen={onOpen}
-      />,
-    );
+    renderIcon();
 
     await user.dblClick(screen.getByRole('button', { name: 'Sticky Notes' }));
 
@@ -75,14 +101,7 @@ describe('DesktopIcon component', () => {
 
   it('opens on Enter for keyboard users', async () => {
     const user = userEvent.setup();
-    render(
-      <DesktopIcon
-        icon={icon}
-        selected={false}
-        onSelect={onSelect}
-        onOpen={onOpen}
-      />,
-    );
+    renderIcon();
 
     await user.keyboard('{Tab}');
     await user.keyboard('{Enter}');
@@ -95,8 +114,10 @@ describe('DesktopIcon component', () => {
     render(
       <DesktopIcon
         icon={icon}
+        position={{ col: 0, row: 0 }}
         selected={false}
         onSelect={onSelect}
+        onMove={onMove}
         onContextMenu={onContextMenu}
       />,
     );
@@ -113,7 +134,15 @@ describe('DesktopIcon component', () => {
   });
 
   it('still swallows the native menu without a handler', () => {
-    render(<DesktopIcon icon={icon} selected={false} onSelect={onSelect} />);
+    render(
+      <DesktopIcon
+        icon={icon}
+        position={{ col: 0, row: 0 }}
+        selected={false}
+        onSelect={onSelect}
+        onMove={onMove}
+      />,
+    );
 
     const prevented = fireEvent.contextMenu(
       screen.getByRole('button', { name: 'Sticky Notes' }),
@@ -121,5 +150,97 @@ describe('DesktopIcon component', () => {
 
     expect(prevented).toBe(false);
     expect(onSelect).toHaveBeenCalledWith(icon);
+  });
+
+  it('drags with the pointer and drops onto the grid, selected', () => {
+    const button = renderIcon({ col: 1, row: 2 });
+
+    firePointer(button, 'pointerdown', { clientX: 100, clientY: 100 });
+    firePointer(window, 'pointermove', { clientX: 102, clientY: 100 });
+    // Past the four-pixel threshold the icon rides every move of the
+    // pointer...
+    firePointer(window, 'pointermove', { clientX: 150, clientY: 140 });
+    expect(button.style.transform).toBe('translate(50px, 40px)');
+    firePointer(window, 'pointermove', { clientX: 205, clientY: 185 });
+    expect(button.style.transform).toBe('translate(105px, 85px)');
+
+    firePointer(window, 'pointerup', {});
+
+    // ...and lands snapped: (1*80+105)/80 → col 2, (2*80+85)/80 → row 3.
+    expect(onMove).toHaveBeenCalledWith({ col: 2, row: 3 });
+    expect(onSelect).toHaveBeenCalledWith(icon);
+    expect(button.style.transform).toBe('');
+  });
+
+  it('stays a click below the drag threshold', () => {
+    const button = renderIcon();
+
+    firePointer(button, 'pointerdown', { clientX: 100, clientY: 100 });
+    firePointer(window, 'pointermove', { clientX: 102, clientY: 100 });
+    firePointer(window, 'pointerup', {});
+
+    expect(button.style.transform).toBe('');
+    expect(onMove).not.toHaveBeenCalled();
+    expect(onSelect).not.toHaveBeenCalled();
+
+    fireEvent.click(button);
+    expect(onSelect).toHaveBeenCalledWith(icon);
+  });
+
+  it('swallows the click a drop leaves behind but spares the keyboard', () => {
+    const button = renderIcon();
+
+    firePointer(button, 'pointerdown', { clientX: 50, clientY: 50 });
+    firePointer(window, 'pointermove', { clientX: 200, clientY: 50 });
+    firePointer(window, 'pointerup', {});
+    expect(onSelect).toHaveBeenCalledTimes(1);
+
+    // Keyboard activation right after a drop still opens: detail === 0 is
+    // never a drop's tail.
+    fireEvent.click(button, { detail: 0 });
+    expect(onOpen).toHaveBeenCalledTimes(1);
+    expect(onSelect).toHaveBeenCalledTimes(2);
+
+    // The drop's own tail click is swallowed, then clicks work again.
+    fireEvent.click(button, { detail: 1 });
+    expect(onSelect).toHaveBeenCalledTimes(2);
+    expect(onOpen).toHaveBeenCalledTimes(1);
+    fireEvent.click(button, { detail: 1 });
+    expect(onSelect).toHaveBeenCalledTimes(3);
+  });
+
+  it('ignores the right button', () => {
+    const button = renderIcon();
+
+    firePointer(button, 'pointerdown', { button: 2, clientX: 10, clientY: 10 });
+    firePointer(window, 'pointermove', { clientX: 200, clientY: 200 });
+    firePointer(window, 'pointerup', {});
+
+    expect(onMove).not.toHaveBeenCalled();
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('lets a cancelled drag fall back into place', () => {
+    const button = renderIcon();
+
+    firePointer(button, 'pointerdown', { clientX: 50, clientY: 50 });
+    firePointer(window, 'pointermove', { clientX: 150, clientY: 150 });
+    expect(button.style.transform).toBe('translate(100px, 100px)');
+
+    firePointer(window, 'pointercancel', {});
+    expect(button.style.transform).toBe('');
+    expect(onMove).not.toHaveBeenCalled();
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('keeps a wild drop on the screen', () => {
+    const button = renderIcon({ col: 1, row: 1 });
+
+    firePointer(button, 'pointerdown', { clientX: 50, clientY: 50 });
+    firePointer(window, 'pointermove', { clientX: 9999, clientY: -9999 });
+    firePointer(window, 'pointerup', {});
+
+    // jsdom's viewport is 1024x768: the far corner is col 11, row 0.
+    expect(onMove).toHaveBeenCalledWith({ col: 11, row: 0 });
   });
 });

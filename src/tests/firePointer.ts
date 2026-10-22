@@ -5,7 +5,7 @@ import { fireEvent } from '@testing-library/react';
 // so a MouseEvent carrying a pointer* type behaves like the real thing here.
 export function firePointer(
   target: Window | Element,
-  type: 'pointerdown' | 'pointermove' | 'pointerup',
+  type: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel',
   init: MouseEventInit = {},
 ) {
   fireEvent(

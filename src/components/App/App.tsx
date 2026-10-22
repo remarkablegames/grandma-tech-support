@@ -10,6 +10,7 @@ import {
   WINDOW_META,
 } from 'src/data/gameContent';
 import { useGame } from 'src/hooks/useGame';
+import { useIconPositions } from 'src/hooks/useIconPositions';
 import { audio } from 'src/services/audio';
 import type {
   ContextMenuItem,
@@ -47,6 +48,7 @@ interface OpenContextMenu {
 
 export function App() {
   const game = useGame();
+  const iconPositions = useIconPositions();
 
   // The current mission: its instruction is grandma's line, and its title,
   // message, and icon dress the task-complete dialog.
@@ -146,7 +148,7 @@ export function App() {
     >
       {game.powerScreen !== 'splash' && (
         <>
-          <div className="absolute top-2 left-2 z-[5] flex flex-col gap-1">
+          <div className="pointer-events-none absolute inset-0 z-[5]">
             {DESKTOP_ICONS.map((icon) => {
               const open = () => {
                 if (icon.windowId !== undefined) {
@@ -166,8 +168,12 @@ export function App() {
                 <DesktopIcon
                   key={icon.id}
                   icon={icon}
+                  position={iconPositions.positions[icon.id]}
                   selected={game.selectedIcon === icon.id}
                   onSelect={game.selectIcon}
+                  onMove={(cell) => {
+                    iconPositions.moveIcon(icon.id, cell);
+                  }}
                   onOpen={open}
                   onContextMenu={(x, y) => {
                     openContextMenu({
