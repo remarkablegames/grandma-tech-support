@@ -467,7 +467,7 @@ export const DESKTOP_ICONS: DesktopIconConfig[] = [
   {
     id: 'documents',
     label: 'My Documents',
-    icon: `${ICONS}/folder_closed.png`,
+    icon: `${ICONS}/folder_open.png`,
     container: 'folder',
     windowId: 'documents',
   },
@@ -681,7 +681,7 @@ export const START_ITEMS: StartMenuItem[] = [
       {
         id: 'toaster-setup',
         label: 'Toaster Setup',
-        icon: `${ICONS}/3d_graphics_file.png`,
+        icon: `${ICONS}/script_file.png`,
         message: JOKES.startToasterSetup,
       },
     ],
@@ -796,7 +796,7 @@ export const START_ITEMS: StartMenuItem[] = [
   {
     id: 'help',
     label: 'Help',
-    icon: `${ICONS}/sticky_note.png`,
+    icon: `${ICONS}/contact_book.png`,
     action: 'show-mission',
   },
   {
