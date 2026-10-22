@@ -61,12 +61,21 @@ above applies once they're open (virus on top, tempting).
 - Taskbar: `Start` button (toggles the Start menu), one button per **open** window
   (restores a minimized window or else raises it, pressed style for the focused
   window), tray with a live clock showing the current time in the player's locale.
-- Start menu: `Inbox` and `Internet` launch the two browser windows; `Programs`,
-  `Documents`, `Settings`, `Find`, `Run...` close the menu and show a joke dialog,
-  `Help` re-reads the current mission, `Task Manager` opens the task list dialog (Win95's Close Program under its NT-era name),
-  and `Shut Down...` opens Win95's power
-  dialog — see [shutdown](./2026-10-20-shutdown-restart.md). Its vertical
-  side stripe brands the fictional OS as **Rainbows95**.
+- Start menu: `Inbox` and `Internet` launch the two browser windows;
+  `Programs`, `Documents`, `Settings`, and `Find` cascade into flyouts whose
+  leaves are joke dialogs. Programs is a time capsule: `Solitaire` keeps the
+  old “20 programs, 19 Solitaires” line beside `Minecraft`, `Steam`,
+  `Discord`, and `Toaster Setup`. Documents mixes a working `My Documents`
+  launcher among identically named recent files; Settings offers
+  `Control Panel`, `Printers`, and `Taskbar...`; Find offers
+  `Files or Folders...`, `Computer...`, and `On the Internet...`. Flyouts
+  open on hover or tap, follow the pointer between parents, and peel away on
+  Escape before the menu itself closes; an outside press takes only the
+  flyout. `Run...` closes the menu and shows a joke dialog, `Help` re-reads
+  the current mission, `Task Manager` opens the task list dialog (Win95's
+  Close Program under its NT-era name), and `Shut Down...` opens Win95's
+  power dialog — see [shutdown](./2026-10-20-shutdown-restart.md). Its
+  vertical side stripe brands the fictional OS as **Rainbows95**.
 - Desktop icons (single click selects, Win95 style): `My Computer`, `Recycle Bin`,
   `My Documents`, `Sticky Notes`, `Calculator`, `Virus Shield`, `The Internet`, and the
   decoy `Inbox`. Double-clicking six of the icons opens floating mini-windows — see

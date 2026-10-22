@@ -24,7 +24,7 @@ import type {
   PopupSpawn,
   PowerScreenMode,
   ShutdownMode,
-  StartMenuItem,
+  StartMenuLeafItem,
   UpdateStage,
   WindowId,
   WindowPosition,
@@ -621,11 +621,16 @@ export function useGame() {
     setStartOpen((open) => !open);
   };
 
-  const selectStartItem = (item: StartMenuItem) => {
+  const selectStartItem = (item: StartMenuLeafItem) => {
     setStartOpen(false);
 
     if ('windowId' in item) {
       openWindow(item.windowId);
+      return;
+    }
+
+    if ('iconWindowId' in item) {
+      openIconWindow(item.iconWindowId);
       return;
     }
 

@@ -163,9 +163,11 @@ export interface ProductConfig {
   joke: string;
 }
 
-// Start menu entries double as launchers now: joke items put a grandma line
-// in the dialog, app items open a browser window, and the mission item
-// re-reads the current task.
+// Start menu entries come in two shapes: leaves act directly when picked —
+// joke items put a grandma line in the dialog, app items open a browser
+// window, icon-window items open the desktop's mini-windows, and the mission
+// action re-reads the current task — while submenu items never act, they
+// fan out into a flyout of leaves.
 export interface StartMenuBaseItem {
   id: string;
   label: string;
@@ -180,6 +182,10 @@ export interface StartMenuAppItem extends StartMenuBaseItem {
   windowId: WindowId;
 }
 
+export interface StartMenuIconWindowItem extends StartMenuBaseItem {
+  iconWindowId: IconWindowId;
+}
+
 // Menu items whose effect isn't a fixed string: Help re-reads whatever the
 // current mission is, Shut Down... opens the power dialog, and Task Manager
 // opens the task list, so none of them live in the content file.
@@ -187,8 +193,19 @@ export interface StartMenuActionItem extends StartMenuBaseItem {
   action: 'show-mission' | 'shutdown' | 'task-manager';
 }
 
-export type StartMenuItem =
-  StartMenuJokeItem | StartMenuAppItem | StartMenuActionItem;
+export type StartMenuLeafItem =
+  | StartMenuJokeItem
+  | StartMenuAppItem
+  | StartMenuIconWindowItem
+  | StartMenuActionItem;
+
+// One level deep, the way Win95's first-cut menus cascade: flyouts hold
+// leaves only, never a submenu of their own.
+export interface StartMenuSubmenuItem extends StartMenuBaseItem {
+  children: StartMenuLeafItem[];
+}
+
+export type StartMenuItem = StartMenuLeafItem | StartMenuSubmenuItem;
 
 // The Shut Down dialog's two radio choices.
 export type ShutdownMode = 'shutdown' | 'restart';

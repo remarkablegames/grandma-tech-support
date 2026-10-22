@@ -571,6 +571,39 @@ describe('App component', () => {
     expect(screen.queryByRole('menu', { name: 'Context menu' })).toBeNull();
   });
 
+  it('opens a joke from the Programs flyout', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
+
+    await user.click(screen.getByRole('button', { name: 'Start' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Programs' }));
+    expect(
+      screen.getByRole('menu', { name: 'Programs submenu' }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('menuitem', { name: 'Steam' }));
+    expect(
+      screen.getByRole('alertdialog', { name: 'System Message' }),
+    ).toHaveTextContent(JOKES.startSteam);
+    expect(screen.queryByRole('menu', { name: 'Start menu' })).toBeNull();
+  }, 15000);
+
+  it('opens My Documents from the Documents flyout', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
+
+    await user.click(screen.getByRole('button', { name: 'Start' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Documents' }));
+    await user.click(screen.getByRole('menuitem', { name: 'My Documents' }));
+
+    expect(
+      screen.getByRole('region', { name: 'My Documents' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('menu', { name: 'Start menu' })).toBeNull();
+  }, 15000);
+
   it('swallows right-clicks on windows and the taskbar', async () => {
     const user = userEvent.setup();
     render(<App />);

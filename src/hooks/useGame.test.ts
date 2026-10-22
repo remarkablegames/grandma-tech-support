@@ -8,6 +8,7 @@ import {
   START_ITEMS,
 } from 'src/data/gameContent';
 import { useGame } from 'src/hooks/useGame';
+import type { StartMenuLeafItem } from 'src/types/game';
 
 const { play, startMusic, pauseMusic } = vi.hoisted(() => ({
   play: vi.fn(),
@@ -25,6 +26,34 @@ vi.mock('src/services/audio', () => ({
 
 function countInboxPopups(openPopups: { windowId: string }[]) {
   return openPopups.filter((popup) => popup.windowId === 'inbox').length;
+}
+
+// Drill into a flyout the way StartMenu does before handing a leaf over.
+function startLeaf(itemId: string, childId: string) {
+  const item = START_ITEMS.find((entry) => entry.id === itemId);
+
+  if (item === undefined || !('children' in item)) {
+    throw new Error(`Start item ${itemId} has no flyout`);
+  }
+
+  const leaf = item.children.find((entry) => entry.id === childId);
+
+  if (leaf === undefined) {
+    throw new Error(`Flyout ${itemId} has no ${childId}`);
+  }
+
+  return leaf;
+}
+
+// A top-level entry that acts when picked, e.g. Start > Help.
+function startLeafItem(itemId: string): StartMenuLeafItem {
+  const item = START_ITEMS.find((entry) => entry.id === itemId);
+
+  if (item === undefined || 'children' in item) {
+    throw new Error(`Start item ${itemId} is not a leaf`);
+  }
+
+  return item;
 }
 
 // Walk the mission chain to the start of task 4: log in, read the email,
@@ -179,7 +208,7 @@ describe('useGame hook', () => {
     const { result } = renderHook(() => useGame());
 
     act(() => {
-      result.current.selectStartItem(START_ITEMS[0]);
+      result.current.selectStartItem(startLeafItem('inbox'));
     });
     expect(result.current.open.inbox).toBe(true);
     expect(result.current.focusedId).toBe('inbox');
@@ -207,7 +236,7 @@ describe('useGame hook', () => {
 
     // The Start menu brings the window back, pop-ups and all.
     act(() => {
-      result.current.selectStartItem(START_ITEMS[0]);
+      result.current.selectStartItem(startLeafItem('inbox'));
     });
     expect(result.current.open.inbox).toBe(true);
     expect(result.current.focusedId).toBe('inbox');
@@ -567,12 +596,12 @@ describe('useGame hook', () => {
     });
     expect(result.current.message).toBeNull();
 
-    // Help is START_ITEMS[6]; it re-reads whatever the current task is.
+    // Start > Help re-reads whatever the current task is.
     act(() => {
       result.current.toggleStart();
     });
     act(() => {
-      result.current.selectStartItem(START_ITEMS[6]);
+      result.current.selectStartItem(startLeafItem('help'));
     });
     expect(result.current.startOpen).toBe(false);
     expect(result.current.message).toBe(OBJECTIVES[1].instruction);
@@ -598,22 +627,36 @@ describe('useGame hook', () => {
     expect(result.current.startOpen).toBe(true);
 
     act(() => {
-      result.current.selectStartItem(START_ITEMS[9]);
+      result.current.selectStartItem(startLeafItem('shutdown'));
     });
     expect(result.current.startOpen).toBe(false);
     expect(result.current.shutdownOpen).toBe(true);
     expect(result.current.message).toBeNull();
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.shutDown);
 
-    // The joke entries still land in the System Message dialog.
+    // Joke leaves still land in the System Message dialog; Programs cascades
+    // now, so its old line lives on the Solitaire leaf.
     act(() => {
       result.current.toggleStart();
     });
     act(() => {
-      result.current.selectStartItem(START_ITEMS[2]);
+      result.current.selectStartItem(startLeaf('programs', 'solitaire'));
     });
     expect(result.current.startOpen).toBe(false);
     expect(result.current.message).toBe(JOKES.startPrograms);
+  });
+
+  it('opens an icon window from the Documents flyout leaf', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.toggleStart();
+    });
+    act(() => {
+      result.current.selectStartItem(startLeaf('documents', 'my-documents'));
+    });
+    expect(result.current.startOpen).toBe(false);
+    expect(result.current.openIconWindows.documents).toBe(true);
   });
 
   it('cancels the power dialog but keeps the protest standing', () => {
@@ -772,7 +815,7 @@ describe('useGame hook', () => {
       });
     });
     act(() => {
-      result.current.selectStartItem(START_ITEMS[0]);
+      result.current.selectStartItem(startLeafItem('inbox'));
     });
     act(() => {
       result.current.toggleStart();
@@ -1159,12 +1202,12 @@ describe('useGame hook', () => {
     act(() => {
       result.current.showJoke(JOKES.toasterTile);
     });
+    // Start > Task Manager opens the task list dialog.
     act(() => {
       result.current.toggleStart();
     });
-    // Task Manager is START_ITEMS[8].
     act(() => {
-      result.current.selectStartItem(START_ITEMS[8]);
+      result.current.selectStartItem(startLeafItem('task-manager'));
     });
     expect(result.current.startOpen).toBe(false);
     expect(result.current.taskManagerOpen).toBe(true);

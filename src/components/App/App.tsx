@@ -294,7 +294,11 @@ export function App() {
           />
 
           {game.startOpen && (
-            <StartMenu items={START_ITEMS} onSelect={game.selectStartItem} />
+            <StartMenu
+              items={START_ITEMS}
+              onSelect={game.selectStartItem}
+              onDismiss={game.toggleStart}
+            />
           )}
 
           {contextMenu !== null && (

@@ -25,7 +25,7 @@ export const JOKES = {
   extendedWarranty:
     'The warranty covers everything except toasters. Do read the fine print.',
   breadSamples:
-    'Samples are for sampling. You bought the entire sample pantry.',
+    'Congratulations, you bought the bread samples. The loaf’s been expired since last week.',
   moreRam: 'It’s a sticky note that says “RAM”.',
   buyButton:
     'You’ve spent $4.99 you don’t have. Luckily, the payment didn’t go through.',
@@ -42,17 +42,16 @@ export const JOKES = {
   endTaskAlive: 'That one’s running fine. End Task is only for the frozen one.',
   goBack: 'There’s nowhere to go back to. The internet only goes forward.',
   goForward: 'Forward is where the pop-ups live.',
-  emailDog: 'Eleven pictures of the same dog.',
+  emailDog: 'Attached: the dog. Also attached: the same dog again.',
   emailUpdate: 'That’s the update that broke the internet in year 2000.',
   emailPrize: 'You’ve been selected for a free toaster!',
   emailWire:
     'That’s not your grandson, dear. Your grandson can’t spell “wire”.',
   emailChain:
-    'Forward it to ten friends, or the modem gets grumpy. I don’t make the rules.',
-  emailHoroscope:
-    'It predicted this toaster. The stars are finally doing their job.',
+    'Forward this message or your free trial of the internet expires.',
+  emailHoroscope: 'It predicted a toaster. The stars are finally aligned.',
   emailVitamins:
-    'One weird trick: vitamins from a popup. The doctors really do hate this one.',
+    'One weird trick: Get your vitamins from a popup. Doctors really do hate this one.',
   emailTrial:
     'Your trial expired in 1995. It looks like they’re still waiting on the payment.',
   emailCart:
@@ -65,6 +64,19 @@ export const JOKES = {
   startSettings: 'Everything’s set to “don’t touch”.',
   startFind: 'It was open in the internet thing.',
   startRun: 'That’s how the toaster got installed.',
+  startMinecraft: 'Your grandfather calls it electronic Lego.',
+  startSteam:
+    'It’s updating again. Hundreds of games in the library and only Solitaire gets played.',
+  startDiscord:
+    'That’s where your cousins talk now. It used to be the telephone.',
+  startToasterSetup:
+    'Setup has been installing since the day it was installed.',
+  startPrinters:
+    'The screen says “PC LOAD LETTER”. Nobody knows what it means.',
+  startTaskbar:
+    'The taskbar is set to auto-hide, but it never does. Guess it’s not great at following instructions.',
+  startFindFiles: 'Last search: “the internet thing”. Zero results found.',
+  startFindComputer: 'Searching the network... One computer found: this one.',
   contextArrange: 'They’re already arranged by importance.',
   contextLineUp: 'They’re as lined up as they’re going to get.',
   contextRefresh: 'Refreshed! Nothing was broken, so nothing changed.',
@@ -632,25 +644,119 @@ export const START_ITEMS: StartMenuItem[] = [
     id: 'programs',
     label: 'Programs',
     icon: `${ICONS}/program.png`,
-    message: JOKES.startPrograms,
+    children: [
+      {
+        id: 'solitaire',
+        label: 'Solitaire',
+        icon: `${ICONS}/games.png`,
+        message: JOKES.startPrograms,
+      },
+      {
+        id: 'minecraft',
+        label: 'Minecraft',
+        icon: `${ICONS}/minecraft.png`,
+        message: JOKES.startMinecraft,
+      },
+      {
+        id: 'steam',
+        label: 'Steam',
+        icon: `${ICONS}/steam.png`,
+        message: JOKES.startSteam,
+      },
+      {
+        id: 'discord',
+        label: 'Discord',
+        icon: `${ICONS}/discord.png`,
+        message: JOKES.startDiscord,
+      },
+      {
+        id: 'toaster-setup',
+        label: 'Toaster Setup',
+        icon: `${ICONS}/3d_graphics_file.png`,
+        message: JOKES.startToasterSetup,
+      },
+    ],
   },
   {
     id: 'documents',
     label: 'Documents',
     icon: `${ICONS}/folder_closed.png`,
-    message: JOKES.startDocuments,
+    children: [
+      {
+        id: 'my-documents',
+        label: 'My Documents',
+        icon: `${ICONS}/folder_closed.png`,
+        iconWindowId: 'documents',
+      },
+      {
+        id: 'doc-untitled',
+        label: 'untitled_final_v2',
+        icon: `${ICONS}/text_file.png`,
+        message: JOKES.startDocuments,
+      },
+      {
+        id: 'doc-untitled-2',
+        label: 'untitled_final_v2',
+        icon: `${ICONS}/text_file.png`,
+        message: JOKES.startDocuments,
+      },
+      {
+        id: 'doc-final',
+        label: 'final_final_v3',
+        icon: `${ICONS}/text_file_2.png`,
+        message: JOKES.startDocuments,
+      },
+    ],
   },
   {
     id: 'settings',
     label: 'Settings',
     icon: `${ICONS}/tools.png`,
-    message: JOKES.startSettings,
+    children: [
+      {
+        id: 'control-panel',
+        label: 'Control Panel',
+        icon: `${ICONS}/tools.png`,
+        message: JOKES.startSettings,
+      },
+      {
+        id: 'printers',
+        label: 'Printers',
+        icon: `${ICONS}/printer.png`,
+        message: JOKES.startPrinters,
+      },
+      {
+        id: 'taskbar',
+        label: 'Taskbar...',
+        icon: `${ICONS}/clock.png`,
+        message: JOKES.startTaskbar,
+      },
+    ],
   },
   {
     id: 'find',
     label: 'Find',
     icon: `${ICONS}/search.png`,
-    message: JOKES.startFind,
+    children: [
+      {
+        id: 'find-files',
+        label: 'Files or Folders...',
+        icon: `${ICONS}/search.png`,
+        message: JOKES.startFindFiles,
+      },
+      {
+        id: 'find-computer',
+        label: 'Computer...',
+        icon: `${ICONS}/this_computer.png`,
+        message: JOKES.startFindComputer,
+      },
+      {
+        id: 'find-internet',
+        label: 'On the Internet...',
+        icon: `${ICONS}/world.png`,
+        message: JOKES.startFind,
+      },
+    ],
   },
   {
     id: 'help',
