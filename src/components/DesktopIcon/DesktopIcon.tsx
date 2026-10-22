@@ -42,6 +42,10 @@ export function DesktopIcon({
 
     droppedRef.current = false;
 
+    // Win95 highlights the icon on mouse-down, so the label is already
+    // blue by the time the drag starts.
+    onSelect(icon);
+
     const originX = event.clientX;
     const originY = event.clientY;
     let started = false;

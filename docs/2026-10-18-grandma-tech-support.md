@@ -85,8 +85,10 @@ above applies once they're open (virus on top, tempting).
   Barn, the same window as Start → Internet. Double-clicking the decoy fails the way
   Win95 fails: a “Cannot find the file MAIL.EXE” system error (red X, error ding), and
   Grandma points the player back to “the internet thing”. Icons drag like the real
-  ones: a press past a four-pixel threshold (Win95's `SM_CXDRAG`) carries the icon and
-  snaps the drop onto an 80px desktop grid, clamped so it can never land off-screen.
+  ones: a press selects them (Win95 highlights on mouse-down, so the label is blue
+  before the drag even starts), a move past a four-pixel threshold (`SM_CXDRAG`)
+  carries the icon, and the drop snaps onto an 80px desktop grid, clamped so it can
+  never land off-screen.
   The layout rides out reboots inside the app's single `localStorage` document —
   root sections `audio` and `icons` under one shared key — so Grandma's desktop stays
   exactly as scrambled as the player left it.

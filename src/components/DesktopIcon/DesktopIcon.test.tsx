@@ -95,7 +95,7 @@ describe('DesktopIcon component', () => {
 
     await user.dblClick(screen.getByRole('button', { name: 'Sticky Notes' }));
 
-    expect(onSelect).toHaveBeenCalledTimes(2);
+    expect(onSelect).toHaveBeenCalledTimes(4);
     expect(onOpen).toHaveBeenCalledTimes(1);
   });
 
@@ -168,8 +168,19 @@ describe('DesktopIcon component', () => {
 
     // ...and lands snapped: (1*80+105)/80 → col 2, (2*80+85)/80 → row 3.
     expect(onMove).toHaveBeenCalledWith({ col: 2, row: 3 });
+    // Selected once on the press and once more on the drop.
+    expect(onSelect).toHaveBeenCalledTimes(2);
     expect(onSelect).toHaveBeenCalledWith(icon);
     expect(button.style.transform).toBe('');
+  });
+
+  it('selects the instant it is pressed, Win95 mouse-down style', () => {
+    const button = renderIcon();
+
+    firePointer(button, 'pointerdown', { clientX: 100, clientY: 100 });
+
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onSelect).toHaveBeenCalledWith(icon);
   });
 
   it('stays a click below the drag threshold', () => {
@@ -181,10 +192,11 @@ describe('DesktopIcon component', () => {
 
     expect(button.style.transform).toBe('');
     expect(onMove).not.toHaveBeenCalled();
-    expect(onSelect).not.toHaveBeenCalled();
+    // The press alone selected it; the sub-threshold move added nothing.
+    expect(onSelect).toHaveBeenCalledTimes(1);
 
     fireEvent.click(button);
-    expect(onSelect).toHaveBeenCalledWith(icon);
+    expect(onSelect).toHaveBeenCalledTimes(2);
   });
 
   it('swallows the click a drop leaves behind but spares the keyboard', () => {
@@ -193,20 +205,21 @@ describe('DesktopIcon component', () => {
     firePointer(button, 'pointerdown', { clientX: 50, clientY: 50 });
     firePointer(window, 'pointermove', { clientX: 200, clientY: 50 });
     firePointer(window, 'pointerup', {});
-    expect(onSelect).toHaveBeenCalledTimes(1);
+    // The press selected it and the drop kept it selected.
+    expect(onSelect).toHaveBeenCalledTimes(2);
 
     // Keyboard activation right after a drop still opens: detail === 0 is
     // never a drop's tail.
     fireEvent.click(button, { detail: 0 });
     expect(onOpen).toHaveBeenCalledTimes(1);
-    expect(onSelect).toHaveBeenCalledTimes(2);
+    expect(onSelect).toHaveBeenCalledTimes(3);
 
     // The drop's own tail click is swallowed, then clicks work again.
     fireEvent.click(button, { detail: 1 });
-    expect(onSelect).toHaveBeenCalledTimes(2);
+    expect(onSelect).toHaveBeenCalledTimes(3);
     expect(onOpen).toHaveBeenCalledTimes(1);
     fireEvent.click(button, { detail: 1 });
-    expect(onSelect).toHaveBeenCalledTimes(3);
+    expect(onSelect).toHaveBeenCalledTimes(4);
   });
 
   it('ignores the right button', () => {
@@ -230,7 +243,8 @@ describe('DesktopIcon component', () => {
     firePointer(window, 'pointercancel', {});
     expect(button.style.transform).toBe('');
     expect(onMove).not.toHaveBeenCalled();
-    expect(onSelect).not.toHaveBeenCalled();
+    // The press already selected it, and the cancel left it that way.
+    expect(onSelect).toHaveBeenCalledTimes(1);
   });
 
   it('keeps a wild drop on the screen', () => {
