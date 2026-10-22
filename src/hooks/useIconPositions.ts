@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { DESKTOP_ICONS } from 'src/data/gameContent';
 import {
   isJsonObject,
@@ -9,11 +9,27 @@ import type { IconCell } from 'src/types/game';
 
 export type IconPositions = Record<string, IconCell>;
 
+// The whole persisted desktop: where every icon sits, plus the ones the
+// player has dragged off it — into the Recycle Bin or My Documents.
+export interface IconLayout {
+  positions: IconPositions;
+  recycled: string[];
+  filed: string[];
+}
+
 // First run is the classic column: oldest icon at the top, all eight down
 // the left edge.
 const DEFAULT_POSITIONS: IconPositions = Object.fromEntries(
   DESKTOP_ICONS.map((icon, index) => [icon.id, { col: 0, row: index }]),
 );
+
+const DEFAULT_LAYOUT: IconLayout = {
+  positions: DEFAULT_POSITIONS,
+  recycled: [],
+  filed: [],
+};
+
+const KNOWN_ICON_IDS = new Set(DESKTOP_ICONS.map((icon) => icon.id));
 
 function isCell(value: unknown): value is IconCell {
   if (typeof value !== 'object' || value === null) {
@@ -30,34 +46,110 @@ function isCell(value: unknown): value is IconCell {
   return col >= 0 && row >= 0;
 }
 
-function loadPositions(): IconPositions {
-  const icons = loadSection(window.localStorage, 'icons');
-
-  if (!isJsonObject(icons)) {
-    return DEFAULT_POSITIONS;
+// A stored id list: only strings the current desktop knows survive, so a
+// stale document can never smuggle a ghost icon back onto the screen.
+function readIds(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
   }
 
+  return value.filter(
+    (id): id is string => typeof id === 'string' && KNOWN_ICON_IDS.has(id),
+  );
+}
+
+function readPositions(source: Record<string, unknown>): IconPositions {
   return Object.fromEntries(
     DESKTOP_ICONS.map((icon) => {
-      const cell = icons[icon.id];
+      const cell = source[icon.id];
 
       return [icon.id, isCell(cell) ? cell : DEFAULT_POSITIONS[icon.id]];
     }),
   );
 }
 
+function loadLayout(): IconLayout {
+  const section = loadSection(window.localStorage, 'icons');
+
+  if (!isJsonObject(section)) {
+    return DEFAULT_LAYOUT;
+  }
+
+  // Saves from before the bin and the folder existed were a bare
+  // positions map; those documents still load, just with nothing eaten.
+  const source = isJsonObject(section.positions) ? section.positions : section;
+
+  return {
+    positions: readPositions(source),
+    recycled: readIds(section.recycled),
+    filed: readIds(section.filed),
+  };
+}
+
 // Where grandma's icons live between visits: the `icons` section of the
 // shared store (see appStorage.ts), so her desktop stays exactly as
-// scrambled as you left it — and the audio settings ride along untouched.
+// scrambled as you left it — bin, folder, and all — and the audio
+// settings ride along untouched.
 export function useIconPositions() {
-  const [positions, setPositions] = useState<IconPositions>(loadPositions);
+  const [layout, setLayout] = useState<IconLayout>(loadLayout);
 
-  const moveIcon = (id: string, cell: IconCell) => {
-    const next = { ...positions, [id]: cell };
+  // Every mutation reads the latest layout from here, so two changes in
+  // one tick (recycle, then file) compose instead of clobbering.
+  const layoutRef = useRef(layout);
 
-    setPositions(next);
+  const commit = (next: IconLayout) => {
+    layoutRef.current = next;
+    setLayout(next);
     saveSection(window.localStorage, 'icons', next);
   };
 
-  return { positions, moveIcon };
+  const moveIcon = (id: string, cell: IconCell) => {
+    const current = layoutRef.current;
+
+    commit({ ...current, positions: { ...current.positions, [id]: cell } });
+  };
+
+  // The bin eats shortcuts newest-first, and nothing it eats is ever
+  // forgotten: the icon keeps its old cell for the Restore button.
+  const recycleIcon = (id: string) => {
+    const current = layoutRef.current;
+
+    commit({
+      ...current,
+      recycled: [id, ...current.recycled.filter((kept) => kept !== id)],
+      filed: current.filed.filter((kept) => kept !== id),
+    });
+  };
+
+  // Filing appends, so the new arrival sits at the bottom of the folder —
+  // in the window and in Start > Documents alike.
+  const fileIcon = (id: string) => {
+    const current = layoutRef.current;
+
+    commit({
+      ...current,
+      filed: [...current.filed.filter((kept) => kept !== id), id],
+      recycled: current.recycled.filter((kept) => kept !== id),
+    });
+  };
+
+  const restoreIcon = (id: string) => {
+    const current = layoutRef.current;
+
+    commit({
+      ...current,
+      recycled: current.recycled.filter((kept) => kept !== id),
+      filed: current.filed.filter((kept) => kept !== id),
+    });
+  };
+
+  return {
+    positions: layout.positions,
+    recycled: layout.recycled,
+    filed: layout.filed,
+    moveIcon,
+    recycleIcon,
+    fileIcon,
+    restoreIcon,
+  };
 }

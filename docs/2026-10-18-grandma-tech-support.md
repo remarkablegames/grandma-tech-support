@@ -67,7 +67,9 @@ above applies once they're open (virus on top, tempting).
   Solitaires” line beside `Minecraft`, `Steam`, `Discord`, and
   `Toaster Setup`. Documents mirrors the real `My Documents` folder: the
   opener opens the window itself, and every file leaf opens that file's
-  actual Notepad window (password note included). Settings and Find still
+  actual Notepad window (password note included) — plus any shortcuts the player
+  files into the folder from the desktop, mirrored with their `shortcut` hint.
+  Settings and Find still
   tell their jokes through `Control Panel`, `Printers`, `Taskbar...`,
   `Files or Folders...`, `Computer...`, and `On the Internet...`. Flyouts
   open on hover or tap, follow the pointer between parents, and peel away on
@@ -88,10 +90,17 @@ above applies once they're open (virus on top, tempting).
   ones: a press selects them (Win95 highlights on mouse-down, so the label is blue
   before the drag even starts), a move past a four-pixel threshold (`SM_CXDRAG`)
   carries the icon, and the drop snaps onto an 80px desktop grid, clamped so it can
-  never land off-screen.
-  The layout rides out reboots inside the app's single `localStorage` document —
-  root sections `audio` and `icons` under one shared key — so Grandma's desktop stays
-  exactly as scrambled as the player left it.
+  never land off-screen. Drops matter too: letting go over the Recycle Bin recycles
+  the shortcut (the bin graphic fills, its window lists the victim above the old
+  junk, and a selected-row Restore puts it back on its old cell), letting go over
+  My Documents files it (the folder window and Start > Documents both list it with
+  a `shortcut` hint, double-click opens it like the desktop icon it was, and a
+  selected-row Take back undoes the filing), and system icons refuse drops with an
+  error ding — the containers themselves bounce off each other. Recycled and filed
+  shortcuts ride out reboots alongside the layout, inside the app's single
+  `localStorage` document — root sections `audio` and `icons` under one shared key —
+  so Grandma's desktop stays exactly as scrambled (and as hoarded) as the player
+  left it.
 
 ### Pop-ups
 
@@ -248,8 +257,9 @@ src/
 │   └── WinScreen/       prop-driven task/win overlay
 ├── hooks/useDoubleClickOpen.ts shared double-click/Enter open gesture
 ├── hooks/useGame.ts     z-order, positions, pop-ups, dialogs, mission chain, menu state, power screens
-├── hooks/useIconPositions.ts desktop icon grid cells, persisted across reboots
+├── hooks/useIconPositions.ts desktop icon layout (positions, bin, folder), persisted
 ├── utils/createWindowDrag.ts shared title-bar pointer-drag for both window kinds
+├── utils/resolveIconDrop.ts drop → move, recycle, file, or refuse (Win95 rules)
 ├── utils/snapIconCell.ts icon drag → grid snap, clamped to the viewport
 ├── services/audio.ts    SFX over HTMLAudioElement, volume/mute + localStorage
 ├── services/appStorage.ts load/save for sections of the shared store (merge-on-save)

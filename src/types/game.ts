@@ -42,6 +42,11 @@ export interface DesktopIconConfig {
   icon: string;
   windowId?: IconWindowId;
   browserWindowId?: WindowId;
+  // Drop semantics, Win95 style: containers swallow dropped shortcuts
+  // (the bin recycles them, the folder files them), while system icons
+  // refuse drops both ways.
+  container?: 'recycle' | 'folder';
+  system?: boolean;
 }
 
 // Windows that show grandma’s notes and joke files inside a Notepad frame.
@@ -68,6 +73,9 @@ export interface IconWindowRow {
   label: string;
   hint?: string;
   opens?: IconWindowId;
+  // A shortcut filed into this window from the desktop: it opens like
+  // the desktop icon it came from, and can be taken back out.
+  desktopId?: string;
 }
 
 export interface ListIconWindow {
@@ -200,11 +208,18 @@ export interface StartMenuActionItem extends StartMenuBaseItem {
   action: 'show-mission' | 'shutdown' | 'task-manager';
 }
 
+// A filed shortcut in Start > Documents: it launches the same desktop
+// icon it was dragged into the folder.
+export interface StartMenuDesktopItem extends StartMenuBaseItem {
+  desktopId: string;
+}
+
 export type StartMenuLeafItem =
   | StartMenuJokeItem
   | StartMenuAppItem
   | StartMenuIconWindowItem
-  | StartMenuActionItem;
+  | StartMenuActionItem
+  | StartMenuDesktopItem;
 
 // One level deep, the way Win95's first-cut menus cascade: flyouts hold
 // leaves only, never a submenu of their own.

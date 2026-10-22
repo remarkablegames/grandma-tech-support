@@ -16,6 +16,13 @@ import type {
 
 const ICONS = 'windows_icons_32x32';
 
+// The bin's two faces: Win95 swaps the graphic the moment anything lands
+// inside it.
+export const RECYCLE_BIN_ICONS = {
+  empty: `${ICONS}/recycle_bin_empty.png`,
+  full: `${ICONS}/recycle_bin_full.png`,
+};
+
 export const JOKES = {
   toasterTile:
     'That’s the seventh toaster, dear. The garage is mostly toasters now.',
@@ -307,7 +314,7 @@ export const ICON_WINDOWS: IconWindowConfig[] = [
   {
     id: 'recycle',
     title: 'Recycle Bin',
-    icon: `${ICONS}/recycle_bin_empty.png`,
+    icon: RECYCLE_BIN_ICONS.empty,
     kind: 'list',
     rows: [
       { icon: `${ICONS}/text_file.png`, label: 'untitled_final_v2.doc' },
@@ -447,18 +454,21 @@ export const DESKTOP_ICONS: DesktopIconConfig[] = [
     id: 'computer',
     label: 'My Computer',
     icon: `${ICONS}/this_computer.png`,
+    system: true,
     windowId: 'computer',
   },
   {
     id: 'recycle',
     label: 'Recycle Bin',
-    icon: `${ICONS}/recycle_bin_empty.png`,
+    icon: RECYCLE_BIN_ICONS.empty,
+    container: 'recycle',
     windowId: 'recycle',
   },
   {
     id: 'documents',
     label: 'My Documents',
     icon: `${ICONS}/folder_closed.png`,
+    container: 'folder',
     windowId: 'documents',
   },
   {
@@ -843,7 +853,7 @@ export const ICON_CONTEXT_MENU: ContextMenuItem[] = [
 // jokes.
 export function rowContextMenu(row: IconWindowRow): ContextMenuItem[] {
   return [
-    row.opens === undefined
+    row.opens === undefined && row.desktopId === undefined
       ? { id: 'row-open', label: 'Open', disabled: true }
       : { id: 'row-open', label: 'Open', action: 'open' },
     { id: 'row-sep', separator: true },

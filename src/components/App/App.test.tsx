@@ -617,6 +617,130 @@ describe('App component', () => {
     });
   }, 15000);
 
+  it('recycles a shortcut dropped on the bin and restores it', async () => {
+    window.localStorage.clear();
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
+
+    // Sticky Notes sits at column 0, row 3; the bin at column 0, row 1.
+    const notes = screen.getByRole('button', { name: 'Sticky Notes' });
+    firePointer(notes, 'pointerdown', { clientX: 40, clientY: 400 });
+    firePointer(window, 'pointermove', { clientX: 40, clientY: 240 });
+    firePointer(window, 'pointerup', {});
+
+    // The icon is gone, and the bin shows Win95's full face.
+    expect(screen.queryByRole('button', { name: 'Sticky Notes' })).toBeNull();
+    const bin = screen.getByRole('button', { name: 'Recycle Bin' });
+    expect(bin.querySelector('img')?.getAttribute('src')).toContain(
+      'recycle_bin_full.png',
+    );
+
+    // The bin window lists the victim above its usual junk...
+    await user.dblClick(bin);
+    const binWindow = screen.getByRole('region', { name: 'Recycle Bin' });
+    expect(within(binWindow).getByText('Sticky Notes')).toBeInTheDocument();
+    expect(
+      within(binWindow).getByText('toaster_7_install.exe'),
+    ).toBeInTheDocument();
+
+    // ...and Restore stays greyed out until the row is selected.
+    const restore = within(binWindow).getByRole('button', { name: 'Restore' });
+    expect(restore).toBeDisabled();
+    await user.click(
+      within(binWindow).getByRole('button', { name: 'Sticky Notes' }),
+    );
+    expect(restore).toBeEnabled();
+
+    await user.click(restore);
+    expect(within(binWindow).queryByText('Sticky Notes')).toBeNull();
+
+    // Back on the desktop, exactly where it was left.
+    expect(screen.getByRole('button', { name: 'Sticky Notes' })).toHaveStyle({
+      left: '8px',
+      top: '248px',
+    });
+    expect(bin.querySelector('img')?.getAttribute('src')).toContain(
+      'recycle_bin_empty.png',
+    );
+  }, 15000);
+
+  it('files a shortcut into My Documents, mirrored in Start > Documents', async () => {
+    window.localStorage.clear();
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
+
+    // Calculator sits at column 0, row 4; My Documents at column 0, row 2.
+    const calculator = screen.getByRole('button', { name: 'Calculator' });
+    firePointer(calculator, 'pointerdown', { clientX: 40, clientY: 300 });
+    firePointer(window, 'pointermove', { clientX: 40, clientY: 140 });
+    firePointer(window, 'pointerup', {});
+
+    expect(screen.queryByRole('button', { name: 'Calculator' })).toBeNull();
+
+    // The folder lists it as a shortcut after the real contents...
+    await user.dblClick(screen.getByRole('button', { name: 'My Documents' }));
+    const folder = screen.getByRole('region', { name: 'My Documents' });
+    expect(within(folder).getByText('recipe.txt')).toBeInTheDocument();
+    expect(within(folder).getByText('Calculator')).toBeInTheDocument();
+    expect(within(folder).getByText('shortcut')).toBeInTheDocument();
+
+    // ...it opens from the folder, like the desktop icon it was...
+    await user.dblClick(
+      within(folder).getByRole('button', { name: /Calculator/ }),
+    );
+    expect(
+      screen.getByRole('region', { name: 'Calculator' }),
+    ).toBeInTheDocument();
+
+    // ...its right-click menu offers the same Open...
+    fireEvent.contextMenu(
+      within(folder).getByRole('button', { name: /Calculator/ }),
+    );
+    const menu = screen.getByRole('menu');
+    expect(within(menu).getByRole('menuitem', { name: 'Open' })).toBeEnabled();
+    fireEvent.click(within(menu).getByRole('menuitem', { name: 'Open' }));
+
+    // ...and Start > Documents mirrors it.
+    await user.click(screen.getByRole('button', { name: 'Start' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Documents' }));
+    expect(
+      screen.getByRole('menuitem', { name: 'Calculator' }),
+    ).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    await user.keyboard('{Escape}');
+
+    // Take back: select the row, press the button.
+    await user.click(screen.getByRole('button', { name: 'Close Calculator' }));
+    await user.click(
+      within(folder).getByRole('button', { name: /Calculator/ }),
+    );
+    await user.click(within(folder).getByRole('button', { name: 'Take back' }));
+    expect(within(folder).queryByText('Calculator')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Calculator' })).toHaveStyle({
+      left: '8px',
+      top: '328px',
+    });
+  }, 15000);
+
+  it('refuses a shortcut dropped on My Computer, error ding included', async () => {
+    window.localStorage.clear();
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
+
+    // Inbox sits at column 0, row 5; My Computer at the top of the column.
+    const inbox = screen.getByRole('button', { name: 'Inbox' });
+    firePointer(inbox, 'pointerdown', { clientX: 40, clientY: 480 });
+    firePointer(window, 'pointermove', { clientX: 40, clientY: 80 });
+    firePointer(window, 'pointerup', {});
+
+    // The drop bounces: the icon stays put and the system complains.
+    expect(play).toHaveBeenCalledWith('error');
+    expect(inbox).toHaveStyle({ left: '8px', top: '408px' });
+  }, 15000);
+
   it('opens a joke from the Programs flyout', async () => {
     const user = userEvent.setup();
     render(<App />);

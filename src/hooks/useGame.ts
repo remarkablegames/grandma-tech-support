@@ -3,6 +3,7 @@ import {
   BASE_VIEWPORT,
   BASE_WINDOW_POSITIONS,
   BUY_STORM,
+  DESKTOP_ICONS,
   GRANDMA_LINES,
   ICON_WINDOW_BASE_POSITION,
   ICON_WINDOWS,
@@ -611,6 +612,28 @@ export function useGame() {
     setGrandmaLine(GRANDMA_LINES.mailDecoy);
   };
 
+  // One way to launch a desktop icon, however it is reached: the desktop
+  // itself, a filed row in My Documents, or Start > Documents.
+  const openDesktopIcon = (id: string) => {
+    const icon = DESKTOP_ICONS.find((entry) => entry.id === id);
+
+    if (icon === undefined) {
+      return;
+    }
+
+    if (icon.windowId !== undefined) {
+      openIconWindow(icon.windowId);
+      return;
+    }
+
+    if (icon.browserWindowId !== undefined) {
+      openWindow(icon.browserWindowId);
+      return;
+    }
+
+    openMailDecoy();
+  };
+
   // Reactions overwrite grandma's line, so clicking her bubble puts the
   // current mission back in her mouth.
   const repeatObjective = () => {
@@ -646,6 +669,11 @@ export function useGame() {
       }
 
       setMessage(OBJECTIVES[objectiveIndex].instruction, 'info');
+      return;
+    }
+
+    if ('desktopId' in item) {
+      openDesktopIcon(item.desktopId);
       return;
     }
 
@@ -714,6 +742,7 @@ export function useGame() {
     activateWindow,
     openWindow,
     closeWindow,
+    openDesktopIcon,
     openIconWindow,
     closeIconWindow,
     raiseIconWindow,

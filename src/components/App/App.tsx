@@ -5,6 +5,7 @@ import {
   ICON_CONTEXT_MENU,
   ICON_WINDOWS,
   OBJECTIVES,
+  RECYCLE_BIN_ICONS,
   rowContextMenu,
   START_ITEMS,
   WINDOW_META,
@@ -16,8 +17,14 @@ import type {
   ContextMenuItem,
   ContextMenuJokeItem,
   ContextMenuOpenItem,
+  DesktopIconConfig,
   IconTaskbarItem,
+  IconWindowId,
+  IconWindowRow,
+  StartMenuDesktopItem,
+  StartMenuItem,
 } from 'src/types/game';
+import { resolveIconDrop } from 'src/utils/resolveIconDrop';
 
 import { BrowserWindow } from '../BrowserWindow';
 import { ContextMenu } from '../ContextMenu';
@@ -45,6 +52,22 @@ interface OpenContextMenu {
   items: ContextMenuItem[];
   onOpen?: () => void;
 }
+
+const ICON_BY_ID = new Map(DESKTOP_ICONS.map((icon) => [icon.id, icon]));
+
+// Stored ids the current desktop still knows, in the order they were
+// consumed.
+const knownIcons = (ids: string[]) =>
+  ids
+    .map((id) => ICON_BY_ID.get(id))
+    .filter((icon): icon is DesktopIconConfig => icon !== undefined);
+
+// Win95's folder actions: the bin restores what it ate, My Documents
+// hands back what was filed into it.
+const RESTORE_LABELS: Partial<Record<IconWindowId, string>> = {
+  recycle: 'Restore',
+  documents: 'Take back',
+};
 
 export function App() {
   const game = useGame();
@@ -77,6 +100,72 @@ export function App() {
   const closeContextMenu = () => {
     setContextMenu(null);
   };
+
+  // Recycled and filed icons leave the desktop but never the game: the
+  // bin and the folder list them instead.
+  const concealed = new Set([
+    ...iconPositions.recycled,
+    ...iconPositions.filed,
+  ]);
+
+  // What a list window shows of that: the bin's recent victims first
+  // (newest on top, Win95 style), the folder's new arrivals appended.
+  const dynamicRows = (windowId: IconWindowId): IconWindowRow[] => {
+    if (windowId === 'recycle') {
+      return knownIcons(iconPositions.recycled).map((icon) => ({
+        icon: icon.icon,
+        label: icon.label,
+        desktopId: icon.id,
+      }));
+    }
+
+    if (windowId === 'documents') {
+      return knownIcons(iconPositions.filed).map((icon) => ({
+        icon: icon.icon,
+        label: icon.label,
+        desktopId: icon.id,
+        hint: 'shortcut',
+      }));
+    }
+
+    return [];
+  };
+
+  // A right-clicked row's Open entry runs the row's own double-click path.
+  const openRowAction = (row: IconWindowRow): (() => void) | undefined => {
+    const opens = row.opens;
+    if (opens !== undefined) {
+      return () => {
+        game.openIconWindow(opens);
+      };
+    }
+
+    const desktopId = row.desktopId;
+    if (desktopId !== undefined) {
+      return () => {
+        game.openDesktopIcon(desktopId);
+      };
+    }
+
+    return undefined;
+  };
+
+  // Filed shortcuts mirror into Start > Documents, next to the real
+  // folder's own contents.
+  const filedMenuItems: StartMenuDesktopItem[] = knownIcons(
+    iconPositions.filed,
+  ).map((icon) => ({
+    id: `filed-${icon.id}`,
+    label: icon.label,
+    icon: icon.icon,
+    desktopId: icon.id,
+  }));
+
+  const startItems = START_ITEMS.map((item): StartMenuItem =>
+    item.id === 'documents' && 'children' in item
+      ? { ...item, children: [...item.children, ...filedMenuItems] }
+      : item,
+  );
 
   // Win95 swaps menus: opening one puts the Start menu away.
   const openContextMenu = (menu: OpenContextMenu) => {
@@ -149,43 +238,63 @@ export function App() {
       {game.powerScreen !== 'splash' && (
         <>
           <div className="pointer-events-none absolute inset-0 z-[5]">
-            {DESKTOP_ICONS.map((icon) => {
-              const open = () => {
-                if (icon.windowId !== undefined) {
-                  game.openIconWindow(icon.windowId);
-                  return;
-                }
+            {DESKTOP_ICONS.filter((icon) => !concealed.has(icon.id)).map(
+              (icon) => {
+                // Win95 fills the bin the moment anything lands in it.
+                const binFull =
+                  icon.id === 'recycle' && iconPositions.recycled.length > 0;
 
-                if (icon.browserWindowId !== undefined) {
-                  game.openWindow(icon.browserWindowId);
-                  return;
-                }
+                return (
+                  <DesktopIcon
+                    key={icon.id}
+                    icon={
+                      binFull ? { ...icon, icon: RECYCLE_BIN_ICONS.full } : icon
+                    }
+                    position={iconPositions.positions[icon.id]}
+                    selected={game.selectedIcon === icon.id}
+                    onSelect={game.selectIcon}
+                    onMove={(cell) => {
+                      const drop = resolveIconDrop(
+                        icon,
+                        cell,
+                        iconPositions.positions,
+                        DESKTOP_ICONS,
+                      );
 
-                game.openMailDecoy();
-              };
+                      if (drop === 'refuse') {
+                        audio.play('error');
+                        return;
+                      }
 
-              return (
-                <DesktopIcon
-                  key={icon.id}
-                  icon={icon}
-                  position={iconPositions.positions[icon.id]}
-                  selected={game.selectedIcon === icon.id}
-                  onSelect={game.selectIcon}
-                  onMove={(cell) => {
-                    iconPositions.moveIcon(icon.id, cell);
-                  }}
-                  onOpen={open}
-                  onContextMenu={(x, y) => {
-                    openContextMenu({
-                      x,
-                      y,
-                      items: ICON_CONTEXT_MENU,
-                      onOpen: open,
-                    });
-                  }}
-                />
-              );
-            })}
+                      if (drop === 'recycle') {
+                        iconPositions.recycleIcon(icon.id);
+                        return;
+                      }
+
+                      if (drop === 'file') {
+                        iconPositions.fileIcon(icon.id);
+                        return;
+                      }
+
+                      iconPositions.moveIcon(icon.id, cell);
+                    }}
+                    onOpen={() => {
+                      game.openDesktopIcon(icon.id);
+                    }}
+                    onContextMenu={(x, y) => {
+                      openContextMenu({
+                        x,
+                        y,
+                        items: ICON_CONTEXT_MENU,
+                        onOpen: () => {
+                          game.openDesktopIcon(icon.id);
+                        },
+                      });
+                    }}
+                  />
+                );
+              },
+            )}
           </div>
 
           {openWindows
@@ -237,9 +346,17 @@ export function App() {
           ).map((config) => (
             <IconWindow
               key={config.id}
-              config={config}
+              config={
+                config.kind === 'list'
+                  ? {
+                      ...config,
+                      rows: [...dynamicRows(config.id), ...config.rows],
+                    }
+                  : config
+              }
               position={game.iconWindowPositions[config.id]}
               zIndex={15 + game.iconZOrder.indexOf(config.id)}
+              restoreLabel={RESTORE_LABELS[config.id]}
               onFocus={() => {
                 game.raiseIconWindow(config.id);
               }}
@@ -253,6 +370,8 @@ export function App() {
                 game.closeIconWindow(config.id);
               }}
               onOpenWindow={game.openIconWindow}
+              onOpenDesktop={game.openDesktopIcon}
+              onRestoreDesktop={iconPositions.restoreIcon}
               onScanComplete={game.completeScan}
               onContextMenu={
                 // Win95's folder menus nearly mirror the desktop's, so the list
@@ -264,17 +383,11 @@ export function App() {
                         return;
                       }
 
-                      const opens = row.opens;
                       openContextMenu({
                         x,
                         y,
                         items: rowContextMenu(row),
-                        onOpen:
-                          opens === undefined
-                            ? undefined
-                            : () => {
-                                game.openIconWindow(opens);
-                              },
+                        onOpen: openRowAction(row),
                       });
                     }
                   : undefined
@@ -301,7 +414,7 @@ export function App() {
 
           {game.startOpen && (
             <StartMenu
-              items={START_ITEMS}
+              items={startItems}
               onSelect={game.selectStartItem}
               onDismiss={game.toggleStart}
             />

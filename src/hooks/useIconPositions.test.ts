@@ -39,6 +39,29 @@ describe('useIconPositions hook', () => {
     expect(Object.keys(result.current.positions)).toHaveLength(
       DESKTOP_ICONS.length,
     );
+    // The pre-bin format loads as an untouched desktop.
+    expect(result.current.recycled).toEqual([]);
+    expect(result.current.filed).toEqual([]);
+  });
+
+  it('reads back a saved bin and folder', () => {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        icons: {
+          positions: { notes: { col: 3, row: 1 } },
+          recycled: ['internet', 'ghost', 7],
+          filed: ['calculator'],
+        },
+      }),
+    );
+
+    const { result } = renderHook(() => useIconPositions());
+
+    expect(result.current.positions.notes).toEqual({ col: 3, row: 1 });
+    // Only ids the current desktop knows come back from the dead.
+    expect(result.current.recycled).toEqual(['internet']);
+    expect(result.current.filed).toEqual(['calculator']);
   });
 
   it('moves an icon and writes the layout back', () => {
@@ -50,7 +73,71 @@ describe('useIconPositions hook', () => {
 
     expect(result.current.positions.notes).toEqual({ col: 2, row: 4 });
     expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? '{}')) //
-      .toEqual({ icons: result.current.positions });
+      .toEqual({
+        icons: {
+          positions: result.current.positions,
+          recycled: [],
+          filed: [],
+        },
+      });
+  });
+
+  it('recycles, files, and restores icons, persisting every step', () => {
+    const { result } = renderHook(() => useIconPositions());
+
+    act(() => {
+      result.current.recycleIcon('notes');
+    });
+    expect(result.current.recycled).toEqual(['notes']);
+    // The bin keeps the icon's cell for its Restore button.
+    expect(result.current.positions.notes).toEqual({ col: 0, row: 3 });
+
+    // Eating the same shortcut twice never duplicates it...
+    act(() => {
+      result.current.recycleIcon('notes');
+    });
+    expect(result.current.recycled).toEqual(['notes']);
+
+    // ...and the bin and the folder never hold the same icon at once.
+    act(() => {
+      result.current.fileIcon('notes');
+    });
+    expect(result.current.recycled).toEqual([]);
+    expect(result.current.filed).toEqual(['notes']);
+
+    // Filing appends: new arrivals sit at the bottom of the folder.
+    act(() => {
+      result.current.recycleIcon('internet');
+      result.current.fileIcon('calculator');
+    });
+    expect(result.current.recycled).toEqual(['internet']);
+    expect(result.current.filed).toEqual(['notes', 'calculator']);
+
+    const stored = () =>
+      (
+        JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? '{}') as {
+          icons?: { recycled?: string[]; filed?: string[] };
+        }
+      ).icons;
+    expect(stored()).toEqual({
+      positions: result.current.positions,
+      recycled: ['internet'],
+      filed: ['notes', 'calculator'],
+    });
+
+    // Restore takes an icon out of whichever container holds it.
+    act(() => {
+      result.current.restoreIcon('internet');
+      result.current.restoreIcon('notes');
+      result.current.restoreIcon('ghost');
+    });
+    expect(result.current.recycled).toEqual([]);
+    expect(result.current.filed).toEqual(['calculator']);
+    expect(stored()).toEqual({
+      positions: result.current.positions,
+      recycled: [],
+      filed: ['calculator'],
+    });
   });
 
   it('shares one app document with the audio settings', () => {
@@ -70,11 +157,19 @@ describe('useIconPositions hook', () => {
 
     // The layout write carries the volume section through...
     expect(readDoc().audio?.sfx?.volume).toBe(40);
-    expect(readDoc().icons).toEqual(result.current.positions);
+    expect(readDoc().icons).toEqual({
+      positions: result.current.positions,
+      recycled: [],
+      filed: [],
+    });
 
     // ...and a later volume change must not wipe the layout.
     audio.setVolume(55);
-    expect(readDoc().icons).toEqual(result.current.positions);
+    expect(readDoc().icons).toEqual({
+      positions: result.current.positions,
+      recycled: [],
+      filed: [],
+    });
     expect(readDoc().audio?.sfx?.volume).toBe(55);
   });
 
@@ -91,6 +186,9 @@ describe('useIconPositions hook', () => {
       '{"icons":{"notes":{"col":1}}}',
       '{"icons":{"notes":{"col":-1,"row":0}}}',
       '{"icons":{"notes":{"col":0,"row":-2}}}',
+      '{"icons":{"positions":"purple"}}',
+      '{"icons":{"positions":{},"recycled":"nope","filed":7}}',
+      '{"icons":{"positions":null,"recycled":null,"filed":{}}}',
     ];
     const index = DESKTOP_ICONS.findIndex((icon) => icon.id === 'notes');
 

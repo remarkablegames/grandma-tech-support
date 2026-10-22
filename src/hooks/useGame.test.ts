@@ -560,6 +560,54 @@ describe('useGame hook', () => {
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.mailDecoy);
   });
 
+  it('launches a desktop icon by id, however it is reached', () => {
+    const { result } = renderHook(() => useGame());
+
+    // A window-backed icon opens its window.
+    act(() => {
+      result.current.openDesktopIcon('notes');
+    });
+    expect(result.current.openIconWindows.notes).toBe(true);
+
+    // The Internet twin opens Bargain Barn, like Start > Internet.
+    act(() => {
+      result.current.openDesktopIcon('internet');
+    });
+    expect(result.current.open.shopping).toBe(true);
+
+    // The decoy Inbox fails only when opened.
+    act(() => {
+      result.current.openDesktopIcon('mail');
+    });
+    expect(result.current.message).toBe(JOKES.mailError);
+
+    // An id the desktop doesn't know quietly does nothing.
+    act(() => {
+      result.current.openDesktopIcon('ghost');
+    });
+    expect(result.current.openIconWindows.notes).toBe(true);
+    expect(result.current.message).toBe(JOKES.mailError);
+  });
+
+  it('opens a filed shortcut picked from Start > Documents', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.toggleStart();
+    });
+    act(() => {
+      result.current.selectStartItem({
+        id: 'filed-calculator',
+        label: 'Calculator',
+        icon: 'windows_icons_32x32/calculator.png',
+        desktopId: 'calculator',
+      });
+    });
+
+    expect(result.current.startOpen).toBe(false);
+    expect(result.current.openIconWindows.calculator).toBe(true);
+  });
+
   it('lets grandma re-read the current mission after a reaction', () => {
     const { result } = renderHook(() => useGame());
 

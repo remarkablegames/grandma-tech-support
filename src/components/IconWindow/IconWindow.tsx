@@ -137,29 +137,51 @@ function Scanner({ onScanComplete }: { onScanComplete: () => void }) {
   );
 }
 
+// A row's open path: Explorer-style `opens` targets win, then filed
+// desktop shortcuts launch the icon they were dragged out of.
+function createRowOpen(
+  row: IconWindowRow,
+  onOpenWindow: (windowId: IconWindowId) => void,
+  onOpenDesktop: (desktopId: string) => void,
+): (() => void) | undefined {
+  const opens = row.opens;
+  if (opens !== undefined) {
+    return () => {
+      onOpenWindow(opens);
+    };
+  }
+
+  const desktopId = row.desktopId;
+  if (desktopId !== undefined) {
+    return () => {
+      onOpenDesktop(desktopId);
+    };
+  }
+
+  return undefined;
+}
+
 // Rows with an `opens` target behave like Windows Explorer files: quick
 // double-click (or Enter) opens the referenced window, and right-click gets
-// the file menu instead of the window's folder menu.
+// the file menu instead of the window's folder menu. Filed shortcuts open
+// the same way, through their desktop id.
 function IconRow({
   row,
   selected,
   onSelect,
   onOpenWindow,
+  onOpenDesktop,
   onContextMenu,
 }: {
   row: IconWindowRow;
   selected: boolean;
   onSelect: () => void;
   onOpenWindow: (windowId: IconWindowId) => void;
+  onOpenDesktop: (desktopId: string) => void;
   onContextMenu?: (x: number, y: number, row?: IconWindowRow) => void;
 }) {
-  const opens = row.opens;
   const handleOpen = useDoubleClickOpen(
-    opens === undefined
-      ? undefined
-      : () => {
-          onOpenWindow(opens);
-        },
+    createRowOpen(row, onOpenWindow, onOpenDesktop),
   );
 
   const content = (
@@ -213,44 +235,82 @@ function IconRow({
 }
 
 // Folder rows highlight on a single click, exactly like desktop icons;
-// rows with an `opens` target open on top of that selection.
+// rows with an `opens` target open on top of that selection. List windows
+// with restore duties (the bin, My Documents) get Win95's select-then-act
+// toolbar: one button, greyed out until the selected row is one it can
+// take back.
 function IconList({
   config,
+  restoreLabel,
   onOpenWindow,
+  onOpenDesktop,
+  onRestoreDesktop,
   onContextMenu,
 }: {
   config: ListIconWindow;
+  restoreLabel?: string;
   onOpenWindow: (windowId: IconWindowId) => void;
+  onOpenDesktop: (desktopId: string) => void;
+  onRestoreDesktop: (desktopId: string) => void;
   onContextMenu?: (x: number, y: number, row?: IconWindowRow) => void;
 }) {
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
+  const restorableId =
+    selectedRow === null ? undefined : config.rows[selectedRow]?.desktopId;
 
   return (
-    <ul className="win-inset max-h-40 overflow-y-auto bg-white p-1 text-xs text-black">
-      {config.rows.map((row, index) => (
-        <IconRow
-          key={`${row.label}-${String(index)}`}
-          row={row}
-          selected={selectedRow === index}
-          onSelect={() => {
-            setSelectedRow(index);
-          }}
-          onOpenWindow={onOpenWindow}
-          onContextMenu={onContextMenu}
-        />
-      ))}
-    </ul>
+    <>
+      <ul className="win-inset max-h-40 overflow-y-auto bg-white p-1 text-xs text-black">
+        {config.rows.map((row, index) => (
+          <IconRow
+            key={`${row.label}-${String(index)}`}
+            row={row}
+            selected={selectedRow === index}
+            onSelect={() => {
+              setSelectedRow(index);
+            }}
+            onOpenWindow={onOpenWindow}
+            onOpenDesktop={onOpenDesktop}
+            onContextMenu={onContextMenu}
+          />
+        ))}
+      </ul>
+      {restoreLabel !== undefined && (
+        <div className="mt-1 flex justify-end px-0.5">
+          <button
+            type="button"
+            disabled={restorableId === undefined}
+            onClick={
+              restorableId === undefined
+                ? undefined
+                : () => {
+                    onRestoreDesktop(restorableId);
+                  }
+            }
+            className="win-button disabled:text-win-shadow px-2 py-0.5 text-xs text-black"
+          >
+            {restoreLabel}
+          </button>
+        </div>
+      )}
+    </>
   );
 }
 
 function IconWindowContent({
   config,
+  restoreLabel,
   onOpenWindow,
+  onOpenDesktop,
+  onRestoreDesktop,
   onScanComplete,
   onContextMenu,
 }: {
   config: IconWindowConfig;
+  restoreLabel?: string;
   onOpenWindow: (windowId: IconWindowId) => void;
+  onOpenDesktop: (desktopId: string) => void;
+  onRestoreDesktop: (desktopId: string) => void;
   onScanComplete: () => void;
   onContextMenu?: (x: number, y: number, row?: IconWindowRow) => void;
 }) {
@@ -259,7 +319,10 @@ function IconWindowContent({
       return (
         <IconList
           config={config}
+          restoreLabel={restoreLabel}
           onOpenWindow={onOpenWindow}
+          onOpenDesktop={onOpenDesktop}
+          onRestoreDesktop={onRestoreDesktop}
           onContextMenu={onContextMenu}
         />
       );
@@ -284,11 +347,14 @@ interface IconWindowProps {
   config: IconWindowConfig;
   position: WindowPosition;
   zIndex: number;
+  restoreLabel?: string;
   onFocus: () => void;
   onMove: (position: WindowPosition) => void;
   onMinimize: () => void;
   onClose: () => void;
   onOpenWindow: (windowId: IconWindowId) => void;
+  onOpenDesktop: (desktopId: string) => void;
+  onRestoreDesktop: (desktopId: string) => void;
   onScanComplete: () => void;
   onContextMenu?: (x: number, y: number, row?: IconWindowRow) => void;
 }
@@ -297,11 +363,14 @@ export function IconWindow({
   config,
   position,
   zIndex,
+  restoreLabel,
   onFocus,
   onMove,
   onMinimize,
   onClose,
   onOpenWindow,
+  onOpenDesktop,
+  onRestoreDesktop,
   onScanComplete,
   onContextMenu,
 }: IconWindowProps) {
@@ -352,7 +421,10 @@ export function IconWindow({
 
       <IconWindowContent
         config={config}
+        restoreLabel={restoreLabel}
         onOpenWindow={onOpenWindow}
+        onOpenDesktop={onOpenDesktop}
+        onRestoreDesktop={onRestoreDesktop}
         onScanComplete={onScanComplete}
         onContextMenu={onContextMenu}
       />

@@ -42,23 +42,29 @@ const onMove = vi.fn();
 const onMinimize = vi.fn();
 const onClose = vi.fn();
 const onOpenWindow = vi.fn();
+const onOpenDesktop = vi.fn();
+const onRestoreDesktop = vi.fn();
 const onScanComplete = vi.fn();
 const onContextMenu = vi.fn();
 
 function renderIconWindow(
   config: IconWindowConfig = listConfig,
   contextMenuHandler?: (x: number, y: number) => void,
+  restoreLabel?: string,
 ) {
   return render(
     <IconWindow
       config={config}
       position={{ x: 150, y: 100 }}
       zIndex={15}
+      restoreLabel={restoreLabel}
       onFocus={onFocus}
       onMove={onMove}
       onMinimize={onMinimize}
       onClose={onClose}
       onOpenWindow={onOpenWindow}
+      onOpenDesktop={onOpenDesktop}
+      onRestoreDesktop={onRestoreDesktop}
       onScanComplete={onScanComplete}
       onContextMenu={contextMenuHandler}
     />,
@@ -80,6 +86,71 @@ describe('IconWindow component', () => {
     expect(screen.getByText('Hard disk (C:)')).toBeInTheDocument();
     expect(screen.getByText('2.1 GB')).toBeInTheDocument();
     expect(screen.getByText('the_other_note.txt')).toBeInTheDocument();
+    // Windows without restore duties get no toolbar at all.
+    expect(screen.queryByRole('button', { name: 'Restore' })).toBeNull();
+  });
+
+  it('opens a filed desktop shortcut row like the icon it came from', async () => {
+    const user = userEvent.setup();
+    renderIconWindow({
+      id: 'documents',
+      title: 'My Documents',
+      icon: 'windows_icons_32x32/folder_closed.png',
+      kind: 'list',
+      rows: [
+        {
+          icon: 'windows_icons_32x32/calculator.png',
+          label: 'Calculator',
+          hint: 'shortcut',
+          desktopId: 'calculator',
+        },
+      ],
+    });
+
+    await user.dblClick(screen.getByRole('button', { name: /Calculator/ }));
+
+    expect(onOpenDesktop).toHaveBeenCalledWith('calculator');
+    expect(onOpenWindow).not.toHaveBeenCalled();
+  });
+
+  it('keeps Restore greyed out until a restorable row is selected', async () => {
+    const user = userEvent.setup();
+    renderIconWindow(
+      {
+        id: 'recycle',
+        title: 'Recycle Bin',
+        icon: 'windows_icons_32x32/recycle_bin_empty.png',
+        kind: 'list',
+        rows: [
+          {
+            icon: 'windows_icons_32x32/program.png',
+            label: 'toaster_7_install.exe',
+          },
+          {
+            icon: 'windows_icons_32x32/sticky_note.png',
+            label: 'Sticky Notes',
+            desktopId: 'notes',
+          },
+        ],
+      },
+      undefined,
+      'Restore',
+    );
+
+    const restore = screen.getByRole('button', { name: 'Restore' });
+    expect(restore).toBeDisabled();
+
+    // The bin's joke files came with the machine; only real victims restore.
+    await user.click(
+      screen.getByRole('button', { name: 'toaster_7_install.exe' }),
+    );
+    expect(restore).toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: 'Sticky Notes' }));
+    expect(restore).toBeEnabled();
+
+    await user.click(restore);
+    expect(onRestoreDesktop).toHaveBeenCalledWith('notes');
   });
 
   it('opens a file row on a quick double-click', async () => {
