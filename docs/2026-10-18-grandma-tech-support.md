@@ -66,7 +66,9 @@ above applies once they're open (virus on top, tempting).
   `Programs`, `Documents`, `Settings`, and `Find` cascade into flyouts.
   Programs is a time capsule: `Solitaire` keeps the old “20 programs, 19
   Solitaires” line beside `Minecraft`, `Steam`, `Discord`, and
-  `Toaster Setup`, while `Disk Defragmenter` runs the little drive tool.
+  `Toaster Setup`; `Virus Shield` opens the scanner twin of the desktop
+  icon (the backup route when the bin has eaten the shortcut), while
+  `Disk Defragmenter` runs the little drive tool.
   Documents mirrors the real `My Documents` folder: the
   opener opens the window itself, and every file leaf opens that file's
   actual Notepad window (password note included) — plus any shortcuts the player

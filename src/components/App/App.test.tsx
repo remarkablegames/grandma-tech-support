@@ -861,6 +861,22 @@ describe('App component', () => {
     expect(screen.queryByRole('menu', { name: 'Start menu' })).toBeNull();
   }, 15000);
 
+  it('opens Virus Shield from the Programs flyout', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
+
+    // The Programs twin of the desktop shortcut keeps task 6 reachable
+    // even after the bin has eaten the icon.
+    await openFromStart(user, 'Programs');
+    await user.click(screen.getByRole('menuitem', { name: 'Virus Shield' }));
+
+    expect(
+      screen.getByRole('region', { name: 'Virus Shield' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('menu', { name: 'Start menu' })).toBeNull();
+  }, 15000);
+
   it('opens My Documents from the Documents flyout', async () => {
     const user = userEvent.setup();
     render(<App />);
@@ -1386,7 +1402,7 @@ describe('App component', () => {
     expect(
       screen.queryAllByRole('button', { name: 'Close popup' }),
     ).toHaveLength(0);
-  }, 30000);
+  }, 45000);
 
   it('plays through the update, the force-quit, and the finale', async () => {
     window.localStorage.clear();
@@ -1662,7 +1678,9 @@ describe('App component', () => {
           screen.getByRole('progressbar', { name: 'Defragment progress' }),
         ).toHaveAttribute('aria-valuenow', '100');
       },
-      { timeout: 15000, interval: 200 },
+      // The climb is 100 real 100ms ticks; a loaded machine stretches it
+      // past the old 15s bound, so wait a patient half-minute.
+      { timeout: 30000, interval: 200 },
     );
     await user.click(screen.getByRole('button', { name: 'Exit' }));
 

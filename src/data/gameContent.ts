@@ -729,6 +729,14 @@ export const START_ITEMS: StartMenuItem[] = [
         message: JOKES.startToasterSetup,
       },
       {
+        // The desktop icon's twin: task 6 stays winnable even after the
+        // player empties the bin on the shortcut.
+        id: 'virus-shield',
+        label: 'Virus Shield',
+        icon: `${ICONS}/search.png`,
+        iconWindowId: 'scanner',
+      },
+      {
         id: 'defrag',
         label: 'Disk Defragmenter',
         icon: `${ICONS}/3d_graphics_program.png`,
