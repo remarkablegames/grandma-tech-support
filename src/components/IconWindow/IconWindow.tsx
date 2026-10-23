@@ -239,7 +239,8 @@ function IconRow({
 // with restore duties (the bin, My Documents) get Win95's select-then-act
 // toolbar — one button, greyed out until the selected row is one it can
 // restore — parked under the title bar above the list, the way Explorer
-// toolbars sit.
+// toolbars sit. An empty list keeps one blank row of pane so its window
+// never collapses to a sliver.
 function IconList({
   config,
   restoreLabel,
@@ -280,6 +281,7 @@ function IconList({
         </div>
       )}
       <ul className="win-inset max-h-40 overflow-y-auto bg-white p-1 text-xs text-black">
+        {config.rows.length === 0 && <li aria-hidden="true" className="h-5" />}
         {config.rows.map((row, index) => (
           <IconRow
             key={`${row.label}-${String(index)}`}

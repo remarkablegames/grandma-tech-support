@@ -90,6 +90,14 @@ describe('IconWindow component', () => {
     expect(screen.queryByRole('button', { name: 'Restore' })).toBeNull();
   });
 
+  it('holds an empty list open with one blank row', () => {
+    renderIconWindow({ ...listConfig, rows: [] });
+
+    // Nothing to list: the pane keeps a single blank row (screen readers
+    // skip it) so the window never collapses to a sliver.
+    expect(screen.getByRole('list').children).toHaveLength(1);
+  });
+
   it('opens a filed desktop shortcut row like the icon it came from', async () => {
     const user = userEvent.setup();
     renderIconWindow({

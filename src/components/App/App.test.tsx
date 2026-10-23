@@ -1707,12 +1707,12 @@ describe('App component', () => {
       screen.queryByRole('button', { name: 'toaster_8_install.exe' }),
     ).toBeNull();
     await user.dblClick(screen.getByRole('button', { name: 'Recycle Bin' }));
+    const resetBinWindow = screen.getByRole('region', { name: 'Recycle Bin' });
     expect(
-      within(screen.getByRole('region', { name: 'Recycle Bin' })).getByRole(
-        'button',
-        { name: 'Restore' },
-      ),
+      within(resetBinWindow).getByRole('button', { name: 'Restore' }),
     ).toBeDisabled();
+    // Nothing to list: the pane holds one blank row instead of collapsing.
+    expect(within(resetBinWindow).getByRole('list').children).toHaveLength(1);
   }, 90000);
 
   it('opens the task manager from the three-key chord where the browser delivers it', async () => {
