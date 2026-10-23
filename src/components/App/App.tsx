@@ -23,6 +23,7 @@ import type {
   ContextMenuItem,
   ContextMenuJokeItem,
   ContextMenuOpenItem,
+  ContextMenuRestoreItem,
   DesktopIconConfig,
   IconTaskbarItem,
   IconWindowId,
@@ -241,11 +242,20 @@ export function App() {
   };
 
   const handleContextMenuSelect = (
-    item: ContextMenuJokeItem | ContextMenuOpenItem | ContextMenuEffectItem,
+    item:
+      | ContextMenuJokeItem
+      | ContextMenuOpenItem
+      | ContextMenuEffectItem
+      | ContextMenuRestoreItem,
   ) => {
     setContextMenu(null);
 
     if ('effect' in item) {
+      if (item.effect === 'restore') {
+        iconPositions.restoreIcon(item.desktopId);
+        return;
+      }
+
       setConfirmingEmpty(true);
       return;
     }
@@ -511,7 +521,7 @@ export function App() {
                       openContextMenu({
                         x,
                         y,
-                        items: rowContextMenu(row),
+                        items: rowContextMenu(row, config.id),
                         onOpen: openRowAction(row),
                       });
                     }

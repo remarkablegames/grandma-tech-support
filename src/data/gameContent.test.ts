@@ -1,6 +1,10 @@
-import type { StartMenuSubmenuItem } from 'src/types/game';
+import type {
+  IconWindowId,
+  IconWindowRow,
+  StartMenuSubmenuItem,
+} from 'src/types/game';
 
-import { ICON_WINDOWS, START_ITEMS } from './gameContent';
+import { ICON_WINDOWS, rowContextMenu, START_ITEMS } from './gameContent';
 
 // Start > Documents mirrors the real My Documents window: same files, same
 // order, same icons, each leaf opening the window its folder row opens.
@@ -52,5 +56,24 @@ describe('gameContent data', () => {
         iconWindowId: row.opens,
       })),
     );
+  });
+
+  it('offers Restore only on deleted files inside the Recycle Bin', () => {
+    const labels = (row: IconWindowRow, windowId: IconWindowId): string[] =>
+      rowContextMenu(row, windowId).flatMap((item) =>
+        'label' in item ? [item.label] : [],
+      );
+
+    const deleted: IconWindowRow = {
+      label: 'Sticky Notes',
+      desktopId: 'notes',
+    };
+
+    // The bin's file menu carries Win95's Restore on the file itself...
+    expect(labels(deleted, 'recycle')).toContain('Restore');
+    // ...a row without a desktop id never does, wherever it sits...
+    expect(labels({ label: 'ghost' }, 'recycle')).not.toContain('Restore');
+    // ...and folders, which hold nothing to restore, stay pure file menus.
+    expect(labels(deleted, 'documents')).not.toContain('Restore');
   });
 });

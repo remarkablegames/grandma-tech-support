@@ -223,7 +223,9 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
   `Recycle Bin`) open the same folder menu Win95 gives their backgrounds, and a
   right-clicked row gets the file menu instead — `Open` runs the row's own open
   path (greyed out when the row has nothing to open) beside joke `Delete` and
-  `Properties` entries — while notes, Calculator, and Virus Shield just swallow.
+  `Properties` entries, and the Recycle Bin's rows add Win95's `Restore`, which
+  puts the file back on its cell (folders never offer it) — while notes,
+  Calculator, and Virus Shield just swallow.
   Opening a menu closes the Start
   menu; the menu is clamped inside the viewport, focuses its first enabled
   entry, and dismisses on an outside press or Escape.

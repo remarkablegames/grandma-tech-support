@@ -5,6 +5,7 @@ import type {
   ContextMenuItem,
   ContextMenuJokeItem,
   ContextMenuOpenItem,
+  ContextMenuRestoreItem,
 } from 'src/types/game';
 
 interface ContextMenuProps {
@@ -12,7 +13,11 @@ interface ContextMenuProps {
   y: number;
   items: ContextMenuItem[];
   onSelect: (
-    item: ContextMenuJokeItem | ContextMenuOpenItem | ContextMenuEffectItem,
+    item:
+      | ContextMenuJokeItem
+      | ContextMenuOpenItem
+      | ContextMenuEffectItem
+      | ContextMenuRestoreItem,
   ) => void;
   onDismiss: () => void;
 }

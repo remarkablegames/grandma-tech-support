@@ -688,6 +688,40 @@ describe('App component', () => {
     );
   }, 15000);
 
+  it('restores a bin file from Win95’s right-click menu', async () => {
+    window.localStorage.clear();
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
+
+    // Sticky Notes (column 0, row 3) goes into the bin (column 0, row 1).
+    const notes = screen.getByRole('button', { name: 'Sticky Notes' });
+    firePointer(notes, 'pointerdown', { clientX: 40, clientY: 400 });
+    firePointer(window, 'pointermove', { clientX: 40, clientY: 240 });
+    firePointer(window, 'pointerup', {});
+
+    const bin = screen.getByRole('button', { name: 'Recycle Bin' });
+    await user.dblClick(bin);
+    const binWindow = screen.getByRole('region', { name: 'Recycle Bin' });
+
+    // The file menu inside the bin carries Win95's Restore...
+    fireEvent.contextMenu(
+      within(binWindow).getByRole('button', { name: 'Sticky Notes' }),
+    );
+    const menu = screen.getByRole('menu', { name: 'Context menu' });
+    await user.click(within(menu).getByRole('menuitem', { name: 'Restore' }));
+
+    // ...and it puts the file straight back on its old cell.
+    expect(within(binWindow).queryByText('Sticky Notes')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Sticky Notes' })).toHaveStyle({
+      left: '8px',
+      top: '248px',
+    });
+    expect(bin.querySelector('img')?.getAttribute('src')).toContain(
+      'recycle_bin_empty.png',
+    );
+  }, 15000);
+
   it('empties the bin behind Win95’s confirm', async () => {
     window.localStorage.clear();
     const user = userEvent.setup();
@@ -804,6 +838,10 @@ describe('App component', () => {
     );
     const menu = screen.getByRole('menu');
     expect(within(menu).getByRole('menuitem', { name: 'Open' })).toBeEnabled();
+    // ...but folders never offer Restore: they hold nothing to put back.
+    expect(
+      within(menu).queryByRole('menuitem', { name: 'Restore' }),
+    ).toBeNull();
     fireEvent.click(within(menu).getByRole('menuitem', { name: 'Open' }));
 
     // ...and Start > Documents mirrors it.

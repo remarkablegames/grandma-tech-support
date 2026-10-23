@@ -3,6 +3,7 @@ import type {
   DesktopIconConfig,
   EmailConfig,
   IconWindowConfig,
+  IconWindowId,
   IconWindowRow,
   MissionFileConfig,
   ObjectiveConfig,
@@ -930,13 +931,30 @@ export const CONFIRM_EMPTY_BIN = {
 
 // Right-click on a row inside a list window: Win95 shows the file menu, not
 // the folder menu. `Open` runs the row's own double-click path, greyed out
-// when the row has nothing to open; Delete and Properties share the icon
-// jokes.
-export function rowContextMenu(row: IconWindowRow): ContextMenuItem[] {
+// when the row has nothing to open; inside the Recycle Bin it also carries
+// Win95's `Restore`, right on the deleted file (folders hold nothing to
+// restore); Delete and Properties share the icon jokes.
+export function rowContextMenu(
+  row: IconWindowRow,
+  windowId: IconWindowId,
+): ContextMenuItem[] {
+  const restore: ContextMenuItem[] =
+    windowId === 'recycle' && row.desktopId !== undefined
+      ? [
+          {
+            id: 'row-restore',
+            label: 'Restore',
+            effect: 'restore',
+            desktopId: row.desktopId,
+          },
+        ]
+      : [];
+
   return [
     row.opens === undefined && row.desktopId === undefined
       ? { id: 'row-open', label: 'Open', disabled: true }
       : { id: 'row-open', label: 'Open', action: 'open' },
+    ...restore,
     { id: 'row-sep', separator: true },
     { id: 'row-delete', label: 'Delete', message: JOKES.contextDelete },
     {
