@@ -218,12 +218,15 @@ export function App() {
       : item,
   );
 
-  // Win95 swaps menus: opening one puts the Start menu away.
+  // Win95 swaps menus: opening one puts the Start menu away, and every
+  // right-click popup answers with Win95's own MenuPopup sound event (the
+  // Start menu itself stays quiet — it isn't a right-click menu).
   const openContextMenu = (menu: OpenContextMenu) => {
     if (game.startOpen) {
       game.toggleStart();
     }
 
+    audio.play('menu');
     setContextMenu(menu);
   };
 
@@ -281,6 +284,7 @@ export function App() {
     ]);
 
     iconPositions.emptyBin();
+    audio.play('trash');
 
     if (filesBinned) {
       game.noteDiskMilestone('emptied');

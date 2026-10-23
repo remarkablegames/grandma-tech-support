@@ -3,7 +3,7 @@
 Companion spec to [Grandma Tech Support](./2026-10-18-grandma-tech-support.md):
 how sound works in Rainbows95.
 
-Seven sparse interface sounds — short MP3s from [Kenney's Interface Sounds](https://kenney.nl/assets/interface-sounds)
+Nine sparse interface sounds — short MP3s from [Kenney's Interface Sounds](https://kenney.nl/assets/interface-sounds)
 pack (CC0) — plus a looped background theme (`music/title_theme.mp3`). Joke dialogs
 stay silent; text does the comedy.
 
@@ -11,11 +11,19 @@ stay silent; text does the comedy.
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | --------------------------------------- |
 | Plain button tick — window raise (pointer-down, safe × included), taskbar switch, Start, Start menu items, desktop icon press (keyboard Enter ticks it too), tray speaker, joke-dialog OK, Shut Down `OK`/`Cancel`, Play again | `click`    | `interface_sounds/click.mp3`            |
 | Icon drop lands — on a free cell, into the bin, or into My Documents                                                                                                                                                           | `drop`     | `interface_sounds/drop_002.mp3`         |
+| Right-click menu opens — desktop, icon, row, or folder background; the Start menu stays quiet                                                                                                                                  | `menu`     | `interface_sounds/click_003.mp3`        |
 | Liar “Close” opens extra spam pop-ups                                                                                                                                                                                          | `open`     | `interface_sounds/drop_004.mp3`         |
 | Misleading pop-up button (“Fix now!”, “Buy”, “Claim”)                                                                                                                                                                          | `error`    | `interface_sounds/back_001.mp3`         |
 | Win — email found                                                                                                                                                                                                              | `win`      | `interface_sounds/confirmation_004.mp3` |
+| Recycle Bin emptied for real — the confirm’s Yes deletes its rows                                                                                                                                                              | `trash`    | `interface_sounds/scratch_003.mp3`      |
 | Shut Down confirmed — any screen powering down to black                                                                                                                                                                        | `shutdown` | `interface_sounds/question_004.mp3`     |
 | Return from a black screen — wake or boot line done                                                                                                                                                                            | `startup`  | `interface_sounds/confirmation_001.mp3` |
+
+Win95 named both moments itself: Control Panel > Sounds shipped an “Empty
+Recycle Bin” entry (its own `flush.wav`) and listed `MenuPopup` among the
+standard events. The stock scheme still left menu opens quiet — this table is
+Rainbows95’s own scheme, already richer than stock (the `drop` landing has
+no Win95 event behind it).
 
 The safe little × plays no sound of its own — its pointer-down bubbles to the window’s
 `click` tick.

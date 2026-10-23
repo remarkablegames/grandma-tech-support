@@ -11,7 +11,15 @@ import {
 } from 'src/services/appStorage';
 
 export type SfxName =
-  'click' | 'drop' | 'open' | 'error' | 'win' | 'shutdown' | 'startup';
+  | 'click'
+  | 'drop'
+  | 'menu'
+  | 'open'
+  | 'error'
+  | 'win'
+  | 'trash'
+  | 'shutdown'
+  | 'startup';
 
 interface Player {
   volume: number;
@@ -39,9 +47,11 @@ export interface AudioDeps {
 const SFX_TRACKS: Record<SfxName, string> = {
   click: 'interface_sounds/click.mp3',
   drop: 'interface_sounds/drop_002.mp3',
+  menu: 'interface_sounds/click_003.mp3',
   open: 'interface_sounds/drop_004.mp3',
   error: 'interface_sounds/back_001.mp3',
   win: 'interface_sounds/confirmation_004.mp3',
+  trash: 'interface_sounds/scratch_003.mp3',
   shutdown: 'interface_sounds/question_004.mp3',
   startup: 'interface_sounds/confirmation_001.mp3',
 };

@@ -581,12 +581,16 @@ describe('App component', () => {
     expect(
       screen.getByRole('menu', { name: 'Start menu' }),
     ).toBeInTheDocument();
+    // The Start menu isn't a right-click menu: no MenuPopup event for it.
+    expect(play).not.toHaveBeenCalledWith('menu');
 
     fireEvent.contextMenu(getDesktop(container));
     expect(screen.queryByRole('menu', { name: 'Start menu' })).toBeNull();
     expect(
       screen.getByRole('menu', { name: 'Context menu' }),
     ).toBeInTheDocument();
+    // Every right-click menu answers with Win95's MenuPopup event.
+    expect(play).toHaveBeenCalledWith('menu');
 
     // Escape puts the menu away again.
     fireEvent.keyDown(document, { key: 'Escape' });
@@ -790,6 +794,8 @@ describe('App component', () => {
     );
     // Deleted for real: Sticky Notes does not pop back onto the desktop.
     expect(screen.queryByRole('button', { name: 'Sticky Notes' })).toBeNull();
+    // The real delete answers with Win95's Empty Recycle Bin event.
+    expect(play).toHaveBeenCalledWith('trash');
 
     // With nothing left to empty, the entry greys out Win95 style.
     fireEvent.contextMenu(bin, { clientX: 40, clientY: 120 });

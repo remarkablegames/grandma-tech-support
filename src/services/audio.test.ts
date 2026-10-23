@@ -84,9 +84,11 @@ describe('AudioService', () => {
     const names: SfxName[] = [
       'click',
       'drop',
+      'menu',
       'open',
       'error',
       'win',
+      'trash',
       'shutdown',
       'startup',
     ];
@@ -98,7 +100,7 @@ describe('AudioService', () => {
       advance(100);
     });
 
-    expect(sources).toHaveLength(7);
+    expect(sources).toHaveLength(9);
     for (const src of sources) {
       expect(src.startsWith('interface_sounds/')).toBe(true);
       expect(src.endsWith('.mp3')).toBe(true);
