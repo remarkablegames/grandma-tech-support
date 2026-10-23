@@ -56,9 +56,9 @@ ding) instead, backed by Grandma’s “broken since 2000” redirect line.
   display is a `role="status"` live region so screen readers hear the punchline, and the
   scanner's progress/result area is an `aria-live="polite"` region.
 - **Reset.** `Play again` closes every icon window (minimized or not). The layout
-  otherwise rides out the reset — positions, the bin, and My Documents persist —
-  except `Empty Recycle Bin`'s one-way change: the joke junk rows come back with the
-  rest of the new evening (see [missions](./2026-10-19-missions.md)).
+  otherwise rides out the reset — positions, the bin, and My Documents persist — while
+  the bin's joke junk and everything emptied for real come back with the rest of the
+  new evening (see [missions](./2026-10-19-missions.md)).
 - **Out of scope.** Genuinely working programs — the joke is that these are barely
   functional Win95 programs — plus maximize (the windows are already small) and
   inactive-titlebar graying within the icon stack.

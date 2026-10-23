@@ -75,13 +75,14 @@ const knownIcons = (ids: string[]) =>
     .map((id) => ICON_BY_ID.get(id))
     .filter((icon): icon is DesktopIconConfig => icon !== undefined);
 
-// The disk-full task's culprits are all in the bin once every one of them
-// is; with no active culprits (every other evening) the answer is no.
-const missionFilesBinned = (
+// The disk-full task's culprits are all out of play once every one of
+// them is in the given absent lists (the bin, or emptied for real); with
+// no active culprits (every other evening) the answer is no.
+const missionFilesGone = (
   files: MissionFileConfig[],
-  recycled: string[],
+  absent: string[],
 ): boolean =>
-  files.length > 0 && files.every((file) => recycled.includes(file.id));
+  files.length > 0 && files.every((file) => absent.includes(file.id));
 
 // Win95's folder action: the windows holding restorable shortcuts (the
 // bin, My Documents) all speak its own word for putting one back on the
@@ -143,11 +144,12 @@ export function App() {
     setContextMenu(null);
   };
 
-  // Recycled and filed icons leave the desktop but never the game: the
-  // bin and the folder list them instead.
+  // Recycled, filed, and emptied icons leave the desktop but never the
+  // game: the bin, the folder, and the deleted list remember them instead.
   const concealed = new Set([
     ...iconPositions.recycled,
     ...iconPositions.filed,
+    ...iconPositions.deleted,
   ]);
 
   // What a list window shows of that: the bin's recent victims first
@@ -260,11 +262,15 @@ export function App() {
 
   // Emptying the bin only counts as the disk-full task's beat when the
   // culprits were the ones in there: an empty of the old joke junk alone
-  // frees no space for grandma to point at.
+  // frees no space for grandma to point at. Already-emptied culprits count
+  // as gone, so a half-emptied evening still lands the line.
   const confirmEmptyBin = () => {
     setConfirmingEmpty(false);
 
-    const filesBinned = missionFilesBinned(activeFiles, iconPositions.recycled);
+    const filesBinned = missionFilesGone(activeFiles, [
+      ...iconPositions.recycled,
+      ...iconPositions.deleted,
+    ]);
 
     iconPositions.emptyBin();
 
@@ -274,7 +280,7 @@ export function App() {
   };
 
   // Play again and the restart behind the boot screens reset the evening —
-  // the bin's joke junk rides back along with everything else.
+  // the joke junk and everything emptied for real ride back with it.
   const handlePlayAgain = () => {
     game.playAgain();
     iconPositions.resetBin();
@@ -380,7 +386,8 @@ export function App() {
                         iconPositions.recycleIcon(icon.id);
 
                         // Both culprits in the bin: grandma points at the
-                        // empty step next.
+                        // empty step next. Emptied ones don't count here —
+                        // after the real empty, the bin stays quiet.
                         const binned = [
                           icon.id,
                           ...iconPositions.recycled.filter(
@@ -388,7 +395,7 @@ export function App() {
                           ),
                         ];
 
-                        if (missionFilesBinned(activeFiles, binned)) {
+                        if (missionFilesGone(activeFiles, binned)) {
                           game.noteDiskMilestone('binned');
                         }
 

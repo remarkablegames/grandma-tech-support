@@ -213,8 +213,9 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
   `Properties` entries. The Recycle Bin’s menu adds `Empty Recycle Bin` — live
   whenever the bin holds anything (its joke junk counts), greyed out once it’s
   truly empty — which asks Win95’s `Confirm File Delete` first (`Yes`
-  autofocused, `No` cancels); `Yes` empties the bin for real and sends the
-  joke junk away until the next reset. Browser windows and the taskbar swallow
+  autofocused, `No` cancels); `Yes` empties the bin for real — victims and joke junk
+  alike stay deleted until the next reset, which brings them all back. Browser windows
+  and the taskbar swallow
   the click with
   no replacement menu; the list windows (`My Computer`, `My Documents`,
   `Recycle Bin`) open the same folder menu Win95 gives their backgrounds, and a

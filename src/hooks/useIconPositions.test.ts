@@ -42,6 +42,7 @@ describe('useIconPositions hook', () => {
     // The pre-bin format loads as an untouched desktop.
     expect(result.current.recycled).toEqual([]);
     expect(result.current.filed).toEqual([]);
+    expect(result.current.deleted).toEqual([]);
   });
 
   it('reads back a saved bin and folder', () => {
@@ -78,6 +79,7 @@ describe('useIconPositions hook', () => {
           positions: result.current.positions,
           recycled: [],
           filed: [],
+          deleted: [],
           binEmptied: false,
         },
       });
@@ -117,13 +119,18 @@ describe('useIconPositions hook', () => {
     const stored = () =>
       (
         JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? '{}') as {
-          icons?: { recycled?: string[]; filed?: string[] };
+          icons?: {
+            recycled?: string[];
+            filed?: string[];
+            deleted?: string[];
+          };
         }
       ).icons;
     expect(stored()).toEqual({
       positions: result.current.positions,
       recycled: ['internet'],
       filed: ['notes', 'calculator'],
+      deleted: [],
       binEmptied: false,
     });
 
@@ -139,6 +146,7 @@ describe('useIconPositions hook', () => {
       positions: result.current.positions,
       recycled: [],
       filed: ['calculator'],
+      deleted: [],
       binEmptied: false,
     });
   });
@@ -156,6 +164,9 @@ describe('useIconPositions hook', () => {
       result.current.emptyBin();
     });
     expect(result.current.recycled).toEqual([]);
+    // Emptied means deleted for the evening: off the desktop, not coming
+    // back until the reset.
+    expect(result.current.deleted).toEqual(['notes']);
     expect(result.current.binEmptied).toBe(true);
     expect(result.current.filed).toEqual(['calculator']);
     expect(
@@ -165,17 +176,47 @@ describe('useIconPositions hook', () => {
         positions: result.current.positions,
         recycled: [],
         filed: ['calculator'],
+        deleted: ['notes'],
         binEmptied: true,
       },
     });
 
+    // An id the deleted list already holds never duplicates, however it
+    // got there.
+    act(() => {
+      result.current.recycleIcon('notes');
+      result.current.emptyBin();
+    });
+    expect(result.current.deleted).toEqual(['notes']);
+    expect(result.current.recycled).toEqual([]);
+
     // Play again (and the restart behind the boot screens) puts the joke
-    // junk back in the bin.
+    // junk and the emptied content back.
     act(() => {
       result.current.resetBin();
     });
     expect(result.current.binEmptied).toBe(false);
+    expect(result.current.deleted).toEqual([]);
     expect(result.current.filed).toEqual(['calculator']);
+  });
+
+  it('reads back what was emptied for real, dropping ghosts', () => {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ icons: { deleted: ['internet', 'ghost', 7] } }),
+    );
+
+    const { result } = renderHook(() => useIconPositions());
+
+    // Only ids the current desktop knows stay deleted across a reload.
+    expect(result.current.deleted).toEqual(['internet']);
+
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ icons: { deleted: 'nope' } }),
+    );
+    const junked = renderHook(() => useIconPositions());
+    expect(junked.result.current.deleted).toEqual([]);
   });
 
   it('reads back a bin that has been emptied', () => {
@@ -217,6 +258,7 @@ describe('useIconPositions hook', () => {
       positions: result.current.positions,
       recycled: [],
       filed: [],
+      deleted: [],
       binEmptied: false,
     });
 
@@ -226,6 +268,7 @@ describe('useIconPositions hook', () => {
       positions: result.current.positions,
       recycled: [],
       filed: [],
+      deleted: [],
       binEmptied: false,
     });
     expect(readDoc().audio?.sfx?.volume).toBe(55);

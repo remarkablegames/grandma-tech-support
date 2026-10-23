@@ -11,12 +11,14 @@ export type IconPositions = Record<string, IconCell>;
 
 // The whole persisted desktop: where every icon sits, plus the ones the
 // player has dragged off it — into the Recycle Bin or My Documents. The
-// emptied flag swaps the bin's joke junk away: it returns on Play again or
-// a restart, like everything else the reset puts back.
+// emptied flag swaps the bin's joke junk away, and `deleted` remembers
+// what the bin emptied for real: both come back on Play again or a
+// restart, like everything else the reset puts back.
 export interface IconLayout {
   positions: IconPositions;
   recycled: string[];
   filed: string[];
+  deleted: string[];
   binEmptied: boolean;
 }
 
@@ -30,6 +32,7 @@ const DEFAULT_LAYOUT: IconLayout = {
   positions: DEFAULT_POSITIONS,
   recycled: [],
   filed: [],
+  deleted: [],
   binEmptied: false,
 };
 
@@ -87,6 +90,9 @@ function loadLayout(): IconLayout {
     positions: readPositions(source),
     recycled: readIds(section.recycled),
     filed: readIds(section.filed),
+    // Only the desktop's own icons survive a reload, so a deleted mission
+    // file (which the store never learns) quietly returns with its task.
+    deleted: readIds(section.deleted),
     binEmptied: section.binEmptied === true,
   };
 }
@@ -148,23 +154,36 @@ export function useIconPositions() {
     });
   };
 
-  // Win95's Empty Recycle Bin: the bin's contents — its recent victims and
-  // its old joke junk alike — go away for real. Filed shortcuts belong to
-  // My Documents and stay put.
+  // Win95's Empty Recycle Bin: everything in the bin — recent victims and
+  // old joke junk alike — is deleted for real, parked in `deleted` so it
+  // stays off the desktop until the evening resets. Filed shortcuts belong
+  // to My Documents and stay put.
   const emptyBin = () => {
-    commit({ ...layoutRef.current, recycled: [], binEmptied: true });
+    const current = layoutRef.current;
+
+    commit({
+      ...current,
+      deleted: [
+        ...current.deleted,
+        ...current.recycled.filter((id) => !current.deleted.includes(id)),
+      ],
+      recycled: [],
+      binEmptied: true,
+    });
   };
 
   // Play again (and the restart behind the power screens) puts the joke
-  // junk back in the bin, the way it puts the rest of the evening back.
+  // junk and everything emptied for real back, the way it puts the rest of
+  // the evening back.
   const resetBin = () => {
-    commit({ ...layoutRef.current, binEmptied: false });
+    commit({ ...layoutRef.current, deleted: [], binEmptied: false });
   };
 
   return {
     positions: layout.positions,
     recycled: layout.recycled,
     filed: layout.filed,
+    deleted: layout.deleted,
     binEmptied: layout.binEmptied,
     moveIcon,
     recycleIcon,

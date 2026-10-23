@@ -699,6 +699,12 @@ describe('App component', () => {
 
     const bin = screen.getByRole('button', { name: 'Recycle Bin' });
 
+    // Sticky Notes goes in first, so the empty has real loss to delete.
+    const notes = screen.getByRole('button', { name: 'Sticky Notes' });
+    firePointer(notes, 'pointerdown', { clientX: 40, clientY: 400 });
+    firePointer(window, 'pointermove', { clientX: 40, clientY: 240 });
+    firePointer(window, 'pointerup', {});
+
     // The bin's old joke junk counts as contents: the empty entry is live.
     fireEvent.contextMenu(bin, { clientX: 40, clientY: 120 });
     await user.click(
@@ -723,6 +729,7 @@ describe('App component', () => {
     expect(
       within(binWindow).getByText('toaster_7_install.exe'),
     ).toBeInTheDocument();
+    expect(within(binWindow).getByText('Sticky Notes')).toBeInTheDocument();
 
     // Yes empties it for real: the junk goes too, and the bin shows its
     // empty face again.
@@ -739,9 +746,12 @@ describe('App component', () => {
       ).getByRole('button', { name: 'Yes' }),
     );
     expect(within(binWindow).queryByText('toaster_7_install.exe')).toBeNull();
+    expect(within(binWindow).queryByText('Sticky Notes')).toBeNull();
     expect(bin.querySelector('img')?.getAttribute('src')).toContain(
       'recycle_bin_empty.png',
     );
+    // Deleted for real: Sticky Notes does not pop back onto the desktop.
+    expect(screen.queryByRole('button', { name: 'Sticky Notes' })).toBeNull();
 
     // With nothing left to empty, the entry greys out Win95 style.
     fireEvent.contextMenu(bin, { clientX: 40, clientY: 120 });
@@ -1605,6 +1615,14 @@ describe('App component', () => {
     expect(bin.querySelector('img')?.getAttribute('src')).toContain(
       'recycle_bin_empty.png',
     );
+    // Emptied means deleted: the culprits do not pop back for the rest of
+    // the evening.
+    expect(
+      screen.queryByRole('button', { name: 'toaster_8_install.exe' }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: 'toasters_the_movie.avi' }),
+    ).toBeNull();
 
     // The drive's tidy-up lives in Start > Programs.
     await openFromStart(user, 'Programs');
