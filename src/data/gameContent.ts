@@ -89,7 +89,7 @@ export const JOKES = {
   contextLineUp: 'They’re as lined up as they’re going to get.',
   contextRefresh: 'Refreshed! Nothing was broken, so nothing changed.',
   contextProperties: 'It’s set to “don’t touch”. Same as everything else.',
-  contextDelete: 'You can’t delete that.',
+  contextDelete: 'Task failed successfully.',
   contextIconProperties: 'The main property is that it’s not a toaster.',
   diskFull:
     'Cannot run Toaster Setup: not enough free disk space on Drive C:. (4 bytes free)',
