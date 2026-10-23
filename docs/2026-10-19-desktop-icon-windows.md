@@ -13,7 +13,7 @@ ding) instead, backed by Grandma’s “broken since 2000” redirect line.
 | Icon           | Window contents                                                                                                                                                                                                                                                                          |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `My Computer`  | drive list: `3½ Floppy (A:)` — hint "cupholder", `Hard disk (C:)` — hint "mostly toasters", `CD-ROM (D:)` — hint "1 song", `CD-RW (E:)` — hint "still burning", `Printer (LPT1:)` — hint "jammed", `Network (N:)` — hint "the neighbors’ stuff", `Games (G:)` — hint "Solitaire, mostly" |
-| `Recycle Bin`  | "deleted" files: `untitled_final_v2.doc`, `toaster_7_install.exe`, `do_not_open.jpg`, `final_final_v3.doc`, `totally_not_a_virus.exe` — real victims list above them, and `Empty Recycle Bin` clears both                                                                                |
+| `Recycle Bin`  | starts empty (Win95 style) and lists only the shortcuts the player recycles — every row restorable through the selected-row `Restore`; `Empty Recycle Bin` deletes them for real                                                                                                         |
 | `My Documents` | every file opens its own Notepad window: `untitled`, `untitled (2)`, `untitled (3)`, `asdf`, `the_other_note.txt` (the password), `todo.txt`, `recipe.txt`                                                                                                                               |
 | `Sticky Notes` | the note itself: "THE PASSWORD" — "(it's on the other note)"                                                                                                                                                                                                                             |
 | `Calculator`   | clickable keypad; the display accepts digits, but every `=` shows **42**                                                                                                                                                                                                                 |
@@ -57,8 +57,8 @@ ding) instead, backed by Grandma’s “broken since 2000” redirect line.
   scanner's progress/result area is an `aria-live="polite"` region.
 - **Reset.** `Play again` closes every icon window (minimized or not). The layout
   otherwise rides out the reset — positions, the bin, and My Documents persist — while
-  the bin's joke junk and everything emptied for real come back with the rest of the
-  new evening (see [missions](./2026-10-19-missions.md)).
+  everything emptied for real comes back with the rest of the new evening (see
+  [missions](./2026-10-19-missions.md)).
 - **Out of scope.** Genuinely working programs — the joke is that these are barely
   functional Win95 programs — plus maximize (the windows are already small) and
   inactive-titlebar graying within the icon stack.

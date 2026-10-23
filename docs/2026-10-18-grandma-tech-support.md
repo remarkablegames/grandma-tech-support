@@ -95,8 +95,8 @@ above applies once they're open (virus on top, tempting).
   before the drag even starts), a move past a four-pixel threshold (`SM_CXDRAG`)
   carries the icon, and the drop snaps onto an 80px desktop grid, clamped so it can
   never land off-screen. Drops matter too: letting go over the Recycle Bin recycles
-  the shortcut (the bin graphic fills, its window lists the victim above the old
-  junk, and the Restore toolbar under the title bar puts it back on its old cell
+  the shortcut (the bin graphic fills, its window lists the victim, and the
+  Restore toolbar under the title bar puts it back on its old cell
   once its row is selected), letting go over My Documents files it (the folder
   window and Start > Documents both list it with a `shortcut` hint, double-click
   opens it like the desktop icon it was, and the same selected-row Restore undoes
@@ -213,10 +213,10 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
   joke. An icon opens its own menu: `Open` runs the icon’s double-click path
   (the decoy still raises its MAIL.EXE error) plus joke `Delete` and
   `Properties` entries. The Recycle Bin’s menu adds `Empty Recycle Bin` — live
-  whenever the bin holds anything (its joke junk counts), greyed out once it’s
-  truly empty — which asks Win95’s `Confirm File Delete` first (`Yes`
-  autofocused, `No` cancels); `Yes` empties the bin for real — victims and joke junk
-  alike stay deleted until the next reset, which brings them all back. Browser windows
+  whenever the bin holds anything (it starts empty, Win95 style), greyed out
+  while it sits empty — which asks Win95’s `Confirm File Delete` first (`Yes`
+  autofocused, `No` cancels); `Yes` empties the bin for real — everything in it
+  stays deleted until the next reset, which brings it all back. Browser windows
   and the taskbar swallow
   the click with
   no replacement menu; the list windows (`My Computer`, `My Documents`,

@@ -360,13 +360,9 @@ export const ICON_WINDOWS: IconWindowConfig[] = [
     title: 'Recycle Bin',
     icon: RECYCLE_BIN_ICONS.empty,
     kind: 'list',
-    rows: [
-      { icon: `${ICONS}/text_file.png`, label: 'untitled_final_v2.doc' },
-      { icon: `${ICONS}/program.png`, label: 'toaster_7_install.exe' },
-      { icon: `${ICONS}/image_file.png`, label: 'do_not_open.jpg' },
-      { icon: `${ICONS}/text_file_2.png`, label: 'final_final_v3.doc' },
-      { icon: `${ICONS}/program.png`, label: 'totally_not_a_virus.exe' },
-    ],
+    // Win95's bin starts fresh: the list only ever shows real shortcuts
+    // the player recycled, so every row in it can be restored.
+    rows: [],
   },
   {
     id: 'documents',

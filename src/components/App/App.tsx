@@ -113,10 +113,8 @@ export function App() {
     cells[file.id] ??= file.home;
   }
 
-  // Emptying is live whenever the bin holds anything at all: the old joke
-  // junk counts until it has been emptied for real once.
-  const canEmpty =
-    iconPositions.recycled.length > 0 || !iconPositions.binEmptied;
+  // Win95 greys Empty Recycle Bin until the bin holds anything at all.
+  const canEmpty = iconPositions.recycled.length > 0;
 
   // Open icon windows in raise order, so the active one sits rightmost,
   // closest to the tray — Win95 taskbar style.
@@ -175,12 +173,12 @@ export function App() {
     return [];
   };
 
-  // What a list window shows of its config: the bin's recent victims first,
-  // minus the joke junk once the bin has been emptied for real — and the
-  // evening's reset puts that junk back.
+  // What a list window shows of its config: the bin's recent victims first
+  // (newest on top, Win95 style), then whatever static rows the window
+  // ships — the bin ships none, starting empty like Win95's own.
   const windowRows = (config: ListIconWindow): IconWindowRow[] => [
     ...dynamicRows(config.id),
-    ...(config.id === 'recycle' && iconPositions.binEmptied ? [] : config.rows),
+    ...config.rows,
   ];
 
   // A right-clicked row's Open entry runs the row's own double-click path.
@@ -261,7 +259,7 @@ export function App() {
   };
 
   // Emptying the bin only counts as the disk-full task's beat when the
-  // culprits were the ones in there: an empty of the old joke junk alone
+  // culprits were the ones in there: an empty of some other shortcut alone
   // frees no space for grandma to point at. Already-emptied culprits count
   // as gone, so a half-emptied evening still lands the line.
   const confirmEmptyBin = () => {
@@ -280,7 +278,7 @@ export function App() {
   };
 
   // Play again and the restart behind the boot screens reset the evening —
-  // the joke junk and everything emptied for real ride back with it.
+  // everything emptied for real rides back with it.
   const handlePlayAgain = () => {
     game.playAgain();
     iconPositions.resetBin();

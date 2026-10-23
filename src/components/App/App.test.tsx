@@ -662,13 +662,10 @@ describe('App component', () => {
       'recycle_bin_full.png',
     );
 
-    // The bin window lists the victim above its usual junk...
+    // The bin window lists the victim...
     await user.dblClick(bin);
     const binWindow = screen.getByRole('region', { name: 'Recycle Bin' });
     expect(within(binWindow).getByText('Sticky Notes')).toBeInTheDocument();
-    expect(
-      within(binWindow).getByText('toaster_7_install.exe'),
-    ).toBeInTheDocument();
 
     // ...and Restore stays greyed out until the row is selected.
     const restore = within(binWindow).getByRole('button', { name: 'Restore' });
@@ -691,7 +688,7 @@ describe('App component', () => {
     );
   }, 15000);
 
-  it('empties the bin behind Win95’s confirm, junk included', async () => {
+  it('empties the bin behind Win95’s confirm', async () => {
     window.localStorage.clear();
     const user = userEvent.setup();
     render(<App />);
@@ -699,13 +696,24 @@ describe('App component', () => {
 
     const bin = screen.getByRole('button', { name: 'Recycle Bin' });
 
+    // A fresh evening's bin holds nothing, so the entry starts greyed
+    // Win95 style.
+    fireEvent.contextMenu(bin, { clientX: 40, clientY: 120 });
+    expect(
+      within(screen.getByRole('menu', { name: 'Context menu' })).getByRole(
+        'menuitem',
+        { name: 'Empty Recycle Bin' },
+      ),
+    ).toBeDisabled();
+    await user.keyboard('{Escape}');
+
     // Sticky Notes goes in first, so the empty has real loss to delete.
     const notes = screen.getByRole('button', { name: 'Sticky Notes' });
     firePointer(notes, 'pointerdown', { clientX: 40, clientY: 400 });
     firePointer(window, 'pointermove', { clientX: 40, clientY: 240 });
     firePointer(window, 'pointerup', {});
 
-    // The bin's old joke junk counts as contents: the empty entry is live.
+    // With a real shortcut inside, the empty entry is live.
     fireEvent.contextMenu(bin, { clientX: 40, clientY: 120 });
     await user.click(
       within(screen.getByRole('menu', { name: 'Context menu' })).getByRole(
@@ -714,7 +722,7 @@ describe('App component', () => {
       ),
     );
 
-    // No leaves the joke exactly where it was.
+    // No leaves the shortcut exactly where it was.
     const confirm = screen.getByRole('alertdialog', {
       name: 'Confirm File Delete',
     });
@@ -726,12 +734,9 @@ describe('App component', () => {
 
     await user.dblClick(bin);
     const binWindow = screen.getByRole('region', { name: 'Recycle Bin' });
-    expect(
-      within(binWindow).getByText('toaster_7_install.exe'),
-    ).toBeInTheDocument();
     expect(within(binWindow).getByText('Sticky Notes')).toBeInTheDocument();
 
-    // Yes empties it for real: the junk goes too, and the bin shows its
+    // Yes empties it for real: the victim goes too, and the bin shows its
     // empty face again.
     fireEvent.contextMenu(bin, { clientX: 40, clientY: 120 });
     await user.click(
@@ -745,7 +750,6 @@ describe('App component', () => {
         screen.getByRole('alertdialog', { name: 'Confirm File Delete' }),
       ).getByRole('button', { name: 'Yes' }),
     );
-    expect(within(binWindow).queryByText('toaster_7_install.exe')).toBeNull();
     expect(within(binWindow).queryByText('Sticky Notes')).toBeNull();
     expect(bin.querySelector('img')?.getAttribute('src')).toContain(
       'recycle_bin_empty.png',
@@ -1697,16 +1701,18 @@ describe('App component', () => {
     ).toHaveLength(0);
     expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
 
-    // The culprits stay in the past; the bin's joke junk came back.
+    // The culprits stay in the past, and the emptied bin starts the next
+    // evening with nothing in it to restore.
     expect(
       screen.queryByRole('button', { name: 'toaster_8_install.exe' }),
     ).toBeNull();
     await user.dblClick(screen.getByRole('button', { name: 'Recycle Bin' }));
     expect(
-      within(screen.getByRole('region', { name: 'Recycle Bin' })).getByText(
-        'toaster_7_install.exe',
+      within(screen.getByRole('region', { name: 'Recycle Bin' })).getByRole(
+        'button',
+        { name: 'Restore' },
       ),
-    ).toBeInTheDocument();
+    ).toBeDisabled();
   }, 90000);
 
   it('opens the task manager from the three-key chord where the browser delivers it', async () => {
