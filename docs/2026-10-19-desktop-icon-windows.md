@@ -60,5 +60,8 @@ ding) instead, backed by Grandma’s “broken since 2000” redirect line.
   everything emptied for real comes back with the rest of the new evening (see
   [missions](./2026-10-19-missions.md)).
 - **Out of scope.** Genuinely working programs — the joke is that these are barely
-  functional Win95 programs — plus maximize (the windows are already small) and
-  inactive-titlebar graying within the icon stack.
+  functional Win95 programs — plus maximize (the windows are already small),
+  inactive-titlebar graying within the icon stack, and bulk restore — no `Restore All`
+  button (Win95's classic bin restored the selected items through its File/context-menu
+  `Restore`; the all-items button arrived with later Windows) and no multi-select: the
+  five deletable icons never make select-then-`Restore` tedious.
