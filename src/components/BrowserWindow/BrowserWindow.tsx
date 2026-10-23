@@ -64,8 +64,11 @@ export function BrowserWindow({
       style={
         maximized ? { zIndex } : { left: position.x, top: position.y, zIndex }
       }
-      onPointerDown={() => {
-        audio.play('click');
+      onPointerDown={(event) => {
+        // Only the left button ticks, Win95 style.
+        if (event.button === 0) {
+          audio.play('click');
+        }
 
         if (frozen) {
           onFrozenClick();

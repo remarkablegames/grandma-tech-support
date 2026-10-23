@@ -384,8 +384,12 @@ export function IconWindow({
       aria-label={config.title}
       className="bg-win-face win-outset absolute w-[min(86vw,260px)] p-[3px]"
       style={{ left: position.x, top: position.y, zIndex }}
-      onPointerDown={() => {
-        audio.play('click');
+      onPointerDown={(event) => {
+        // Only the left button ticks, Win95 style: a right-press still
+        // raises the window, and its moment is the menu below.
+        if (event.button === 0) {
+          audio.play('click');
+        }
         onFocus();
       }}
       onContextMenu={(event) => {

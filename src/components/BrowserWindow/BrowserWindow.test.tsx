@@ -106,6 +106,16 @@ describe('BrowserWindow component', () => {
     expect(play).toHaveBeenCalledWith('click');
   });
 
+  it('raises on a right-press without a click tick', () => {
+    renderWindow(false);
+
+    firePointer(screen.getByText('http://example.test/page'), 'pointerdown', {
+      button: 2,
+    });
+    expect(onFocus).toHaveBeenCalledWith('inbox');
+    expect(play).not.toHaveBeenCalledWith('click');
+  });
+
   it('closes for real from the title bar', async () => {
     const user = userEvent.setup();
     renderWindow(true);

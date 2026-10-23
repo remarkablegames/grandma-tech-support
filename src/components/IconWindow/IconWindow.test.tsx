@@ -337,6 +337,19 @@ describe('IconWindow component', () => {
     expect(play).toHaveBeenCalledWith('click');
   });
 
+  it('raises on a right-press without a click tick', () => {
+    renderIconWindow();
+
+    firePointer(
+      screen.getByRole('region', { name: 'My Computer' }),
+      'pointerdown',
+      { button: 2 },
+    );
+
+    expect(onFocus).toHaveBeenCalledTimes(1);
+    expect(play).not.toHaveBeenCalledWith('click');
+  });
+
   it('drags by the title bar, clamped to the viewport', () => {
     renderIconWindow();
 
