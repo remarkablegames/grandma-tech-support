@@ -20,7 +20,7 @@ the way Win95 leaves it):
 
 The joke lives outside the dialog: picking the menu item puts grandma's protest
 
-> Don’t shut it down! I’m expecting an email.
+> Don’t shut it down! There’s an unfinished task.
 
 in her speech bubble (`role="status"`), so the dialog itself stays authentically
 boring. `Cancel` closes the dialog while the protest stays up, and clicking the bubble

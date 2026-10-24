@@ -88,7 +88,7 @@ describe('AudioService', () => {
       'open',
       'error',
       'win',
-      'trash',
+      'delete',
       'shutdown',
       'startup',
     ];

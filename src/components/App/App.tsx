@@ -7,6 +7,7 @@ import {
   DESKTOP_ICONS,
   ICON_WINDOWS,
   iconContextMenu,
+  inboxTitle,
   MISSION_FILES,
   OBJECTIVES,
   RECYCLE_BIN_ICONS,
@@ -143,7 +144,14 @@ export function App() {
     }));
 
   // Closed browser windows show up nowhere: no frame, no taskbar button.
-  const openWindows = WINDOW_META.filter((meta) => game.open[meta.id]);
+  // The inbox's title counts its mail live, so the frame and the taskbar
+  // button stay in step as junk breeds and gets deleted.
+  const openWindows = WINDOW_META.filter((meta) => game.open[meta.id]).map(
+    (meta) =>
+      meta.id === 'inbox'
+        ? { ...meta, title: inboxTitle(game.emails.length) }
+        : meta,
+  );
 
   const [contextMenu, setContextMenu] = useState<OpenContextMenu | null>(null);
   // The menu's delete dialog: the ask Win95's Yes/No pair answers, held
@@ -351,7 +359,7 @@ export function App() {
       // belongs to the empty, which anything still in the bin can always
       // play later. This one file just goes for the evening.
       iconPositions.purgeIcon(pending.id);
-      audio.play('trash');
+      audio.play('delete');
       return;
     }
 
@@ -366,7 +374,7 @@ export function App() {
     ]);
 
     iconPositions.emptyBin();
-    audio.play('trash');
+    audio.play('delete');
 
     if (filesBinned) {
       game.noteDiskMilestone('emptied');
@@ -524,7 +532,7 @@ export function App() {
                 onMove={game.moveWindow}
                 onMinimize={game.minimize}
                 onToggleMaximize={game.toggleMaximize}
-                onClose={game.closeWindow}
+                onClose={game.closeViaChrome}
                 onJoke={game.showJoke}
                 onFrozenClick={game.reactFrozen}
               >
@@ -534,9 +542,12 @@ export function App() {
                 {meta.id === 'inbox' && (
                   <InboxWindow
                     loggedIn={game.loggedIn}
+                    emails={game.emails}
+                    selectedEmail={game.selectedEmail}
                     onLogin={game.login}
-                    onJoke={game.showJoke}
-                    onOpenEmail={game.openEmail}
+                    onSelect={game.selectEmail}
+                    onOpen={game.openInboxEmail}
+                    onDelete={game.deleteEmail}
                   />
                 )}
                 {meta.id === 'virus' && <VirusWindow onJoke={game.showJoke} />}

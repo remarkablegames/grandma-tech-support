@@ -53,19 +53,17 @@ export const JOKES = {
   goBack: 'There’s nowhere to go back to. The internet only goes forward.',
   goForward: 'Forward is where the popups live.',
   emailDog: 'Attached: the dog. Also attached: the same dog again.',
-  emailUpdate: 'That’s the update that broke the internet in year 2000.',
+  emailUpdate: 'That’s the update that broke the internet.',
   emailPrize: 'You’ve been selected for a free toaster!',
   emailWire:
-    'That’s not your grandson, dear. Your grandson can’t spell “wire”.',
+    'That’s not your grandson, dear. Your grandson isn’t a “Nigerian prince”.',
   emailChain:
     'Forward this message or your free trial of the internet expires.',
-  emailHoroscope: 'It predicted a toaster. The stars are finally aligned.',
+  emailHoroscope: 'Hot things await!',
   emailVitamins:
     'One weird trick: Get your vitamins from a popup. Doctors really do hate this one.',
-  emailTrial:
-    'Your trial expired in 1995. It looks like they’re still waiting on the payment.',
-  emailCart:
-    'Your cart has one thing in it. It’s been that one thing for years.',
+  emailTrial: 'Your trial expired in 1995. Please mail us a check.',
+  emailCart: 'Your cart has one product in it for years.',
   mailError:
     'Cannot find the file “MAIL.EXE” (or one of its components). Make sure the path and filename are correct and that all required libraries are available.',
   buyBlocked: 'The page is buried in popups. Close them all first.',
@@ -92,6 +90,9 @@ export const JOKES = {
   contextProperties: 'It’s set to “don’t touch”. Same as everything else.',
   contextDelete: 'Task failed successfully.',
   contextIconProperties: 'The main property is that it’s not a toaster.',
+  closeSticks: 'Nice try, dear! That page doesn’t close.',
+  inboxProtected: 'Not that one, dear! That’s the one from your grandkids.',
+  emailAlreadyRead: 'I’ve read that one twice already, dear. Leave it be.',
   diskFull:
     'Cannot run Toaster Setup: not enough free disk space on Drive C:. (4 bytes free)',
   defragStopped:
@@ -104,18 +105,18 @@ export const JOKES = {
 
 export const GRANDMA_LINES = {
   intro:
-    'I need to check my email, dear. It should be in the Start menu. I wrote my password in a note somewhere.',
+    'I need to check my email, dear. I wrote my password in a note somewhere.',
   correctClose:
     'That’s it! The little X in the corner. Never trust a big button.',
   mailDecoy:
     'That one’s been broken since 2000. Your email’s in the internet thing.',
-  shutDown: 'Don’t shut it down! I’m expecting an email.',
+  inboxFull: 'That’s all the junk the inbox can hold, dear. Delete some!',
+  shutDown: 'Don’t shut it down! There’s an unfinished task.',
   powerBack: 'It’s back! Did anything happen while it was dark?',
   frozen: 'It’s not responding! Try quitting it with the Task Manager.',
-  win: 'You did it, my dear! You found my email, and you didn’t fall for the toaster. Tell your grandfather the computer stays with me.',
+  win: 'You did it, my dear! You found my email and didn’t fall for the spam.',
   wrongPassword: 'Incorrect password.',
-  saved:
-    'You saved it, my dear! The computer stays with me. Tell your grandfather it was a close call.',
+  saved: 'You saved it, my dear! Tell your grandfather it was a close call.',
   diskFullInstruction:
     'The drive is full! There are some big files on the desktop. We’ll need to delete them.',
   diskBinned: 'Still no space. Should we empty the bin?',
@@ -144,44 +145,52 @@ export const UPDATE_MESSAGES: Record<UpdateStage, string> = {
 // The password the mail log-on form expects — it lives on the other note.
 export const MAIL_PASSWORD = 'password';
 
-// The seven-task mission chain. Each entry completes on its event; when the
+// The eight-task mission chain. Each entry completes on its event; when the
 // next task starts, its instruction becomes grandma's line, its `open`
 // windows spring up, and its `spawn` popups land on top of those.
 export const OBJECTIVES: ObjectiveConfig[] = [
   {
     instruction: GRANDMA_LINES.intro,
-    doneTitle: 'Task 1 of 7 complete',
-    doneMessage:
-      'That’s it, dear! I’m in. Now find the real email, not the ones offering you toasters.',
+    doneTitle: 'Task 1 of 8 complete',
+    doneMessage: 'I’m in, dear! Now find the real email, not the spam ones.',
     icon: `${ICONS}/sticky_note.png`,
     completesOn: 'logged-in',
   },
   {
     instruction:
-      'That’s my mail popping open, dear! Find the one from the grandkids. The toaster ones are nonsense.',
-    doneTitle: 'Task 2 of 7 complete',
+      'That’s my mail popping open, dear! Double-click the one from the grandkids. The toaster ones are nonsense.',
+    doneTitle: 'Task 2 of 8 complete',
     doneMessage: GRANDMA_LINES.win,
     icon: `${ICONS}/mail.png`,
     completesOn: 'email-opened',
-    open: ['shopping', 'virus', 'inbox'],
-    spawn: [
-      { windowId: 'shopping', popupId: 'deal', count: 1 },
-      { windowId: 'shopping', popupId: 'spam', count: 2 },
-      { windowId: 'inbox', popupId: 'full', count: 1 },
-    ],
+    open: ['inbox'],
+    spawn: [{ windowId: 'inbox', popupId: 'full', count: 1 }],
   },
   {
     instruction:
-      'Would you order me a toaster, dear? The burning shopping page.',
-    doneTitle: 'Task 3 of 7 complete',
-    doneMessage:
-      'Ordered! ...though I may have clicked something while we waited, dear.',
-    icon: `${ICONS}/world.png`,
-    completesOn: 'order-placed',
+      'Junk mail keeps piling up in my inbox! Delete them for me, please.',
+    doneTitle: 'Task 3 of 8 complete',
+    doneMessage: 'Spotless! Now, about that toaster...',
+    icon: `${ICONS}/mail.png`,
+    completesOn: 'inbox-cleared',
+    open: ['inbox'],
+    clearPopups: true,
+    inboxTopUp: 3,
   },
   {
-    instruction: 'It’s auto-updating! When it gives up, click Restart now.',
-    doneTitle: 'Task 4 of 7 complete',
+    instruction:
+      'Would you order me a toaster, dear? The burning shopping page. And don’t try to close it, it just comes back!',
+    doneTitle: 'Task 4 of 8 complete',
+    doneMessage:
+      'Ordered! Although I may have clicked something while we waited, dear.',
+    icon: `${ICONS}/world.png`,
+    completesOn: 'order-placed',
+    open: ['shopping'],
+    clingy: ['shopping'],
+  },
+  {
+    instruction: 'It’s auto-updating! Cancel it if it’s stuck.',
+    doneTitle: 'Task 5 of 8 complete',
     doneMessage: 'New and improved! Although the toaster page broke.',
     icon: `${ICONS}/tools.png`,
     completesOn: 'update-rebooted',
@@ -190,7 +199,7 @@ export const OBJECTIVES: ObjectiveConfig[] = [
   {
     instruction:
       'The bargain page stopped responding! Use the Task Manager to end it.',
-    doneTitle: 'Task 5 of 7 complete',
+    doneTitle: 'Task 6 of 8 complete',
     doneMessage:
       'It stopped yelping! And I may have clicked one little thing while you were in there.',
     icon: `${ICONS}/program.png`,
@@ -200,10 +209,10 @@ export const OBJECTIVES: ObjectiveConfig[] = [
   },
   {
     instruction:
-      'The whole screen is yelling, dear! Don’t touch the urgent ones. Use the shield program on the desktop!',
-    doneTitle: 'Task 6 of 7 complete',
+      'The whole screen is yelling, dear! Don’t touch the urgent ones. Use the shield program to fix it.',
+    doneTitle: 'Task 7 of 8 complete',
     doneMessage:
-      'The popups are gone! Although I may have clicked one more Install button while you were in there.',
+      'The popups are gone! But I may have accidentally installed something in the meantime.',
     icon: `${ICONS}/password_manager.png`,
     completesOn: 'scan-complete',
     spawn: [
@@ -243,12 +252,139 @@ export const MISSION_FILES: MissionFileConfig[] = [
   },
 ];
 
-// The first toaster click of task 3 unleashes this storm; the windows spring
-// back open in this order, so the sale page ends up on top of the pile.
+// The first toaster click of task 4 unleashes this storm on the sale page
+// alone — the deal popup plus three spam, still under the five-popup cap —
+// and the page refuses to close for the first two tries.
 export const BUY_STORM: PopupSpawn[] = [
-  { windowId: 'virus', popupId: 'spam', count: 3 },
-  { windowId: 'inbox', popupId: 'spam', count: 3 },
+  { windowId: 'shopping', popupId: 'deal', count: 1 },
   { windowId: 'shopping', popupId: 'spam', count: 3 },
+];
+
+// The inbox's window title counts its mail, live: the frame and the taskbar
+// button both tick down as junk is deleted and back up as it breeds.
+export const inboxTitle = (count: number): string =>
+  `✉ Inbox (${String(count)}) — Grandma’s Mail`;
+
+// The real email hides mid-list, between the joke decoys.
+export const EMAILS: EmailConfig[] = [
+  {
+    id: 'dog',
+    from: 'Your Grandson',
+    subject: 'FW: FW: photos of the dog',
+    date: 'Mon',
+    target: false,
+    joke: JOKES.emailDog,
+  },
+  {
+    id: 'chain',
+    from: 'Your Sister-in-Law',
+    subject: 'FW: FW: FW: (no subject)',
+    date: 'Mon',
+    target: false,
+    joke: JOKES.emailChain,
+  },
+  {
+    id: 'update',
+    from: 'Windows Update',
+    subject: 'Important!!',
+    date: 'Tue',
+    target: false,
+    joke: JOKES.emailUpdate,
+  },
+  {
+    id: 'horoscope',
+    from: 'Daily Horoscope',
+    subject: 'Scorpio: your week is toasty',
+    date: 'Tue',
+    target: false,
+    joke: JOKES.emailHoroscope,
+  },
+  {
+    id: 'prize',
+    from: 'PRIZE DEPARTMENT',
+    subject: 'FINAL NOTICE: your toaster awaits',
+    date: 'Today',
+    target: false,
+    joke: JOKES.emailPrize,
+  },
+  {
+    id: 'vitamins',
+    from: 'TOTAL HEALTH',
+    subject: 'Doctors hate this one weird trick',
+    date: 'Wed',
+    target: false,
+    joke: JOKES.emailVitamins,
+  },
+  {
+    id: 'trial',
+    from: 'Rainbows95',
+    subject: 'Your free trial has expired',
+    date: 'Today',
+    target: false,
+    joke: JOKES.emailTrial,
+  },
+  {
+    id: 'cart',
+    from: 'Best Deals',
+    subject: 'RE: RE: your cart (1,000 toasters)',
+    date: 'Today',
+    target: false,
+    joke: JOKES.emailCart,
+  },
+  {
+    id: 'wire',
+    from: 'Your Grandson (?)',
+    subject: 'URGENT: grandma send $500',
+    date: 'Today',
+    target: false,
+    joke: JOKES.emailWire,
+  },
+  {
+    id: 'joke',
+    from: 'The Grandkids',
+    subject: 'RE: RE: RE: Fwd: funny picture',
+    date: 'Today',
+    target: true,
+  },
+];
+
+// The junk that breeds: opening any decoy pushes two more of these onto
+// the bottom of the inbox, hard-capped so a curious player can't make the
+// list unfinishable. Four is the ceiling for the whole evening.
+export const MAX_ADDED_JUNK = 4;
+export const JUNK_EMAILS: EmailConfig[] = [
+  {
+    id: 'junk-1',
+    from: 'TOASTER DEPT',
+    subject: 'FW: FW: your FREE toaster (again)',
+    date: 'Today',
+    target: false,
+    joke: JOKES.emailPrize,
+  },
+  {
+    id: 'junk-2',
+    from: 'Rainbows95',
+    subject: 'Your free toaster trial has expired',
+    date: 'Today',
+    target: false,
+    joke: JOKES.emailTrial,
+  },
+  {
+    id: 'junk-3',
+    from: 'Best Deals',
+    subject: 'RE: RE: your cart (19 toasters)',
+    date: 'Today',
+    target: false,
+    joke: JOKES.emailCart,
+  },
+  {
+    id: 'junk-4',
+    from: 'Your Grandson (?)',
+    subject: 'URGENT: grandma send toasters',
+    date: 'Today',
+    target: false,
+    joke: JOKES.emailWire,
+  },
 ];
 
 export const WINDOW_META: WindowMeta[] = [
@@ -260,7 +396,7 @@ export const WINDOW_META: WindowMeta[] = [
   },
   {
     id: 'inbox',
-    title: '✉ Inbox (12) — Grandma’s Mail',
+    title: inboxTitle(EMAILS.length),
     icon: `${ICONS}/mail.png`,
     url: 'http://mail.grandma.com/inbox',
   },
@@ -543,89 +679,6 @@ export const DESKTOP_ICONS: DesktopIconConfig[] = [
     label: 'The Internet',
     icon: `${ICONS}/world.png`,
     browserWindowId: 'shopping',
-  },
-];
-
-// The real email hides mid-list, between the joke decoys.
-export const EMAILS: EmailConfig[] = [
-  {
-    id: 'dog',
-    from: 'Your Grandson',
-    subject: 'FW: FW: photos of the dog',
-    date: 'Mon',
-    target: false,
-    joke: JOKES.emailDog,
-  },
-  {
-    id: 'chain',
-    from: 'Your Sister-in-Law',
-    subject: 'FW: FW: FW: (no subject)',
-    date: 'Mon',
-    target: false,
-    joke: JOKES.emailChain,
-  },
-  {
-    id: 'joke',
-    from: 'The Grandkids',
-    subject: 'RE: RE: RE: Fwd: the joke',
-    date: 'Today',
-    target: true,
-  },
-  {
-    id: 'update',
-    from: 'Windows Update',
-    subject: 'Important!!',
-    date: 'Tue',
-    target: false,
-    joke: JOKES.emailUpdate,
-  },
-  {
-    id: 'horoscope',
-    from: 'Daily Horoscope',
-    subject: 'Scorpio: your week is toasty',
-    date: 'Tue',
-    target: false,
-    joke: JOKES.emailHoroscope,
-  },
-  {
-    id: 'prize',
-    from: 'PRIZE DEPARTMENT',
-    subject: 'FINAL NOTICE: your toaster awaits',
-    date: 'Today',
-    target: false,
-    joke: JOKES.emailPrize,
-  },
-  {
-    id: 'vitamins',
-    from: 'TOTAL HEALTH',
-    subject: 'Doctors hate this one weird trick',
-    date: 'Wed',
-    target: false,
-    joke: JOKES.emailVitamins,
-  },
-  {
-    id: 'trial',
-    from: 'Rainbows95',
-    subject: 'Your free trial has expired',
-    date: 'Today',
-    target: false,
-    joke: JOKES.emailTrial,
-  },
-  {
-    id: 'cart',
-    from: 'Best Deals',
-    subject: 'RE: RE: your cart (1,000 toasters)',
-    date: 'Today',
-    target: false,
-    joke: JOKES.emailCart,
-  },
-  {
-    id: 'wire',
-    from: 'Your Grandson (?)',
-    subject: 'URGENT: grandma send $500',
-    date: 'Today',
-    target: false,
-    joke: JOKES.emailWire,
   },
 ];
 

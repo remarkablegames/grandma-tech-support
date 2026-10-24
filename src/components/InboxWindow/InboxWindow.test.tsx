@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { GRANDMA_LINES, JOKES } from 'src/data/gameContent';
+import { EMAILS, GRANDMA_LINES, JOKES } from 'src/data/gameContent';
 
 import { InboxWindow } from '.';
 
@@ -14,17 +14,25 @@ vi.mock('src/services/audio', () => ({
   },
 }));
 
-const onJoke = vi.fn();
-const onOpenEmail = vi.fn();
 const onLogin = vi.fn(() => true);
+const onSelect = vi.fn();
+const onOpen = vi.fn();
+const onDelete = vi.fn();
 
-function renderInbox(loggedIn: boolean) {
+function renderInbox(
+  loggedIn: boolean,
+  emails: typeof EMAILS = EMAILS,
+  selectedEmail: string | null = null,
+) {
   return render(
     <InboxWindow
       loggedIn={loggedIn}
+      emails={emails}
+      selectedEmail={selectedEmail}
       onLogin={onLogin}
-      onJoke={onJoke}
-      onOpenEmail={onOpenEmail}
+      onSelect={onSelect}
+      onOpen={onOpen}
+      onDelete={onDelete}
     />,
   );
 }
@@ -99,46 +107,95 @@ describe('InboxWindow component', () => {
     ).toBeInTheDocument();
   });
 
-  it('opens the target email', async () => {
+  it('selects a row on a single click and opens it on a double click', async () => {
     const user = userEvent.setup();
     renderInbox(true);
 
-    await user.click(screen.getByRole('button', { name: /The Grandkids/ }));
-    expect(onOpenEmail).toHaveBeenCalledTimes(1);
-    expect(onJoke).not.toHaveBeenCalled();
+    const row = screen.getByRole('button', { name: /photos of the dog/ });
+    await user.click(row);
+    expect(onSelect).toHaveBeenLastCalledWith('dog');
+    expect(onOpen).not.toHaveBeenCalled();
+
+    await user.dblClick(row);
+    expect(onOpen).toHaveBeenCalled();
+    expect(onOpen.mock.calls.at(-1)?.[0]).toMatchObject({ id: 'dog' });
   });
 
-  it('jokes about the decoy emails instead', async () => {
+  it('opens the target email on a double click', async () => {
     const user = userEvent.setup();
     renderInbox(true);
 
-    await user.click(screen.getByRole('button', { name: /photos of the dog/ }));
-    expect(onJoke).toHaveBeenLastCalledWith(JOKES.emailDog);
+    await user.dblClick(screen.getByRole('button', { name: /The Grandkids/ }));
+    expect(onOpen).toHaveBeenCalled();
+    expect(onOpen.mock.calls.at(-1)?.[0]).toMatchObject({ id: 'joke' });
+  });
 
-    await user.click(screen.getByRole('button', { name: /Important!!/ }));
-    expect(onJoke).toHaveBeenLastCalledWith(JOKES.emailUpdate);
+  it('jokes about the decoy emails when they are opened', async () => {
+    const user = userEvent.setup();
+    renderInbox(true);
 
-    await user.click(screen.getByRole('button', { name: /toaster awaits/ }));
-    expect(onJoke).toHaveBeenLastCalledWith(JOKES.emailPrize);
+    const cases = [
+      { name: /photos of the dog/, id: 'dog', joke: JOKES.emailDog },
+      { name: /Important!!/, id: 'update', joke: JOKES.emailUpdate },
+      { name: /toaster awaits/, id: 'prize', joke: JOKES.emailPrize },
+      { name: /send \$500/, id: 'wire', joke: JOKES.emailWire },
+      { name: /FW: FW: FW:/, id: 'chain', joke: JOKES.emailChain },
+      { name: /Scorpio/, id: 'horoscope', joke: JOKES.emailHoroscope },
+      { name: /weird trick/, id: 'vitamins', joke: JOKES.emailVitamins },
+      { name: /free trial/, id: 'trial', joke: JOKES.emailTrial },
+      { name: /1,000 toasters/, id: 'cart', joke: JOKES.emailCart },
+    ];
 
-    await user.click(screen.getByRole('button', { name: /send \$500/ }));
-    expect(onJoke).toHaveBeenLastCalledWith(JOKES.emailWire);
+    for (const entry of cases) {
+      await user.dblClick(screen.getByRole('button', { name: entry.name }));
+      expect(onOpen.mock.calls.at(-1)?.[0]).toMatchObject({ id: entry.id });
+    }
+  });
 
-    await user.click(screen.getByRole('button', { name: /FW: FW: FW:/ }));
-    expect(onJoke).toHaveBeenLastCalledWith(JOKES.emailChain);
+  it('marks the selected row and disables Delete without a selection', () => {
+    renderInbox(true, EMAILS, null);
 
-    await user.click(screen.getByRole('button', { name: /Scorpio/ }));
-    expect(onJoke).toHaveBeenLastCalledWith(JOKES.emailHoroscope);
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled();
+  });
 
-    await user.click(screen.getByRole('button', { name: /weird trick/ }));
-    expect(onJoke).toHaveBeenLastCalledWith(JOKES.emailVitamins);
+  it('enables Delete for a selected row and deletes it', async () => {
+    const user = userEvent.setup();
+    renderInbox(true, EMAILS, 'dog');
 
-    await user.click(screen.getByRole('button', { name: /free trial/ }));
-    expect(onJoke).toHaveBeenLastCalledWith(JOKES.emailTrial);
+    const deleteButton = screen.getByRole('button', { name: 'Delete' });
+    expect(deleteButton).not.toBeDisabled();
 
-    await user.click(screen.getByRole('button', { name: /1,000 toasters/ }));
-    expect(onJoke).toHaveBeenLastCalledWith(JOKES.emailCart);
+    await user.click(deleteButton);
+    expect(onDelete).toHaveBeenCalledWith('dog');
+  });
 
-    expect(onOpenEmail).not.toHaveBeenCalled();
+  it('deletes the focused row with the Delete key', async () => {
+    const user = userEvent.setup();
+    renderInbox(true, EMAILS, 'dog');
+
+    const row = screen.getByRole('button', { name: /photos of the dog/ });
+    row.focus();
+    await user.keyboard('{Delete}');
+
+    expect(onDelete).toHaveBeenCalledWith('dog');
+  });
+
+  it('ignores other keys on a focused row', async () => {
+    const user = userEvent.setup();
+    renderInbox(true, EMAILS, 'dog');
+
+    const row = screen.getByRole('button', { name: /photos of the dog/ });
+    row.focus();
+    await user.keyboard('x');
+
+    expect(onDelete).not.toHaveBeenCalled();
+  });
+
+  it('reflects the selected row in aria-pressed', () => {
+    renderInbox(true, EMAILS, 'dog');
+
+    expect(
+      screen.getByRole('button', { name: /photos of the dog/ }),
+    ).toHaveAttribute('aria-pressed', 'true');
   });
 });

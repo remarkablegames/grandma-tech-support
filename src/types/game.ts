@@ -6,6 +6,7 @@ export type GamePhase = 'playing' | 'taskDone' | 'won';
 export type ObjectiveEvent =
   | 'logged-in'
   | 'email-opened'
+  | 'inbox-cleared'
   | 'order-placed'
   | 'update-rebooted'
   | 'frozen-ended'
@@ -147,6 +148,16 @@ export interface ObjectiveConfig {
   lowDisk?: boolean;
   // Windows that spring open frozen — dead to every input until End Task.
   freeze?: WindowId[];
+  // Windows that spring open (or back open) when this task starts.
+  // The inbox-cleanout task clears any pop-ups left from earlier tasks first,
+  // so the mail list starts readable.
+  clearPopups?: boolean;
+  // The inbox-cleanout task tops the junk back up to at least this many
+  // rows at task start, so a player who swept early still has work to do.
+  inboxTopUp?: number;
+  // The ad window that refuses to close for the first few tries, landing a
+  // fresh pop-up each time — the way adware pages did.
+  clingy?: WindowId[];
 }
 
 export interface PopupButtonConfig {

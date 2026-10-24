@@ -3,9 +3,8 @@
 Companion spec to [Grandma Tech Support](./2026-10-18-grandma-tech-support.md):
 how sound works in Rainbows95.
 
-Nine sparse interface sounds — short MP3s from [Kenney's Interface Sounds](https://kenney.nl/assets/interface-sounds)
-pack (CC0) — plus a looped background theme (`music/title_theme.mp3`). Joke dialogs
-stay silent; text does the comedy.
+9 interface sounds — MP3s from [Kenney's Interface Sounds](https://kenney.nl/assets/interface-sounds)
+pack (CC0) — plus a looped background theme (`music/title_theme.mp3`).
 
 | Event                                                                                                                                                                                                                               | SFX key    | File                                    |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | --------------------------------------- |
@@ -15,7 +14,7 @@ stay silent; text does the comedy.
 | Liar “Close” opens extra spam pop-ups                                                                                                                                                                                               | `open`     | `interface_sounds/drop_004.mp3`         |
 | Misleading pop-up button (“Fix now!”, “Buy”, “Claim”)                                                                                                                                                                               | `error`    | `interface_sounds/back_001.mp3`         |
 | Win — email found                                                                                                                                                                                                                   | `win`      | `interface_sounds/confirmation_004.mp3` |
-| Recycle Bin loses for real — the empty’s confirm Yes, or one bin row’s `Delete`                                                                                                                                                     | `trash`    | `interface_sounds/scratch_003.mp3`      |
+| Recycle Bin or junk email from Inbox deleted                                                                                                                                                                                        | `delete`   | `interface_sounds/scratch_003.mp3`      |
 | Shut Down confirmed — any screen powering down to black                                                                                                                                                                             | `shutdown` | `interface_sounds/question_004.mp3`     |
 | Return from a black screen — wake or boot line done                                                                                                                                                                                 | `startup`  | `interface_sounds/confirmation_001.mp3` |
 

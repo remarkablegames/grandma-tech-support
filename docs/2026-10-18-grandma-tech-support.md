@@ -4,17 +4,17 @@
 
 A short, funny browser game about being Grandma’s tech support. The player lands on a
 playful, **fictional** Windows 95-style desktop (an homage, not a copy of a real OS) and
-works through a chain of seven silly tasks (log in, find the email, order a toaster, sit
+works through a chain of eight silly tasks (log in, find the email, clear the junk, order a toaster, sit
 through a botched update, end-task a frozen page, defuse a pop-up storm, rescue a full
 drive) while dodging fake warnings and misleading buttons.
 
 - **Genre:** comedy point-and-click / puzzle vignette
-- **Session length:** 10–13 minutes for the full seven-task chain
+- **Session length:** 12–15 minutes for the full eight-task chain
 - **Tone:** warm, silly, grandma-flavored; nothing scary, nothing real
 - **Lose state:** none. Wrong clicks produce jokes and the player retries.
-- **Win condition:** complete all seven tasks — log in, open the email, order the
-  toaster, reboot through the update, end-task the frozen page, run the scanner, free
-  the full drive. Each task ends in a Win95 dialog; the seventh ends in the final
+- **Win condition:** complete all eight tasks — log in, open the email, clear the junk,
+  order a toaster, reboot through the update, end-task the frozen page, run the scanner,
+  free the full drive. Each task ends in a Win95 dialog; the eighth ends in the final
   screen. See [missions](./2026-10-19-missions.md).
 
 ## Core loop
@@ -23,8 +23,7 @@ drive) while dodging fake warnings and misleading buttons.
    `backgrounds/clouds.jpg`), and as the clouds lift the desktop opens blank —
    desktop icons, taskbar, and Grandma’s instruction, the current task, in her own
    words:
-   > I need to check my email, dear. It should be in the Start menu.
-   > I wrote my password in a note somewhere.
+   > I need to check my email, dear. I wrote my password in a note somewhere.
 2. The player launches the Inbox from the Start menu, digs through desktop icon windows
    for clues (the password lives on "the other note" in My Documents), and logs in.
 3. Logging in springs the whole desktop back open: Shopping, Virus, and Inbox pile up
@@ -32,7 +31,7 @@ drive) while dodging fake warnings and misleading buttons.
    Only the tiny `×` in the pop-up’s title bar is safe.
 4. Clicking a misleading button opens a Win95-style joke dialog. After clicking `OK`
    everything resets for another try (pop-up stays open; liar `Close` spawns extras).
-5. Each completed task opens a `Next task` dialog with a line from Grandma (the seventh
+5. Each completed task opens a `Next task` dialog with a line from Grandma (the eighth
    opens the final screen instead); the tasks escalate into a pop-up storm that the
    scanner program sweeps away, then a full drive that the defragmenter tidies up. The
    last task ends in the final screen and `Play again`, which resets the whole evening
@@ -42,11 +41,11 @@ drive) while dodging fake warnings and misleading buttons.
 
 ### Windows (all three are browser windows: title bar + back/forward/URL chrome)
 
-| Window         | Title                             | Icon                   | Launch                         | Pop-up storm            |
-| -------------- | --------------------------------- | ---------------------- | ------------------------------ | ----------------------- |
-| Shopping       | `🔥 Bargain Barn — TODAY ONLY!!!` | `world.png`            | Start → Internet; task 2       | tasks 3, 6; frozen in 5 |
-| Inbox (target) | `✉ Inbox (12) — Grandma’s Mail`   | `mail.png`             | Start → Inbox; task 2          | tasks 3, 6              |
-| Fake warning   | `⚠ URGENT: VIRUS DETECTED ⚠`      | `password_manager.png` | task 2 (spring-back with spam) | tasks 3, 6              |
+| Window         | Title                                       | Icon                   | Launch                         | Pop-up storm            |
+| -------------- | ------------------------------------------- | ---------------------- | ------------------------------ | ----------------------- |
+| Shopping       | `🔥 Bargain Barn — TODAY ONLY!!!`           | `world.png`            | Start → Internet; task 2       | tasks 3, 6; frozen in 5 |
+| Inbox (target) | `✉ Inbox (n) — Grandma’s Mail` (live count) | `mail.png`             | Start → Inbox; tasks 2–3       | tasks 4, 7              |
+| Fake warning   | `⚠ URGENT: VIRUS DETECTED ⚠`                | `password_manager.png` | task 2 (spring-back with spam) | tasks 3, 6              |
 
 All three windows start **closed** — the desktop opens blank, and the stacked z-order
 above applies once they're open (virus on top, tempting).
@@ -137,20 +136,19 @@ Not a pop-up — a full window with a blinking red alert and two buttons:
 
 Toolbar pixels are decorative (not interactive). Email list:
 
-| From           | Subject                     | Result      |
-| -------------- | --------------------------- | ----------- |
-| The Grandkids  | `RE: RE: RE: Fwd: the joke` | **Win**     |
-| Your Grandson  | `FW: FW: photos of the dog` | Joke dialog |
-| Windows Update | `Important!!`               | Joke dialog |
+| From           | Subject                          | Result      |
+| -------------- | -------------------------------- | ----------- |
+| The Grandkids  | `RE: RE: RE: Fwd: funny picture` | **Win**     |
+| Your Grandson  | `FW: FW: photos of the dog`      | Joke dialog |
+| Windows Update | `Important!!`                    | Joke dialog |
 
 ### Task and win screens
 
 Every task ends in the same Win95 dialog, dressed with the task's title, message, and
-icon: `Next task` for tasks 1–6, `Computer saved!` and `Play again` for the seventh.
+icon: `Next task` for tasks 1–7, `Computer saved!` and `Play again` for the eighth.
 Each one plays the `win` jingle. The final screen's closing line from Grandma:
 
-> "You saved it, my dear! The computer stays with me. Tell your grandfather it was a
-> close call."
+> "You saved it, my dear! Tell your grandfather it was a close call."
 
 `Play again` fully resets the game, including the log-on gate.
 
@@ -196,7 +194,7 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
   bubble puts the current task back (the bubble is a real button with an `sr-only`
   hint); Start → `Help` shows the same instruction as a dialog instead.
 - **Shut Down.** Start → `Shut Down...` closes the menu, puts Grandma’s protest
-  (“Don’t shut it down! I’m expecting an email.”) in her speech bubble, and opens
+  (“Don’t shut it down! There’s an unfinished task.”) in her speech bubble, and opens
   the plain Win95 `Shut Down` dialog (no backdrop): `Are you sure you want to:` with
   `Shut down the computer?` (default) / `Restart the computer?` radios and an
   autofocused `OK` beside `Cancel`. Cancel just closes it. Shutting down and

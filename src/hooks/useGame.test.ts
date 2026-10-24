@@ -1,6 +1,7 @@
 import { act, fireEvent, renderHook } from '@testing-library/react';
 import {
   DESKTOP_ICONS,
+  EMAILS,
   GRANDMA_LINES,
   JOKES,
   MAIL_PASSWORD,
@@ -56,8 +57,9 @@ function startLeafItem(itemId: string): StartMenuLeafItem {
   return item;
 }
 
-// Walk the mission chain to the start of task 4: log in, read the email,
-// order the toaster through the ad storm, and land on the update dialog.
+// Walk the mission chain to the start of task 5 (the update): log in, read
+// the email, clear the junk, order the toaster through the ad storm, and
+// land on the update dialog.
 function walkToUpdateTask(result: { current: ReturnType<typeof useGame> }) {
   act(() => {
     result.current.login(MAIL_PASSWORD);
@@ -68,6 +70,17 @@ function walkToUpdateTask(result: { current: ReturnType<typeof useGame> }) {
   act(() => {
     result.current.openEmail();
   });
+  act(() => {
+    result.current.nextObjective();
+  });
+  while (result.current.emails.some((email) => !email.target)) {
+    const foundJunk = result.current.emails.find((email) => !email.target);
+    if (foundJunk === undefined) break;
+    const id = foundJunk.id;
+    act(() => {
+      result.current.deleteEmail(id);
+    });
+  }
   act(() => {
     result.current.nextObjective();
   });
@@ -213,26 +226,24 @@ describe('useGame hook', () => {
     expect(result.current.open.inbox).toBe(true);
     expect(result.current.focusedId).toBe('inbox');
 
-    // Task 2 lands the deal, spam, and mailbox-full pop-ups.
+    // Task 2 lands the mailbox-full pop-up in the Inbox only.
     act(() => {
       result.current.login(MAIL_PASSWORD);
     });
     act(() => {
       result.current.nextObjective();
     });
-    expect(result.current.openPopups).toHaveLength(4);
+    expect(result.current.openPopups).toHaveLength(1);
     expect(countInboxPopups(result.current.openPopups)).toBe(1);
 
-    // Closing the window takes its pop-ups down with it; focus falls to
-    // the sale page the storm kept raised underneath.
+    // Closing the window takes its pop-ups down with it.
     act(() => {
       result.current.closeWindow('inbox');
     });
     expect(result.current.open.inbox).toBe(false);
     expect(result.current.minimized.inbox).toBe(false);
-    expect(result.current.focusedId).toBe('shopping');
     expect(countInboxPopups(result.current.openPopups)).toBe(0);
-    expect(result.current.openPopups).toHaveLength(3);
+    expect(result.current.openPopups).toHaveLength(0);
 
     // The Start menu brings the window back, pop-ups and all.
     act(() => {
@@ -516,18 +527,12 @@ describe('useGame hook', () => {
     act(() => {
       result.current.nextObjective();
     });
-    expect(result.current.openPopups).toHaveLength(4);
+    expect(result.current.openPopups).toHaveLength(1);
 
     act(() => {
-      result.current.dismissPopup('deal-1', 'deal');
+      result.current.dismissPopup('full-1', 'full');
     });
-    expect(result.current.openPopups).toHaveLength(3);
-    expect(result.current.grandmaLine).toBe(OBJECTIVES[1].instruction);
-
-    act(() => {
-      result.current.dismissPopup('full-4', 'full');
-    });
-    expect(result.current.openPopups).toHaveLength(2);
+    expect(result.current.openPopups).toHaveLength(0);
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.correctClose);
   });
 
@@ -963,7 +968,7 @@ describe('useGame hook', () => {
   it('runs the whole mission chain and resets it on play again', () => {
     const { result } = renderHook(() => useGame());
 
-    // Task 2 starts: grandma explains the email, ad spam lands in Shopping.
+    // Task 2 starts: grandma explains the email, mailbox-full popup in the Inbox.
     act(() => {
       result.current.login(MAIL_PASSWORD);
     });
@@ -973,33 +978,54 @@ describe('useGame hook', () => {
     expect(result.current.phase).toBe('playing');
     expect(result.current.objectiveIndex).toBe(1);
     expect(result.current.grandmaLine).toBe(OBJECTIVES[1].instruction);
-    // The whole internet springs back open: two ad spam plus the deal popup
-    // in Shopping, and the mailbox-full popup in the Inbox.
     expect(result.current.open).toEqual({
-      shopping: true,
+      shopping: false,
       inbox: true,
-      virus: true,
+      virus: false,
     });
-    expect(result.current.openPopups).toHaveLength(4);
+    expect(result.current.openPopups).toHaveLength(1);
+    expect(countInboxPopups(result.current.openPopups)).toBe(1);
 
     act(() => {
       result.current.openEmail();
     });
     expect(result.current.phase).toBe('taskDone');
 
-    // Task 3 starts with no extra pop-ups.
+    // Task 3 (cleanout): clear the junk.
     act(() => {
       result.current.nextObjective();
     });
     expect(result.current.objectiveIndex).toBe(2);
+    expect(result.current.grandmaLine).toBe(OBJECTIVES[2].instruction);
+    expect(
+      result.current.emails.filter((email) => !email.target).length,
+    ).toBeGreaterThanOrEqual(3);
 
-    // First click: the joke plus the ad storm across all three windows.
+    while (result.current.emails.some((email) => !email.target)) {
+      const foundJunk = result.current.emails.find((email) => !email.target);
+      if (foundJunk === undefined) break;
+      const id = foundJunk.id;
+      act(() => {
+        result.current.deleteEmail(id);
+      });
+    }
+    expect(result.current.phase).toBe('taskDone');
+
+    // Task 4 starts: order the toaster through the ad storm (sale page only).
+    act(() => {
+      result.current.nextObjective();
+    });
+    expect(result.current.objectiveIndex).toBe(3);
+    expect(result.current.grandmaLine).toBe(OBJECTIVES[3].instruction);
+    expect(result.current.openPopups).toHaveLength(0);
+
+    // First click: the joke plus the ad storm on the sale page.
     act(() => {
       result.current.buyToaster(JOKES.toasterTile);
     });
     expect(result.current.stormTriggered).toBe(true);
     expect(result.current.message).toBe(JOKES.toasterTile);
-    expect(result.current.openPopups).toHaveLength(12);
+    expect(result.current.openPopups).toHaveLength(4);
 
     // Pop-ups still open: the toaster refuses to order.
     act(() => {
@@ -1021,11 +1047,11 @@ describe('useGame hook', () => {
     });
     expect(result.current.phase).toBe('taskDone');
 
-    // Task 4 opens the update dialog over the still-open desktop.
+    // Task 5 opens the update dialog over the still-open desktop.
     act(() => {
       result.current.nextObjective();
     });
-    expect(result.current.objectiveIndex).toBe(3);
+    expect(result.current.objectiveIndex).toBe(4);
     expect(result.current.updateStage).toBe('installing');
     expect(result.current.openPopups).toHaveLength(0);
 
@@ -1052,11 +1078,11 @@ describe('useGame hook', () => {
     });
     expect(result.current.phase).toBe('taskDone');
 
-    // Task 5 springs the bargain page open frozen.
+    // Task 6 springs the bargain page open frozen.
     act(() => {
       result.current.nextObjective();
     });
-    expect(result.current.objectiveIndex).toBe(4);
+    expect(result.current.objectiveIndex).toBe(5);
     expect(result.current.frozen.shopping).toBe(true);
 
     act(() => {
@@ -1066,11 +1092,11 @@ describe('useGame hook', () => {
     expect(result.current.frozen.shopping).toBe(false);
     expect(result.current.open.shopping).toBe(false);
 
-    // Task 6 floods every window again.
+    // Task 7 floods every window again.
     act(() => {
       result.current.nextObjective();
     });
-    expect(result.current.objectiveIndex).toBe(5);
+    expect(result.current.objectiveIndex).toBe(6);
     expect(result.current.openPopups).toHaveLength(9);
     expect(result.current.open.shopping).toBe(true);
 
@@ -1087,15 +1113,15 @@ describe('useGame hook', () => {
     });
     expect(result.current.phase).toBe('taskDone');
 
-    // Task 7 — grandma clicked Toaster Setup: the low-disk error takes
+    // Task 8 — grandma clicked Toaster Setup: the low-disk error takes
     // over, and grandma points at the culprits on the desktop.
     act(() => {
       result.current.nextObjective();
     });
-    expect(result.current.objectiveIndex).toBe(6);
+    expect(result.current.objectiveIndex).toBe(7);
     expect(result.current.message).toBe(JOKES.diskFull);
     expect(result.current.messageVariant).toBe('error');
-    expect(result.current.grandmaLine).toBe(OBJECTIVES[6].instruction);
+    expect(result.current.grandmaLine).toBe(OBJECTIVES[7].instruction);
 
     // Opening a culprit re-raises the error it came from.
     act(() => {
@@ -1150,6 +1176,8 @@ describe('useGame hook', () => {
       inbox: false,
       virus: false,
     });
+    expect(result.current.emails).toEqual(EMAILS);
+    expect(result.current.selectedEmail).toBeNull();
   });
 
   it('opens the defragmenter from Start and resets it on play again', () => {
@@ -1205,7 +1233,7 @@ describe('useGame hook', () => {
     act(() => {
       result.current.nextObjective();
     });
-    expect(result.current.objectiveIndex).toBe(6);
+    expect(result.current.objectiveIndex).toBe(7);
 
     act(() => {
       result.current.noteDiskMilestone('emptied');
@@ -1227,15 +1255,15 @@ describe('useGame hook', () => {
     const { result } = renderHook(() => useGame());
     walkToUpdateTask(result);
 
-    expect(result.current.objectiveIndex).toBe(3);
+    expect(result.current.objectiveIndex).toBe(4);
     expect(result.current.updateStage).toBe('installing');
-    expect(result.current.grandmaLine).toBe(OBJECTIVES[3].instruction);
+    expect(result.current.grandmaLine).toBe(OBJECTIVES[4].instruction);
     expect(result.current.phase).toBe('playing');
     expect(result.current.loggedIn).toBe(true);
     expect(result.current.open).toEqual({
       shopping: true,
       inbox: true,
-      virus: true,
+      virus: false,
     });
 
     act(() => {
@@ -1262,12 +1290,12 @@ describe('useGame hook', () => {
     });
     expect(result.current.powerScreen).toBe('boot');
     expect(result.current.updateStage).toBeNull();
-    expect(result.current.objectiveIndex).toBe(3);
+    expect(result.current.objectiveIndex).toBe(4);
     expect(result.current.phase).toBe('playing');
     expect(result.current.open).toEqual({
       shopping: true,
       inbox: true,
-      virus: true,
+      virus: false,
     });
     expect(play).toHaveBeenCalledWith('shutdown');
     expect(pauseMusic).toHaveBeenCalledTimes(1);
@@ -1294,8 +1322,8 @@ describe('useGame hook', () => {
     const { result } = renderHook(() => useGame());
     walkToFrozenTask(result);
 
-    expect(result.current.objectiveIndex).toBe(4);
-    expect(result.current.grandmaLine).toBe(OBJECTIVES[4].instruction);
+    expect(result.current.objectiveIndex).toBe(5);
+    expect(result.current.grandmaLine).toBe(OBJECTIVES[5].instruction);
     expect(result.current.open.shopping).toBe(true);
     expect(result.current.frozen).toEqual({
       shopping: true,
@@ -1473,16 +1501,28 @@ describe('useGame hook', () => {
     act(() => {
       result.current.openEmail();
     });
+    // Task 3 (cleanout): clear the junk before the order task.
     act(() => {
       result.current.nextObjective();
     });
-    expect(result.current.objectiveIndex).toBe(2);
+    while (result.current.emails.some((email) => !email.target)) {
+      const foundJunk = result.current.emails.find((email) => !email.target);
+      if (foundJunk === undefined) break;
+      const id = foundJunk.id;
+      act(() => {
+        result.current.deleteEmail(id);
+      });
+    }
+    act(() => {
+      result.current.nextObjective();
+    });
+    expect(result.current.objectiveIndex).toBe(3);
 
-    // The first click storms all three windows.
+    // The first click storms the sale page only.
     act(() => {
       result.current.buyToaster(JOKES.toasterTile);
     });
-    expect(result.current.openPopups).toHaveLength(12);
+    expect(result.current.openPopups).toHaveLength(4);
 
     // Clear only the sale page's pop-ups.
     const salePagePopups = result.current.openPopups.filter(
@@ -1493,14 +1533,14 @@ describe('useGame hook', () => {
         result.current.dismissPopup(popup.key, popup.popupId);
       });
     }
-    expect(result.current.openPopups).toHaveLength(7);
+    expect(result.current.openPopups).toHaveLength(0);
 
-    // The other windows are still buried, but the order goes through.
+    // The order goes through once the sale page is clear.
     act(() => {
       result.current.buyToaster(JOKES.toasterTile);
     });
     expect(result.current.phase).toBe('taskDone');
-    expect(result.current.openPopups).toHaveLength(7);
+    expect(result.current.openPopups).toHaveLength(0);
   });
 
   it('keeps out-of-objective clicks harmless', () => {
@@ -1546,8 +1586,220 @@ describe('useGame hook', () => {
     });
 
     // The Inbox was already at its cap, so the mailbox-full popup lands
-    // nowhere new; Shopping still gets the deal plus two spam.
-    expect(result.current.openPopups).toHaveLength(8);
+    // nowhere new; the ramp no longer storms the other windows here.
+    expect(result.current.openPopups).toHaveLength(5);
     expect(countInboxPopups(result.current.openPopups)).toBe(5);
+  });
+
+  it('reads a junk email and breeds more junk', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.login(MAIL_PASSWORD);
+    });
+    act(() => {
+      result.current.nextObjective();
+    });
+
+    const before = result.current.emails.length;
+    const foundJunkEmail = result.current.emails.find((email) => !email.target);
+    if (foundJunkEmail === undefined) throw new Error('no junk email');
+    const junk = foundJunkEmail;
+
+    act(() => {
+      result.current.openInboxEmail(junk);
+    });
+
+    expect(result.current.message).toBe(junk.joke);
+    expect(result.current.emails.length).toBeGreaterThan(before);
+  });
+
+  it('re-reads the grandkids email outside the find task', () => {
+    const { result } = renderHook(() => useGame());
+
+    const foundTarget = EMAILS.find((email) => email.target);
+    if (foundTarget === undefined) throw new Error('no target email');
+    const target = foundTarget;
+
+    act(() => {
+      result.current.openInboxEmail(target);
+    });
+
+    expect(result.current.message).toBe(JOKES.emailAlreadyRead);
+  });
+
+  it('ignores deletes of unknown emails', () => {
+    const { result } = renderHook(() => useGame());
+
+    const before = result.current.emails.length;
+
+    act(() => {
+      result.current.deleteEmail('no-such-email');
+    });
+
+    expect(result.current.emails.length).toBe(before);
+  });
+
+  it('refuses to delete the grandkids email', () => {
+    const { result } = renderHook(() => useGame());
+
+    const foundTargetEmail = result.current.emails.find(
+      (email) => email.target,
+    );
+    if (foundTargetEmail === undefined) throw new Error('no target email');
+    const target = foundTargetEmail;
+
+    act(() => {
+      result.current.deleteEmail(target.id);
+    });
+
+    expect(result.current.message).toBe(JOKES.inboxProtected);
+    expect(result.current.emails.some((email) => email.id === target.id)).toBe(
+      true,
+    );
+  });
+
+  it('completes the cleanout task when the last junk is deleted', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.login(MAIL_PASSWORD);
+    });
+    act(() => {
+      result.current.nextObjective();
+    });
+    act(() => {
+      result.current.openEmail();
+    });
+    act(() => {
+      result.current.nextObjective();
+    });
+
+    while (result.current.emails.some((email) => !email.target)) {
+      const foundJunk = result.current.emails.find((email) => !email.target);
+      if (foundJunk === undefined) break;
+      const id = foundJunk.id;
+      act(() => {
+        result.current.deleteEmail(id);
+      });
+    }
+
+    expect(result.current.phase).toBe('taskDone');
+  });
+
+  it('tops up the junk when the box was swept early', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.login(MAIL_PASSWORD);
+    });
+    act(() => {
+      result.current.nextObjective();
+    });
+
+    while (result.current.emails.some((email) => !email.target)) {
+      const foundJunk = result.current.emails.find((email) => !email.target);
+      if (foundJunk === undefined) break;
+      const id = foundJunk.id;
+      act(() => {
+        result.current.deleteEmail(id);
+      });
+    }
+
+    act(() => {
+      result.current.openEmail();
+    });
+    act(() => {
+      result.current.nextObjective();
+    });
+
+    expect(
+      result.current.emails.filter((email) => !email.target).length,
+    ).toBeGreaterThanOrEqual(3);
+  });
+
+  it('stops breeding junk once the inbox is full of it', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.login(MAIL_PASSWORD);
+    });
+    act(() => {
+      result.current.nextObjective();
+    });
+
+    const foundJunkEmail = result.current.emails.find((email) => !email.target);
+    if (foundJunkEmail === undefined) throw new Error('no junk email');
+    const junk = foundJunkEmail;
+    const lengths: number[] = [];
+
+    for (let i = 0; i < 4; i += 1) {
+      act(() => {
+        result.current.openInboxEmail(junk);
+      });
+      lengths.push(result.current.emails.length);
+    }
+
+    expect(lengths[3]).toBeLessThanOrEqual(lengths[2]);
+  });
+
+  it('springs the clingy sale page back twice before letting it close', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.login(MAIL_PASSWORD);
+    });
+    act(() => {
+      result.current.nextObjective();
+    });
+    act(() => {
+      result.current.openEmail();
+    });
+    act(() => {
+      result.current.nextObjective();
+    });
+    while (result.current.emails.some((email) => !email.target)) {
+      const foundJunk = result.current.emails.find((email) => !email.target);
+      if (foundJunk === undefined) break;
+      const id = foundJunk.id;
+      act(() => {
+        result.current.deleteEmail(id);
+      });
+    }
+    act(() => {
+      result.current.nextObjective();
+    });
+
+    act(() => {
+      result.current.closeViaChrome('shopping');
+    });
+    expect(result.current.open.shopping).toBe(true);
+    expect(result.current.message).toBe(JOKES.closeSticks);
+    expect(
+      result.current.openPopups.filter((popup) => popup.windowId === 'shopping')
+        .length,
+    ).toBe(1);
+
+    act(() => {
+      result.current.closeViaChrome('shopping');
+    });
+    expect(result.current.open.shopping).toBe(true);
+
+    act(() => {
+      result.current.closeViaChrome('shopping');
+    });
+    expect(result.current.open.shopping).toBe(false);
+  });
+
+  it('closes non-clingy windows normally through the chrome', () => {
+    const { result } = renderHook(() => useGame());
+
+    act(() => {
+      result.current.openWindow('inbox');
+    });
+    act(() => {
+      result.current.closeViaChrome('inbox');
+    });
+    expect(result.current.open.inbox).toBe(false);
   });
 });

@@ -9,6 +9,7 @@ import userEvent, { type UserEvent } from '@testing-library/user-event';
 import {
   DESKTOP_ICONS,
   GRANDMA_LINES,
+  inboxTitle,
   JOKES,
   OBJECTIVES,
   POWER_MESSAGES,
@@ -59,16 +60,39 @@ async function logInThroughStart(user: UserEvent) {
   await user.click(screen.getByRole('button', { name: 'Next task' }));
 }
 
-// Tasks 2 and 3 in one go: the real email wins, then the ad storm gets
-// cleared and the toaster ordered — ending on the task-3 win screen.
+// Tasks 2, 3, and 4 in one go: the real email wins, the junk gets swept,
+// then the ad storm gets cleared and the toaster ordered — ending on the
+// task-4 win screen.
 async function orderTheToaster(user: UserEvent) {
-  await user.click(screen.getByRole('button', { name: /The Grandkids/ }));
+  await user.dblClick(screen.getByRole('button', { name: /The Grandkids/ }));
   expect(
     screen.getByRole('dialog', { name: OBJECTIVES[1].doneTitle }),
   ).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Next task' }));
 
-  // The first click jokes and storms the whole desktop...
+  // Task 3 — sweep the junk with select-then-Delete.
+  const junkNames = [
+    /photos of the dog/,
+    /FW: FW: FW:/,
+    /Important!!/,
+    /toaster awaits/,
+    /Scorpio/,
+    /weird trick/,
+    /free trial/,
+    /1,000 toasters/,
+    /send \$500/,
+  ];
+  for (const name of junkNames) {
+    const row = screen.getByRole('button', { name });
+    await user.click(row);
+    await user.keyboard('{Delete}');
+  }
+  expect(
+    screen.getByRole('dialog', { name: OBJECTIVES[2].doneTitle }),
+  ).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Next task' }));
+
+  // Task 4 — the first click jokes and storms the sale page...
   await user.click(screen.getAllByRole('button', { name: /Toaster/ })[0]);
   expect(
     screen.getByRole('alertdialog', { name: 'System Message' }),
@@ -367,9 +391,9 @@ describe('App component', () => {
     ).toHaveTextContent(JOKES.liarClose);
 
     await user.click(screen.getByRole('button', { name: 'OK' }));
-    // Deal plus two spam in Shopping, mailbox-full in the Inbox, plus the
-    // two fresh spam the liar button just spawned.
-    expect(screen.getAllByRole('dialog')).toHaveLength(6);
+    // The mailbox-full popup, plus the two fresh spam the liar button just
+    // spawned.
+    expect(screen.getAllByRole('dialog')).toHaveLength(3);
     expect(screen.getByRole('status')).toHaveTextContent(
       OBJECTIVES[1].instruction,
     );
@@ -410,7 +434,7 @@ describe('App component', () => {
     );
 
     // Task 2 — the real email wins; task 3 waits behind "Next task".
-    await user.click(screen.getByRole('button', { name: /The Grandkids/ }));
+    await user.dblClick(screen.getByRole('button', { name: /The Grandkids/ }));
     expect(play).toHaveBeenCalledWith('win');
     expect(
       screen.getByRole('dialog', { name: OBJECTIVES[1].doneTitle }),
@@ -432,6 +456,7 @@ describe('App component', () => {
     await skipSplash(user);
 
     await logInThroughStart(user);
+    await openFromStart(user, 'Internet');
 
     await user.click(
       screen.getByRole('button', { name: `Back in ${WINDOW_META[0].title}` }),
@@ -441,18 +466,11 @@ describe('App component', () => {
     ).toHaveTextContent(JOKES.goBack);
     await user.click(screen.getByRole('button', { name: 'OK' }));
 
-    await user.click(screen.getAllByRole('button', { name: 'Buy' })[0]);
-    expect(
-      screen.getByRole('alertdialog', { name: 'System Message' }),
-    ).toHaveTextContent(JOKES.buyButton);
-    await user.click(screen.getByRole('button', { name: 'OK' }));
-
-    // Dismiss the shopping popup safely, then click a product underneath.
-    await user.click(screen.getAllByRole('button', { name: 'Close popup' })[0]);
     await user.click(screen.getAllByRole('button', { name: /Toaster/ })[0]);
     expect(
       screen.getByRole('alertdialog', { name: 'System Message' }),
     ).toHaveTextContent(JOKES.toasterTile);
+    await user.click(screen.getByRole('button', { name: 'OK' }));
   }, 15000);
 
   it('jokes about decoy emails and the broken desktop mail icon', async () => {
@@ -463,8 +481,10 @@ describe('App component', () => {
     // Get past the log-on gate first.
     await logInThroughStart(user);
 
-    await user.click(screen.getAllByRole('button', { name: 'Close popup' })[1]);
-    await user.click(screen.getByRole('button', { name: /photos of the dog/ }));
+    await user.click(screen.getAllByRole('button', { name: 'Close popup' })[0]);
+    await user.dblClick(
+      screen.getByRole('button', { name: /photos of the dog/ }),
+    );
     expect(
       screen.getByRole('alertdialog', { name: 'System Message' }),
     ).toHaveTextContent(JOKES.emailDog);
@@ -795,7 +815,7 @@ describe('App component', () => {
     // Deleted for real: Sticky Notes does not pop back onto the desktop.
     expect(screen.queryByRole('button', { name: 'Sticky Notes' })).toBeNull();
     // The real delete answers with Win95's Empty Recycle Bin event.
-    expect(play).toHaveBeenCalledWith('trash');
+    expect(play).toHaveBeenCalledWith('delete');
 
     // With nothing left to empty, the entry greys out Win95 style.
     fireEvent.contextMenu(bin, { clientX: 40, clientY: 120 });
@@ -965,7 +985,7 @@ describe('App component', () => {
       'recycle_bin_empty.png',
     );
     expect(screen.queryByRole('button', { name: 'Sticky Notes' })).toBeNull();
-    expect(play).toHaveBeenCalledWith('trash');
+    expect(play).toHaveBeenCalledWith('delete');
   }, 15000);
 
   it('files a shortcut into My Documents, mirrored in Start > Documents', async () => {
@@ -1322,23 +1342,14 @@ describe('App component', () => {
     firePointer(window, 'pointerup');
   });
 
-  it('does not reward clicking the urgent virus warning', async () => {
+  it('does not complete a task from a harmless click on task 2', async () => {
     const user = userEvent.setup();
     render(<App />);
     await skipSplash(user);
 
-    // The virus window springs open with the task-2 chaos.
     await logInThroughStart(user);
 
-    await user.click(
-      screen.getByRole('button', { name: 'CLEAN MY COMPUTER NOW!' }),
-    );
-    expect(
-      screen.getByRole('alertdialog', { name: 'System Message' }),
-    ).toHaveTextContent(JOKES.cleanNow);
-    await user.click(screen.getByRole('button', { name: 'OK' }));
-
-    expect(screen.queryByRole('alertdialog')).toBeNull();
+    // The task-2 inbox is the only window open; nothing here completes a task.
     expect(
       screen.queryByRole('dialog', { name: OBJECTIVES[0].doneTitle }),
     ).toBeNull();
@@ -1603,10 +1614,11 @@ describe('App component', () => {
     // The mail gate stays open for the rest of the evening.
     expect(screen.queryByRole('button', { name: 'Log in' })).toBeNull();
 
-    // Tasks 2 and 3 — the email, then the toaster through the ad storm.
+    // Tasks 2, 3, and 4 — the email, the junk, then the toaster through
+    // the ad storm.
     await orderTheToaster(user);
     expect(
-      screen.getByRole('dialog', { name: OBJECTIVES[2].doneTitle }),
+      screen.getByRole('dialog', { name: OBJECTIVES[3].doneTitle }),
     ).toBeInTheDocument();
     expect(
       screen.queryAllByRole('button', { name: 'Close popup' }),
@@ -1662,7 +1674,7 @@ describe('App component', () => {
       screen.getByRole('button', { name: POWER_MESSAGES.boot }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('region', { name: WINDOW_META[1].title }),
+      screen.getByRole('region', { name: inboxTitle(1) }),
     ).toBeInTheDocument();
 
     // A click lifts the clouds like every other beat; the task completes
@@ -1674,18 +1686,18 @@ describe('App component', () => {
     );
     await user.click(splash);
     expect(
-      await screen.findByRole('dialog', { name: OBJECTIVES[3].doneTitle }),
+      await screen.findByRole('dialog', { name: OBJECTIVES[4].doneTitle }),
     ).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Next task' }));
 
-    // Task 5 — the bargain page came back frozen: gray, wait-cursed, deaf.
+    // Task 6 — the bargain page came back frozen: gray, wait-cursed, deaf.
     const frozenWindow = screen.getByRole('region', {
       name: `${WINDOW_META[0].title} (Not responding)`,
     });
     expect(frozenWindow.className).toContain('cursor-wait');
     expect(frozenWindow.querySelector('.win-titlebar-inactive')).not.toBeNull();
     expect(screen.getByRole('status')).toHaveTextContent(
-      OBJECTIVES[4].instruction,
+      OBJECTIVES[5].instruction,
     );
 
     // Even the close button just earns grandma's diagnosis.
@@ -1712,7 +1724,7 @@ describe('App component', () => {
 
     // End Task on a healthy window is a harmless joke.
     await user.click(
-      within(taskManager).getByRole('button', { name: WINDOW_META[1].title }),
+      within(taskManager).getByRole('button', { name: inboxTitle(1) }),
     );
     await user.click(
       within(taskManager).getByRole('button', { name: 'End Task' }),
@@ -1741,11 +1753,11 @@ describe('App component', () => {
       }),
     ).toBeNull();
     expect(
-      await screen.findByRole('dialog', { name: OBJECTIVES[4].doneTitle }),
+      await screen.findByRole('dialog', { name: OBJECTIVES[5].doneTitle }),
     ).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Next task' }));
 
-    // Task 6 — spam floods everything; the shield program sweeps it away.
+    // Task 7 — spam floods everything; the shield program sweeps it away.
     expect(screen.getAllByRole('button', { name: 'Close popup' })).toHaveLength(
       9,
     );
@@ -1764,7 +1776,7 @@ describe('App component', () => {
     expect(
       await screen.findByRole(
         'dialog',
-        { name: OBJECTIVES[5].doneTitle },
+        { name: OBJECTIVES[6].doneTitle },
         { timeout: 3000 },
       ),
     ).toBeInTheDocument();
@@ -1773,14 +1785,14 @@ describe('App component', () => {
     ).toHaveLength(0);
     await user.click(screen.getByRole('button', { name: 'Next task' }));
 
-    // Task 7 — grandma clicked Toaster Setup: the low-disk error takes
+    // Task 8 — grandma clicked Toaster Setup: the low-disk error takes
     // over the moment the task starts.
     expect(
       screen.getByRole('alertdialog', { name: 'System Message' }),
     ).toHaveTextContent(JOKES.diskFull);
     await user.click(screen.getByRole('button', { name: 'OK' }));
     expect(screen.getByRole('status')).toHaveTextContent(
-      OBJECTIVES[6].instruction,
+      OBJECTIVES[7].instruction,
     );
 
     // The culprits sit at the top of the second column...
@@ -1895,7 +1907,7 @@ describe('App component', () => {
 
     // The finished drive ends the game on the last Computer saved! screen.
     expect(
-      await screen.findByRole('dialog', { name: OBJECTIVES[6].doneTitle }),
+      await screen.findByRole('dialog', { name: OBJECTIVES[7].doneTitle }),
     ).toBeInTheDocument();
 
     // Play again puts the whole evening back to its blank, quiet start.

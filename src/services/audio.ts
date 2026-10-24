@@ -17,7 +17,7 @@ export type SfxName =
   | 'open'
   | 'error'
   | 'win'
-  | 'trash'
+  | 'delete'
   | 'shutdown'
   | 'startup';
 
@@ -51,7 +51,7 @@ const SFX_TRACKS: Record<SfxName, string> = {
   open: 'interface_sounds/drop_004.mp3',
   error: 'interface_sounds/back_001.mp3',
   win: 'interface_sounds/confirmation_004.mp3',
-  trash: 'interface_sounds/scratch_003.mp3',
+  delete: 'interface_sounds/scratch_003.mp3',
   shutdown: 'interface_sounds/question_004.mp3',
   startup: 'interface_sounds/confirmation_001.mp3',
 };

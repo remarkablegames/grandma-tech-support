@@ -4,11 +4,14 @@ import {
   BASE_WINDOW_POSITIONS,
   BUY_STORM,
   DESKTOP_ICONS,
+  EMAILS,
   GRANDMA_LINES,
   ICON_WINDOW_BASE_POSITION,
   ICON_WINDOWS,
   JOKES,
+  JUNK_EMAILS,
   MAIL_PASSWORD,
+  MAX_ADDED_JUNK,
   MAX_POPUPS_PER_WINDOW,
   MISSION_FILES,
   OBJECTIVES,
@@ -16,6 +19,7 @@ import {
 import { audio } from 'src/services/audio';
 import type {
   DesktopIconConfig,
+  EmailConfig,
   GamePhase,
   IconWindowId,
   MessageVariant,
@@ -49,6 +53,33 @@ const INITIAL_WINDOW_OPEN: Record<WindowId, boolean> = {
 };
 
 const ICON_WINDOW_CASCADE_STEP = 24;
+
+// Junk is every email that isn't the grandkids' one.
+const isJunk = (email: EmailConfig): boolean => !email.target;
+
+// The junk pool's ids: these are the rows that can breed, and they're the
+// only ones that count toward the cap (four at a time, at most).
+const JUNK_IDS = new Set(JUNK_EMAILS.map((email) => email.id));
+
+// Reading the junk makes more of it: two more land at the bottom, from the
+// pool, until the box is full of them. Deleting junk frees the room again.
+const withJunk = (list: EmailConfig[], amount: number): EmailConfig[] => {
+  const added = list.filter((email) => JUNK_IDS.has(email.id)).length;
+  const room = Math.max(MAX_ADDED_JUNK - added, 0);
+  const next = JUNK_EMAILS.filter(
+    (entry) => !list.some((email) => email.id === entry.id),
+  ).slice(0, Math.min(amount, room));
+
+  return next.length === 0 ? list : [...list, ...next];
+};
+
+// The cleanup task makes sure there's junk to clean: a player who swept
+// the box early gets the junk back, "they keep coming".
+const topUpJunk = (list: EmailConfig[], wanted: number): EmailConfig[] => {
+  const have = list.filter(isJunk).length;
+
+  return withJunk(list, wanted - have);
+};
 
 const INITIAL_ICON_WINDOW_FLAGS: Record<IconWindowId, boolean> = {
   computer: false,
@@ -157,6 +188,16 @@ export function useGame() {
   const [objectiveIndex, setObjectiveIndex] = useState(0);
   const [loggedIn, setLoggedIn] = useState(false);
   const [stormTriggered, setStormTriggered] = useState(false);
+
+  // The inbox's mail: starts as the catalog, grows when junk gets opened,
+  // shrinks when junk gets deleted. The grandkids' email never goes.
+  const [emails, setEmails] = useState<EmailConfig[]>(EMAILS);
+  const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
+
+  // The ad window that refuses to close: the first two × presses answer
+  // with a joke and a fresh pop-up. Resets at the next task.
+  const MAX_CLINGY_CLOSES = 2;
+  const [clingyCloses, setClingyCloses] = useState(0);
 
   // The late-mission state: task 4's update dialog, task 5's frozen windows
   // (dead to every input until End Task) and the Task Manager dialog, plus
@@ -340,6 +381,27 @@ export function useGame() {
     });
   };
 
+  // The chrome's ×: the order task's sale page refuses the first couple of
+  // closes, answering with a joke and a fresh pop-up, the way adware pages
+  // did — only after that does the window really close. End Task never
+  // comes through here, so the frozen page still dies for real.
+  const closeViaChrome = (windowId: WindowId) => {
+    const clingy = OBJECTIVES[objectiveIndex].clingy;
+
+    if (
+      clingy !== undefined &&
+      clingy.includes(windowId) &&
+      clingyCloses < MAX_CLINGY_CLOSES
+    ) {
+      setClingyCloses((count) => count + 1);
+      setMessage(JOKES.closeSticks);
+      addSpawns([{ windowId, popupId: 'spam', count: 1 }]);
+      return;
+    }
+
+    closeWindow(windowId);
+  };
+
   const nextObjective = () => {
     const next = objectiveIndex + 1;
     const config = OBJECTIVES[next];
@@ -349,10 +411,19 @@ export function useGame() {
     setMessage(null);
     setGrandmaLine(config.instruction);
 
+    // Each task starts fresh on the clingy-window counter.
+    setClingyCloses(0);
+
     // Spring windows open first, freeze second, so a frozen window still
     // lands on top the way any freshly opened window would.
     for (const windowId of config.open ?? []) {
       openWindow(windowId);
+    }
+
+    // The inbox-cleanout task clears any pop-ups left from earlier tasks
+    // first, so the mail list starts readable.
+    if (config.clearPopups) {
+      setOpenPopups([]);
     }
 
     if (config.update) {
@@ -363,6 +434,14 @@ export function useGame() {
     // grandma clicked Toaster Setup, and Drive C: has 4 bytes left.
     if (config.lowDisk) {
       setMessage(JOKES.diskFull, 'error');
+    }
+
+    // The inbox-cleanout task tops the junk back up to at least this many
+    // rows, so a player who swept early still has work to do.
+    if (config.inboxTopUp !== undefined) {
+      const wanted = config.inboxTopUp;
+      setEmails((prev) => topUpJunk(prev, wanted));
+      setSelectedEmail(null);
     }
 
     const freeze = config.freeze;
@@ -544,6 +623,55 @@ export function useGame() {
     completeObjective('email-opened');
   };
 
+  // Opening an inbox email: the grandkids' one is the mission (and a second
+  // read gets grandma's aside), junk jokes and breeds more junk.
+  const openInboxEmail = (email: EmailConfig) => {
+    if (email.target) {
+      if (!completeObjective('email-opened')) {
+        setMessage(JOKES.emailAlreadyRead);
+      }
+
+      return;
+    }
+
+    setMessage(email.joke);
+    setEmails((prev) => withJunk(prev, 2));
+  };
+
+  // Win95 mail: a selected row goes in one Delete, and the sweep keeps
+  // going — the list hands selection to whatever row took its place. The
+  // grandkids' email is the one thing the junk can't take with it.
+  const deleteEmail = (id: string) => {
+    const index = emails.findIndex((email) => email.id === id);
+
+    if (index === -1) {
+      return;
+    }
+
+    if (emails[index].target) {
+      setMessage(JOKES.inboxProtected);
+      return;
+    }
+
+    const remaining = emails.filter((email) => email.id !== id);
+    setEmails(remaining);
+    // The grandkids' email is never deleted, so `remaining` is never
+    // empty here; the null fallback is defensive only.
+    /* v8 ignore next */
+    setSelectedEmail(
+      remaining[Math.min(index, remaining.length - 1)]?.id ?? null,
+    );
+    audio.play('delete');
+
+    if (!remaining.some(isJunk)) {
+      completeObjective('inbox-cleared');
+    }
+  };
+
+  const selectEmail = (id: string) => {
+    setSelectedEmail(id);
+  };
+
   const playAgain = () => {
     spawnCounter.current = 0;
     setPhase('playing');
@@ -565,6 +693,9 @@ export function useGame() {
     setLoggedIn(false);
     setStormTriggered(false);
     setUpdateStage(null);
+    setEmails(EMAILS);
+    setSelectedEmail(null);
+    setClingyCloses(0);
     setFrozen(INITIAL_WINDOW_FLAGS);
     setTaskManagerOpen(false);
     setPendingEvent(null);
@@ -804,6 +935,7 @@ export function useGame() {
     activateWindow,
     openWindow,
     closeWindow,
+    closeViaChrome,
     openDesktopIcon,
     openIconWindow,
     closeIconWindow,
@@ -816,6 +948,11 @@ export function useGame() {
     popupAction,
     dismissPopup,
     openEmail,
+    openInboxEmail,
+    deleteEmail,
+    selectEmail,
+    emails,
+    selectedEmail,
     login,
     buyToaster,
     completeScan,
