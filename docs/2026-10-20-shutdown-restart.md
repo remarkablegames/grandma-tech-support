@@ -24,27 +24,27 @@ The joke lives outside the dialog: picking the menu item puts grandma's protest
 
 in her speech bubble (`role="status"`), so the dialog itself stays authentically
 boring. `Cancel` closes the dialog while the protest stays up, and clicking the bubble
-still repeats the current mission.
+still repeats the current task.
 
 ## Exit paths
 
-| Path          | What happens                                                                                                                                                                                                                                                                                                                                                                                 |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Cancel**    | the dialog closes; nothing else changes                                                                                                                                                                                                                                                                                                                                                      |
-| **Shut down** | the `shutdown` sound plays, the theme pauses, and a full-screen black `It’s now safe to turn off your computer.` line appears — a click or keypress powers up through the clouds splash (grandma trading her protest for the wake line behind it), and the desktop returns exactly as it was — windows, pop-ups, mission intact — with the `startup` sound and the theme resuming on arrival |
-| **Restart**   | the same sound and pause, but the game resets behind the screens: the black `Starting Rainbows95...` boot line (blinking cursor) hands off to the clouds splash on its own, and the splash lifts to the blank opening desktop — each beat a click to skip, the `startup` sound and theme arriving with the desktop                                                                           |
+| Path          | What happens                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Cancel**    | the dialog closes; nothing else changes                                                                                                                                                                                                                                                                                                                                                   |
+| **Shut down** | the `shutdown` sound plays, the theme pauses, and a full-screen black `It’s now safe to turn off your computer.` line appears — a click or keypress powers up through the clouds splash (grandma trading her protest for the wake line behind it), and the desktop returns exactly as it was — windows, pop-ups, task intact — with the `startup` sound and the theme resuming on arrival |
+| **Restart**   | the same sound and pause, but the game resets behind the screens: the black `Starting Rainbows95...` boot line (blinking cursor) hands off to the clouds splash on its own, and the splash lifts to the blank opening desktop — each beat a click to skip, the `startup` sound and theme arriving with the desktop                                                                        |
 
 Restart is the mid-game twin of the win screen's `Play again`: the same `playAgain()`
-reset (blank desktop, mission back to task one, login cleared), reachable without
+reset (blank desktop, task back to task one, login cleared), reachable without
 winning first. The win screen's own button stays instant — a boot beat belongs to the
 computer, not to the celebration.
 
 Task 4's Windows Update rides the same screens without the reset: `Restart now` from
 its dialog plays the same power sound, pauses the theme, and goes black to the boot
 line — but `playAgain()` never runs, so the desktop behind the screens keeps every
-window, pop-up, and mission step. The task's `update-rebooted` completion queues
+window, pop-up, and task step. The task's `update-rebooted` completion queues
 behind the clouds and fires with the reveal (see
-[missions](./2026-10-19-missions.md)). One rule covers all three paths: the boot
+[tasks](./2026-10-19-tasks.md)). One rule covers all three paths: the boot
 line and splash are the machine, and what the machine forgets depends on who asked
 it to reboot.
 

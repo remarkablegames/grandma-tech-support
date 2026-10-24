@@ -13,8 +13,8 @@ import {
   MAIL_PASSWORD,
   MAX_ADDED_JUNK,
   MAX_POPUPS_PER_WINDOW,
-  MISSION_FILES,
   OBJECTIVES,
+  TASK_FILES,
 } from 'src/data/gameContent';
 import { audio } from 'src/services/audio';
 import type {
@@ -183,7 +183,7 @@ export function useGame() {
     Record<IconWindowId, boolean>
   >(INITIAL_ICON_WINDOW_FLAGS);
 
-  // The mission chain: which task is active, whether the mail gate is open,
+  // The task chain: which task is active, whether the mail gate is open,
   // and whether the task-3 ad storm has been unleashed yet.
   const [objectiveIndex, setObjectiveIndex] = useState(0);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -199,7 +199,7 @@ export function useGame() {
   const MAX_CLINGY_CLOSES = 2;
   const [clingyCloses, setClingyCloses] = useState(0);
 
-  // The late-mission state: task 4's update dialog, task 5's frozen windows
+  // The late-task state: task 4's update dialog, task 5's frozen windows
   // (dead to every input until End Task) and the Task Manager dialog, plus
   // the completion event queued behind the update reboot's clouds.
   const [updateStage, setUpdateStage] = useState<UpdateStage | null>(null);
@@ -623,7 +623,7 @@ export function useGame() {
     completeObjective('email-opened');
   };
 
-  // Opening an inbox email: the grandkids' one is the mission (and a second
+  // Opening an inbox email: the grandkids' one is the target (and a second
   // read gets grandma's aside), junk jokes and breeds more junk.
   const openInboxEmail = (email: EmailConfig) => {
     if (email.target) {
@@ -801,7 +801,7 @@ export function useGame() {
     if (icon === undefined) {
       // The disk-full task's culprits aren't programs that run: opening one
       // re-raises the low-disk error it was installed from.
-      if (MISSION_FILES.some((entry) => entry.id === id)) {
+      if (TASK_FILES.some((entry) => entry.id === id)) {
         setMessage(JOKES.diskFull, 'error');
       }
 
@@ -822,7 +822,7 @@ export function useGame() {
   };
 
   // Reactions overwrite grandma's line, so clicking her bubble puts the
-  // current mission back in her mouth.
+  // current task back in her mouth.
   const repeatObjective = () => {
     setGrandmaLine(OBJECTIVES[objectiveIndex].instruction);
   };
@@ -874,7 +874,7 @@ export function useGame() {
 
   // The three-key ritual: Win95's own Close Program chord, honored where
   // the browser actually receives it — Windows swallows Ctrl+Alt+Del at OS
-  // level, which is why the mission only ever teaches Start > Task Manager.
+  // level, which is why Start > Task Manager is the guaranteed mouse route.
   useEffect(() => {
     const handleChord = (event: KeyboardEvent) => {
       // Only on the live desktop: a chord mid-boot would open behind the

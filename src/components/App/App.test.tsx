@@ -518,7 +518,7 @@ describe('App component', () => {
     ).toBeInTheDocument();
   }, 15000);
 
-  it('lets grandma re-read the mission after the decoy reaction', async () => {
+  it('lets grandma re-read the task after the decoy reaction', async () => {
     const user = userEvent.setup();
     render(<App />);
     await skipSplash(user);
@@ -528,14 +528,14 @@ describe('App component', () => {
       OBJECTIVES[1].instruction,
     );
 
-    // The decoy reaction overwrites the mission with grandma's aside.
+    // The decoy reaction overwrites the task with grandma's aside.
     await user.dblClick(screen.getByRole('button', { name: 'Inbox' }));
     expect(screen.getByRole('status')).toHaveTextContent(
       GRANDMA_LINES.mailDecoy,
     );
     await user.click(screen.getByRole('button', { name: 'OK' }));
 
-    // Clicking the bubble puts the current mission back.
+    // Clicking the bubble puts the current task back.
     await user.click(screen.getByRole('button', { name: /click grandma/ }));
     expect(screen.getByRole('status')).toHaveTextContent(
       OBJECTIVES[1].instruction,
@@ -1576,7 +1576,7 @@ describe('App component', () => {
     expect(iconButtons).toEqual(['Sticky Notes', 'My Computer']);
   });
 
-  it('plays through the first half of the mission chain', async () => {
+  it('plays through the first half of the task chain', async () => {
     const user = userEvent.setup();
     render(<App />);
     await skipSplash(user);

@@ -57,7 +57,7 @@ function startLeafItem(itemId: string): StartMenuLeafItem {
   return item;
 }
 
-// Walk the mission chain to the start of task 5 (the update): log in, read
+// Walk the task chain to the start of task 5 (the update): log in, read
 // the email, clear the junk, order the toaster through the ad storm, and
 // land on the update dialog.
 function walkToUpdateTask(result: { current: ReturnType<typeof useGame> }) {
@@ -619,7 +619,7 @@ describe('useGame hook', () => {
     expect(result.current.openIconWindows.calculator).toBe(true);
   });
 
-  it('lets grandma re-read the current mission after a reaction', () => {
+  it('lets grandma re-read the current task after a reaction', () => {
     const { result } = renderHook(() => useGame());
 
     // Get to task 2, whose instruction is not the intro line.
@@ -631,20 +631,20 @@ describe('useGame hook', () => {
     });
     expect(result.current.grandmaLine).toBe(OBJECTIVES[1].instruction);
 
-    // The decoy reaction overwrites the mission...
+    // The decoy reaction overwrites the task...
     act(() => {
       result.current.openMailDecoy();
     });
     expect(result.current.grandmaLine).toBe(GRANDMA_LINES.mailDecoy);
 
-    // ...and clicking grandma puts the current mission back.
+    // ...and clicking grandma puts the current task back.
     act(() => {
       result.current.repeatObjective();
     });
     expect(result.current.grandmaLine).toBe(OBJECTIVES[1].instruction);
   });
 
-  it('puts the current mission in the dialog from Start > Help', () => {
+  it('puts the current task in the dialog from Start > Help', () => {
     const { result } = renderHook(() => useGame());
 
     act(() => {
@@ -931,7 +931,7 @@ describe('useGame hook', () => {
     });
   });
 
-  it('starts the mission chain at task one', () => {
+  it('starts the task chain at task one', () => {
     const { result } = renderHook(() => useGame());
 
     expect(result.current.objectiveIndex).toBe(0);
@@ -965,7 +965,7 @@ describe('useGame hook', () => {
     expect(result.current.phase).toBe('taskDone');
   });
 
-  it('runs the whole mission chain and resets it on play again', () => {
+  it('runs the whole task chain and resets it on play again', () => {
     const { result } = renderHook(() => useGame());
 
     // Task 2 starts: grandma explains the email, mailbox-full popup in the Inbox.

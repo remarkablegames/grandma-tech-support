@@ -15,7 +15,7 @@ drive) while dodging fake warnings and misleading buttons.
 - **Win condition:** complete all eight tasks — log in, open the email, clear the junk,
   order a toaster, reboot through the update, end-task the frozen page, run the scanner,
   free the full drive. Each task ends in a Win95 dialog; the eighth ends in the final
-  screen. See [missions](./2026-10-19-missions.md).
+  screen. See [tasks](./2026-10-19-tasks.md).
 
 ## Core loop
 
@@ -79,7 +79,7 @@ above applies once they're open (virus on top, tempting).
   Escape before the menu itself closes; a press anywhere outside closes the
   whole menu (the Start button excepted, so it keeps toggling). `Run...`
   closes the menu and shows a joke dialog, `Help` re-reads
-  the current mission, `Task Manager` opens the task list dialog (Win95's
+  the current task, `Task Manager` opens the task list dialog (Win95's
   Close Program under its NT-era name), and `Shut Down...` opens Win95's
   power dialog — see [shutdown](./2026-10-20-shutdown-restart.md). Its
   vertical side stripe brands the fictional OS as **Rainbows95**.
@@ -188,9 +188,9 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
   autofocus their primary button.
 - **Feedback:** wrong clicks open a modal `System Message` dialog ( `role="alertdialog"`,
   `OK` dismisses), dressed by its variant: 😅 joke face (default), red ❌ plus the
-  error ding, or the silent ℹ️ info face for mission re-reads. Grandma’s speech
+  error ding, or the silent ℹ️ info face for task re-reads. Grandma’s speech
   bubble (`role="status"`) changes contextually.
-- **Mission recall.** Reactions overwrite Grandma’s line, so clicking her speech
+- **Task recall.** Reactions overwrite Grandma’s line, so clicking her speech
   bubble puts the current task back (the bubble is a real button with an `sr-only`
   hint); Start → `Help` shows the same instruction as a dialog instead.
 - **Shut Down.** Start → `Shut Down...` closes the menu, puts Grandma’s protest
@@ -280,7 +280,7 @@ src/
 │   ├── StartMenu/       launchers (Inbox, Internet) + joke menu items
 │   └── WinScreen/       prop-driven task/win overlay
 ├── hooks/useDoubleClickOpen.ts shared double-click/Enter open gesture
-├── hooks/useGame.ts     z-order, positions, pop-ups, dialogs, mission chain, menu state, power screens
+├── hooks/useGame.ts     z-order, positions, pop-ups, dialogs, task chain, menu state, power screens
 ├── hooks/useIconPositions.ts desktop icon layout (positions, bin, folder), persisted
 ├── utils/createWindowDrag.ts shared title-bar pointer-drag for both window kinds
 ├── utils/resolveIconDrop.ts drop → move, recycle, file, or refuse (Win95 rules)
@@ -288,7 +288,7 @@ src/
 ├── services/audio.ts    SFX over HTMLAudioElement, volume/mute + localStorage
 ├── services/appStorage.ts load/save for sections of the shared store (merge-on-save)
 ├── data/gameContent.ts  every title, URL, joke, popup config, email, menu item, objective
-├── types/game.ts        WindowId, PopupId, configs, phases, mission types (excluded from coverage)
+├── types/game.ts        WindowId, PopupId, configs, phases, task types (excluded from coverage)
 └── style.css            Win95 @theme tokens, outset/inset utilities, keyframes
 ```
 
@@ -306,7 +306,7 @@ src/
   per window.
 - `message: string | null` — System Message contents; `messageVariant` picks grandma’s
   joke face (default), the red X plus an error ding, or the silent ℹ️ info face
-  (mission recall). `repeatObjective()` puts the current task back in
+  (task recall). `repeatObjective()` puts the current task back in
   `grandmaLine`; the Start menu’s `Help` shows it as a dialog instead.
 - `grandmaLine: string` — intro → task instructions → "little X" line on safe
   dismiss → decoy-mail line → the Shut Down protest (her bubble gets the last
@@ -332,7 +332,7 @@ Record<WindowId, boolean>`, `closeProgramOpen`, and the queued `pendingEvent` �
   `update-rebooted` completion waiting behind the clouds. The update's
   `Restart now` reboots without `playAgain()`, and `End Task` thaws and closes
   the frozen window for real. See
-  [missions](./2026-10-19-missions.md).
+  [tasks](./2026-10-19-tasks.md).
 - `openIconWindows`, `iconWindowPositions`, `iconZOrder`, `iconMinimized` — desktop
   mini-windows; `openIconWindow` cascades the default position per open window,
   `iconFocusedId` is the top visible one, and `playAgain` closes them all.

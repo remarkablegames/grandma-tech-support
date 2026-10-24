@@ -5,13 +5,13 @@ import type {
   IconWindowConfig,
   IconWindowId,
   IconWindowRow,
-  MissionFileConfig,
   ObjectiveConfig,
   PopupConfig,
   PopupId,
   PopupSpawn,
   ProductConfig,
   StartMenuItem,
+  TaskFileConfig,
   UpdateStage,
   WindowMeta,
 } from 'src/types/game';
@@ -145,7 +145,7 @@ export const UPDATE_MESSAGES: Record<UpdateStage, string> = {
 // The password the mail log-on form expects — it lives on the other note.
 export const MAIL_PASSWORD = 'password';
 
-// The eight-task mission chain. Each entry completes on its event; when the
+// The eight-task chain. Each entry completes on its event; when the
 // next task starts, its instruction becomes grandma's line, its `open`
 // windows spring up, and its `spawn` popups land on top of those.
 export const OBJECTIVES: ObjectiveConfig[] = [
@@ -237,7 +237,7 @@ export const OBJECTIVES: ObjectiveConfig[] = [
 // The disk-full task's culprits: they sit at the top of the desktop's
 // second column until the player drags them into the Recycle Bin, and they
 // live only inside that task (the layout store never learns their ids).
-export const MISSION_FILES: MissionFileConfig[] = [
+export const TASK_FILES: TaskFileConfig[] = [
   {
     id: 'toaster-8-install',
     label: 'toaster_8_install.exe',
@@ -729,7 +729,7 @@ export const PRODUCTS: ProductConfig[] = [
 
 // The Start menu doubles as the desktop's launcher: the first two items open
 // the browser windows, Programs' Disk Defragmenter opens the drive tool, Help
-// re-reads the current mission, Task Manager opens the task list, Shut
+// re-reads the current task, Task Manager opens the task list, Shut
 // Down... opens the power dialog, and the rest are grandma's joke entries.
 export const START_ITEMS: StartMenuItem[] = [
   {
@@ -906,7 +906,7 @@ export const START_ITEMS: StartMenuItem[] = [
     id: 'help',
     label: 'Help',
     icon: `${ICONS}/contact_book.png`,
-    action: 'show-mission',
+    action: 'show-task',
   },
   {
     id: 'run',

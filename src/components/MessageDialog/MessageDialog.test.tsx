@@ -50,7 +50,7 @@ describe('MessageDialog component', () => {
     expect(play).toHaveBeenCalledWith('error');
   });
 
-  it('shows the info icon and stays quiet for the mission', () => {
+  it('shows the info icon and stays quiet for the task', () => {
     render(
       <MessageDialog
         message="Find the one from the grandkids."

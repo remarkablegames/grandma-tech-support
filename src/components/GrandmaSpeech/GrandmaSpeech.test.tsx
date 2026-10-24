@@ -16,7 +16,7 @@ describe('GrandmaSpeech component', () => {
     );
   });
 
-  it('re-speaks the mission when the bubble is clicked', async () => {
+  it('re-speaks the task when the bubble is clicked', async () => {
     const user = userEvent.setup();
     const onRepeat = vi.fn();
     renderSpeech(onRepeat);
@@ -26,7 +26,7 @@ describe('GrandmaSpeech component', () => {
     expect(onRepeat).toHaveBeenCalledTimes(1);
   });
 
-  it('re-speaks the mission from the keyboard too', async () => {
+  it('re-speaks the task from the keyboard too', async () => {
     const user = userEvent.setup();
     const onRepeat = vi.fn();
     renderSpeech(onRepeat);
@@ -37,7 +37,7 @@ describe('GrandmaSpeech component', () => {
     expect(onRepeat).toHaveBeenCalledTimes(1);
   });
 
-  it('hints that the bubble repeats the mission, for screen readers', () => {
+  it('hints that the bubble repeats the task, for screen readers', () => {
     renderSpeech(vi.fn());
 
     expect(screen.getByRole('button')).toHaveAccessibleName(

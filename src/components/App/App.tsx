@@ -8,11 +8,11 @@ import {
   ICON_WINDOWS,
   iconContextMenu,
   inboxTitle,
-  MISSION_FILES,
   OBJECTIVES,
   RECYCLE_BIN_ICONS,
   rowContextMenu,
   START_ITEMS,
+  TASK_FILES,
   WINDOW_META,
 } from 'src/data/gameContent';
 import { useGame } from 'src/hooks/useGame';
@@ -33,10 +33,10 @@ import type {
   IconWindowId,
   IconWindowRow,
   ListIconWindow,
-  MissionFileConfig,
   ShutdownMode,
   StartMenuDesktopItem,
   StartMenuItem,
+  TaskFileConfig,
 } from 'src/types/game';
 import { resolveIconDrop } from 'src/utils/resolveIconDrop';
 
@@ -78,7 +78,7 @@ type PendingConfirm =
   | { kind: 'recycle' | 'purge'; id: string; target: string; icon?: string };
 
 const ICON_BY_ID = new Map(
-  [...DESKTOP_ICONS, ...MISSION_FILES].map((icon) => [icon.id, icon]),
+  [...DESKTOP_ICONS, ...TASK_FILES].map((icon) => [icon.id, icon]),
 );
 
 // Stored ids the current desktop still knows, in the order they were
@@ -91,10 +91,7 @@ const knownIcons = (ids: string[]) =>
 // The disk-full task's culprits are all out of play once every one of
 // them is in the given absent lists (the bin, or emptied for real); with
 // no active culprits (every other evening) the answer is no.
-const missionFilesGone = (
-  files: MissionFileConfig[],
-  absent: string[],
-): boolean =>
+const taskFilesGone = (files: TaskFileConfig[], absent: string[]): boolean =>
   files.length > 0 && files.every((file) => absent.includes(file.id));
 
 // Win95's folder action: the windows holding restorable shortcuts (the
@@ -109,7 +106,7 @@ export function App() {
   const game = useGame();
   const iconPositions = useIconPositions();
 
-  // The current mission: its instruction is grandma's line, and its title,
+  // The current task: its instruction is grandma's line, and its title,
   // message, and icon dress the task-complete dialog.
   const objective = OBJECTIVES[game.objectiveIndex];
   const isFinalTask = game.phase === 'won';
@@ -117,8 +114,8 @@ export function App() {
   // The disk-full task's culprits live on the desktop only while it runs,
   // at the cells their configs carry: the persisted layout never learns
   // their ids, so they arrive fresh (and in place) every time.
-  const activeFiles: MissionFileConfig[] =
-    objective.lowDisk === true ? MISSION_FILES : [];
+  const activeFiles: TaskFileConfig[] =
+    objective.lowDisk === true ? TASK_FILES : [];
   const desktopIcons: DesktopIconConfig[] = [...DESKTOP_ICONS, ...activeFiles];
   const cells: IconPositions = { ...iconPositions.positions };
 
@@ -317,7 +314,7 @@ export function App() {
       ...iconPositions.recycled.filter((kept) => kept !== id),
     ];
 
-    if (missionFilesGone(activeFiles, binned)) {
+    if (taskFilesGone(activeFiles, binned)) {
       game.noteDiskMilestone('binned');
     }
   };
@@ -368,7 +365,7 @@ export function App() {
     // alone frees no space for grandma to point at. Already-emptied
     // culprits count as gone, so a half-emptied evening still lands the
     // line.
-    const filesBinned = missionFilesGone(activeFiles, [
+    const filesBinned = taskFilesGone(activeFiles, [
       ...iconPositions.recycled,
       ...iconPositions.deleted,
     ]);

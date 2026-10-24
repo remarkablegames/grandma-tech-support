@@ -88,7 +88,7 @@ function loadLayout(): IconLayout {
     positions: readPositions(source),
     recycled: readIds(section.recycled),
     filed: readIds(section.filed),
-    // Only the desktop's own icons survive a reload, so a deleted mission
+    // Only the desktop's own icons survive a reload, so a deleted task
     // file (which the store never learns) quietly returns with its task.
     deleted: readIds(section.deleted),
   };

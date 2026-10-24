@@ -13,7 +13,7 @@ interface TaskManagerProps {
 // The NT-era Task Manager: Win95's Close Program list under its better-known
 // name, with the same End Task / Shut Down / Cancel row. Reached from
 // Start > Task Manager, because browsers on Windows can never hear the real
-// Ctrl+Alt+Del chord — the mission teaches only this mouse route.
+// Ctrl+Alt+Del chord — the task teaches only this mouse route.
 export function TaskManager({
   windows,
   frozen,

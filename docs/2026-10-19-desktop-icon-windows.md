@@ -61,7 +61,7 @@ ding) instead, backed by Grandma’s “broken since 2000” redirect line.
 - **Reset.** `Play again` closes every icon window (minimized or not). The layout
   otherwise rides out the reset — positions, the bin, and My Documents persist — while
   everything emptied for real comes back with the rest of the new evening (see
-  [missions](./2026-10-19-missions.md)).
+  [tasks](./2026-10-19-tasks.md)).
 - **Out of scope.** Genuinely working programs — the joke is that these are barely
   functional Win95 programs — plus maximize (the windows are already small),
   inactive-titlebar graying within the icon stack, and bulk restore — no `Restore All`

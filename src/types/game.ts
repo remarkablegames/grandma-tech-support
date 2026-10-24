@@ -54,7 +54,7 @@ export interface DesktopIconConfig {
 // The disk-full task's culprits: ordinary draggable files that live on the
 // desktop only while that task is on, so their cells come from the config
 // instead of the persisted default layout.
-export interface MissionFileConfig extends DesktopIconConfig {
+export interface TaskFileConfig extends DesktopIconConfig {
   home: IconCell;
 }
 
@@ -202,7 +202,7 @@ export interface ProductConfig {
 
 // Start menu entries come in two shapes: leaves act directly when picked —
 // joke items put a grandma line in the dialog, app items open a browser
-// window, icon-window items open the desktop's mini-windows, and the mission
+// window, icon-window items open the desktop's mini-windows, and the task
 // action re-reads the current task — while submenu items never act, they
 // fan out into a flyout of leaves.
 export interface StartMenuBaseItem {
@@ -224,11 +224,11 @@ export interface StartMenuIconWindowItem extends StartMenuBaseItem {
 }
 
 // Menu items whose effect isn't a fixed string: Help re-reads whatever the
-// current mission is, Shut Down... opens the power dialog, Task Manager
+// current task is, Shut Down... opens the power dialog, Task Manager
 // opens the task list, and Disk Defragmenter opens the drive tool, so none
 // of them live in the content file.
 export interface StartMenuActionItem extends StartMenuBaseItem {
-  action: 'show-mission' | 'shutdown' | 'task-manager' | 'defrag';
+  action: 'show-task' | 'shutdown' | 'task-manager' | 'defrag';
 }
 
 // A filed shortcut in Start > Documents: it launches the same desktop
