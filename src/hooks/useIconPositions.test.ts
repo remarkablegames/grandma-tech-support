@@ -194,6 +194,38 @@ describe('useIconPositions hook', () => {
     expect(result.current.filed).toEqual(['calculator']);
   });
 
+  it('purges one bin file for real, leaving the rest of the bin alone', () => {
+    const { result } = renderHook(() => useIconPositions());
+
+    act(() => {
+      result.current.recycleIcon('notes');
+      result.current.recycleIcon('internet');
+    });
+    expect(result.current.recycled).toEqual(['internet', 'notes']);
+
+    act(() => {
+      result.current.purgeIcon('notes');
+    });
+
+    // Out of the bin and into the deleted list: gone for the evening...
+    expect(result.current.recycled).toEqual(['internet']);
+    expect(result.current.deleted).toEqual(['notes']);
+    // ...with its old cell still parked for anything that remembers it.
+    expect(result.current.positions.notes).toEqual({ col: 0, row: 3 });
+
+    // The purge rides the save like every other step.
+    expect(
+      JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? '{}'),
+    ).toEqual({
+      icons: {
+        positions: result.current.positions,
+        recycled: ['internet'],
+        filed: [],
+        deleted: ['notes'],
+      },
+    });
+  });
+
   it('reads back what was emptied for real, dropping ghosts', () => {
     window.localStorage.setItem(
       STORAGE_KEY,

@@ -23,7 +23,7 @@ describe('ConfirmDialog component', () => {
     const user = userEvent.setup();
     render(
       <ConfirmDialog
-        title="Confirm File Delete"
+        title="Confirm Delete"
         message="Are you sure you want to delete these items?"
         icon="windows_icons_32x32/recycle_bin_full.png"
         onConfirm={onConfirm}
@@ -32,7 +32,7 @@ describe('ConfirmDialog component', () => {
     );
 
     const dialog = screen.getByRole('alertdialog', {
-      name: 'Confirm File Delete',
+      name: 'Confirm Delete',
     });
     expect(dialog).toHaveTextContent(
       'Are you sure you want to delete these items?',
@@ -52,7 +52,7 @@ describe('ConfirmDialog component', () => {
     const user = userEvent.setup();
     render(
       <ConfirmDialog
-        title="Confirm File Delete"
+        title="Confirm Delete"
         message="Delete?"
         onConfirm={onConfirm}
         onCancel={onCancel}
@@ -60,7 +60,7 @@ describe('ConfirmDialog component', () => {
     );
 
     const dialog = screen.getByRole('alertdialog', {
-      name: 'Confirm File Delete',
+      name: 'Confirm Delete',
     });
     expect(dialog.querySelector('img')).toBeNull();
 

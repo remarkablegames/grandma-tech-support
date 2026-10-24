@@ -15,6 +15,7 @@ import type {
   UpdateStage,
   WindowMeta,
 } from 'src/types/game';
+import { isConsumable } from 'src/utils/resolveIconDrop';
 
 const ICONS = 'windows_icons_32x32';
 
@@ -892,7 +893,9 @@ export const DESKTOP_CONTEXT_MENU: ContextMenuItem[] = [
 // Right-click on a desktop icon: `open` runs the icon's own double-click
 // path, so the broken mail shortcut still raises the MAIL.EXE error. The
 // Recycle Bin gets Win95's extra entry — Empty Recycle Bin, greyed out the
-// way Win95 greys it when the bin holds nothing left to empty.
+// way Win95 greys it when the bin holds nothing left to empty. `Delete`
+// is Win95's own for whatever the bin will take; the icons that can't go
+// anywhere keep the joke, where it's literally true.
 export function iconContextMenu(
   icon: DesktopIconConfig,
   canEmpty: boolean,
@@ -911,7 +914,16 @@ export function iconContextMenu(
 
   menu.push(
     { id: 'sep-icon', separator: true },
-    { id: 'delete', label: 'Delete', message: JOKES.contextDelete },
+    isConsumable(icon)
+      ? {
+          id: 'delete',
+          label: 'Delete',
+          effect: 'recycle',
+          desktopId: icon.id,
+          target: icon.label,
+          icon: icon.icon,
+        }
+      : { id: 'delete', label: 'Delete', message: JOKES.contextDelete },
     {
       id: 'icon-properties',
       label: 'Properties',
@@ -925,15 +937,30 @@ export function iconContextMenu(
 // Win95 asks before emptying the bin: the classic two-button confirm, Yes
 // or No, with the full bin graphic looking on.
 export const CONFIRM_EMPTY_BIN = {
-  title: 'Confirm File Delete',
+  title: 'Confirm Delete',
   message: 'Are you sure you want to delete these items?',
+} as const;
+
+// Win95 asks before a single file's delete too: same title, the file
+// quoted in the sentence — it goes to the bin unless it's already in it.
+export const CONFIRM_RECYCLE_FILE = {
+  title: 'Confirm Delete',
+  message: (target: string) =>
+    `Are you sure you want to delete ‘${target}’ from your desktop?`,
+} as const;
+
+export const CONFIRM_PURGE_FILE = {
+  title: 'Confirm Delete',
+  message: (target: string) => `Are you sure you want to delete ‘${target}’?`,
 } as const;
 
 // Right-click on a row inside a list window: Win95 shows the file menu, not
 // the folder menu. `Open` runs the row's own double-click path, greyed out
 // when the row has nothing to open; inside the Recycle Bin it also carries
 // Win95's `Restore`, right on the deleted file (folders hold nothing to
-// restore); Delete and Properties share the icon jokes.
+// restore). `Delete` is Win95's own wherever the file can really go — to
+// the bin from a folder, for real from the bin — and the joke for scenery
+// rows; Properties keeps the icon joke everywhere.
 export function rowContextMenu(
   row: IconWindowRow,
   windowId: IconWindowId,
@@ -950,13 +977,27 @@ export function rowContextMenu(
         ]
       : [];
 
+  const remove: ContextMenuItem[] =
+    row.desktopId === undefined
+      ? [{ id: 'row-delete', label: 'Delete', message: JOKES.contextDelete }]
+      : [
+          {
+            id: 'row-delete',
+            label: 'Delete',
+            effect: windowId === 'recycle' ? 'purge' : 'recycle',
+            desktopId: row.desktopId,
+            target: row.label,
+            icon: row.icon,
+          },
+        ];
+
   return [
     row.opens === undefined && row.desktopId === undefined
       ? { id: 'row-open', label: 'Open', disabled: true }
       : { id: 'row-open', label: 'Open', action: 'open' },
     ...restore,
     { id: 'row-sep', separator: true },
-    { id: 'row-delete', label: 'Delete', message: JOKES.contextDelete },
+    ...remove,
     {
       id: 'row-properties',
       label: 'Properties',

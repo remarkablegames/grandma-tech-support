@@ -10,14 +10,14 @@ browser window (Start → Internet’s twin); and the decoy `Inbox` stays delibe
 broken — double-clicking it opens a “Cannot find the file” system error (red X, error
 ding) instead, backed by Grandma’s “broken since 2000” redirect line.
 
-| Icon           | Window contents                                                                                                                                                                                                                                                                          |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `My Computer`  | drive list: `3½ Floppy (A:)` — hint "cupholder", `Hard disk (C:)` — hint "mostly toasters", `CD-ROM (D:)` — hint "1 song", `CD-RW (E:)` — hint "still burning", `Printer (LPT1:)` — hint "jammed", `Network (N:)` — hint "the neighbors’ stuff", `Games (G:)` — hint "Solitaire, mostly" |
-| `Recycle Bin`  | starts empty (Win95 style) and lists only the shortcuts the player recycles — every row restorable through the selected-row `Restore` or the row's right-click `Restore`; `Empty Recycle Bin` deletes them for real; empty, the pane keeps one blank row so the window never collapses   |
-| `My Documents` | every file opens its own Notepad window: `untitled`, `untitled (2)`, `untitled (3)`, `asdf`, `the_other_note.txt` (the password), `todo.txt`, `recipe.txt`                                                                                                                               |
-| `Sticky Notes` | the note itself: "THE PASSWORD" — "(it's on the other note)"                                                                                                                                                                                                                             |
-| `Calculator`   | clickable keypad; the display accepts digits, but every `=` shows **42**                                                                                                                                                                                                                 |
-| `Virus Shield` | task 6’s scanner: idle → `Scanning C:\` → “1 threat quarantined: toaster_7_install.exe”; one scan sweeps the whole pop-up storm                                                                                                                                                          |
+| Icon           | Window contents                                                                                                                                                                                                                                                                                                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `My Computer`  | drive list: `3½ Floppy (A:)` — hint "cupholder", `Hard disk (C:)` — hint "mostly toasters", `CD-ROM (D:)` — hint "1 song", `CD-RW (E:)` — hint "still burning", `Printer (LPT1:)` — hint "jammed", `Network (N:)` — hint "the neighbors’ stuff", `Games (G:)` — hint "Solitaire, mostly"                                                                                        |
+| `Recycle Bin`  | starts empty (Win95 style) and lists only the shortcuts the player recycles — every row restorable through the selected-row `Restore` or the row's right-click `Restore`, and deletable for real through the row's right-click `Delete` (behind its own confirm); `Empty Recycle Bin` wipes whatever is left; empty, the pane keeps one blank row so the window never collapses |
+| `My Documents` | every file opens its own Notepad window: `untitled`, `untitled (2)`, `untitled (3)`, `asdf`, `the_other_note.txt` (the password), `todo.txt`, `recipe.txt`                                                                                                                                                                                                                      |
+| `Sticky Notes` | the note itself: "THE PASSWORD" — "(it's on the other note)"                                                                                                                                                                                                                                                                                                                    |
+| `Calculator`   | clickable keypad; the display accepts digits, but every `=` shows **42**                                                                                                                                                                                                                                                                                                        |
+| `Virus Shield` | task 6’s scanner: idle → `Scanning C:\` → “1 threat quarantined: toaster_7_install.exe”; one scan sweeps the whole pop-up storm                                                                                                                                                                                                                                                 |
 
 - **Window behavior.** Mini-chrome: navy titlebar, title, and **working** `–` (minimize)
   and `×` (close) buttons — unlike the browser chrome's decorative close, these are our
@@ -37,16 +37,19 @@ ding) instead, backed by Grandma’s “broken since 2000” redirect line.
   focused icon — keyboard clicks carry `detail === 0`) opens directly, matching Windows'
   "select then Enter"; two taps inside ~400 ms cover touch. Single click keeps selecting,
   unchanged; right-click selects too and opens the icon's own context menu, where `Open`
-  runs this same open path (so the decoy's MAIL.EXE error still fires) alongside joke
-  `Delete` and `Properties` entries. Folder rows follow the same idiom: a single click highlights the row (navy
+  runs this same open path (so the decoy's MAIL.EXE error still fires) alongside
+  Win95's own `Delete` (one confirm, then the bin — the system icons and the
+  containers keep the joke) and a joke `Properties` entry. Folder rows follow the same idiom: a single click highlights the row (navy
   fill, `aria-pressed`, hint text flips to white), and openable rows (`opens` in the row
   config) open on the same double-click gesture, shared through the `useDoubleClickOpen`
   hook. Plain rows only select, nothing opens. Right-clicking the list background
   opens the same folder menu as the bare desktop — authentic, since Win95's folder
   menus nearly mirror its desktop menu — while a right-clicked row gets Win95's file
   menu instead: `Open` runs that row's own open path (greyed out when the row has
-  nothing to open, like the greyed `Paste`) with joke `Delete` and `Properties`
-  entries. Note, Calculator, and Virus Shield bodies swallow the click with no menu.
+  nothing to open, like the greyed `Paste`), with `Delete` real wherever the file
+  can go (folders recycle it behind a confirm, the bin's rows delete it for real,
+  scenery rows keep the joke) and a joke `Properties` entry. Note, Calculator, and
+  Virus Shield bodies swallow the click with no menu.
 - **Sound.** No new SFX: the double-click's two ticks collapse into one audible `click`
   through the audio service's ~100 ms per-track throttle, and window interactions tick
   like every other plain button. The calculator keys and the scanner's scan button tick

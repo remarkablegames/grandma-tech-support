@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { audio } from 'src/services/audio';
 import type {
+  ContextMenuDeleteItem,
   ContextMenuEffectItem,
   ContextMenuItem,
   ContextMenuJokeItem,
@@ -17,7 +18,8 @@ interface ContextMenuProps {
       | ContextMenuJokeItem
       | ContextMenuOpenItem
       | ContextMenuEffectItem
-      | ContextMenuRestoreItem,
+      | ContextMenuRestoreItem
+      | ContextMenuDeleteItem,
   ) => void;
   onDismiss: () => void;
 }

@@ -211,20 +211,27 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
   bare desktop opens Win95’s menu — Arrange Icons, Line up Icons, greyed-out
   Paste and Paste Shortcut, Refresh, Properties — every live entry a grandma
   joke. An icon opens its own menu: `Open` runs the icon’s double-click path
-  (the decoy still raises its MAIL.EXE error) plus joke `Delete` and
-  `Properties` entries. The Recycle Bin’s menu adds `Empty Recycle Bin` — live
-  whenever the bin holds anything (it starts empty, Win95 style), greyed out
-  while it sits empty — which asks Win95’s `Confirm File Delete` first (`Yes`
-  autofocused, `No` cancels); `Yes` empties the bin for real — everything in it
-  stays deleted until the next reset, which brings it all back. Browser windows
-  and the taskbar swallow
+  (the decoy still raises its MAIL.EXE error) beside Win95’s own `Delete`,
+  which asks a `Confirm Delete` (`send ‘the file’ to the Recycle Bin?`)
+  and on `Yes` recycles it like a drop on the bin — the same sound, the same
+  bin face, the same beats; whatever the bin won’t take (My Computer, the bin
+  itself, My Documents) keeps the joke `Delete`, where it’s literally true —
+  plus a joke `Properties`. The Recycle Bin’s menu adds `Empty Recycle Bin` —
+  live whenever the bin holds anything (it starts empty, Win95 style), greyed
+  out while it sits empty — which asks Win95’s `Confirm Delete` first
+  (`Yes` autofocused, `No` cancels); `Yes` empties the bin for real —
+  everything in it stays deleted until the next reset, which brings it all
+  back. Browser windows and the taskbar swallow
   the click with
   no replacement menu; the list windows (`My Computer`, `My Documents`,
   `Recycle Bin`) open the same folder menu Win95 gives their backgrounds, and a
-  right-clicked row gets the file menu instead — `Open` runs the row's own open
-  path (greyed out when the row has nothing to open) beside joke `Delete` and
-  `Properties` entries, and the Recycle Bin's rows add Win95's `Restore`, which
-  puts the file back on its cell (folders never offer it) — while notes,
+  right-clicked row gets the file menu instead — `Open` runs the row's own
+  open path (greyed out when the row has nothing to open), `Delete` follows
+  the same line (folders recycle the file behind the same confirm; from inside
+  the bin it deletes for real, one `delete ‘the file’?` at a time; scenery
+  rows like the drives and the recipe keep the joke), `Properties` stays a
+  joke, and the Recycle Bin's rows add Win95's `Restore`, which puts the file
+  back on its cell (folders never offer it) — while notes,
   Calculator, and Virus Shield just swallow.
   Opening a menu closes the Start
   menu; the menu is clamped inside the viewport, focuses its first enabled

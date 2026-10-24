@@ -1,6 +1,8 @@
 import { type MouseEvent, useEffect, useState } from 'react';
 import {
   CONFIRM_EMPTY_BIN,
+  CONFIRM_PURGE_FILE,
+  CONFIRM_RECYCLE_FILE,
   DESKTOP_CONTEXT_MENU,
   DESKTOP_ICONS,
   ICON_WINDOWS,
@@ -19,6 +21,7 @@ import {
 } from 'src/hooks/useIconPositions';
 import { audio } from 'src/services/audio';
 import type {
+  ContextMenuDeleteItem,
   ContextMenuEffectItem,
   ContextMenuItem,
   ContextMenuJokeItem,
@@ -64,6 +67,14 @@ interface OpenContextMenu {
   items: ContextMenuItem[];
   onOpen?: () => void;
 }
+
+// A menu's delete waiting on its Win95 confirm: the bin's multi-item
+// empty, or one file's trip to the bin (`recycle` — from the desktop or
+// a folder) or out of it for real (`purge` — from inside the bin).
+// `target` and `icon` dress the dialog with the file's name and face.
+type PendingConfirm =
+  | { kind: 'empty' }
+  | { kind: 'recycle' | 'purge'; id: string; target: string; icon?: string };
 
 const ICON_BY_ID = new Map(
   [...DESKTOP_ICONS, ...MISSION_FILES].map((icon) => [icon.id, icon]),
@@ -135,9 +146,11 @@ export function App() {
   const openWindows = WINDOW_META.filter((meta) => game.open[meta.id]);
 
   const [contextMenu, setContextMenu] = useState<OpenContextMenu | null>(null);
-  // The bin's confirm dialog: the menu's Empty entry asks first, Win95
-  // style, and either answer just closes it.
-  const [confirmingEmpty, setConfirmingEmpty] = useState(false);
+  // The menu's delete dialog: the ask Win95's Yes/No pair answers, held
+  // until the player picks one — or nothing at all.
+  const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(
+    null,
+  );
 
   const closeContextMenu = () => {
     setContextMenu(null);
@@ -249,7 +262,8 @@ export function App() {
       | ContextMenuJokeItem
       | ContextMenuOpenItem
       | ContextMenuEffectItem
-      | ContextMenuRestoreItem,
+      | ContextMenuRestoreItem
+      | ContextMenuDeleteItem,
   ) => {
     setContextMenu(null);
 
@@ -259,7 +273,18 @@ export function App() {
         return;
       }
 
-      setConfirmingEmpty(true);
+      if (item.effect === 'empty-bin') {
+        setPendingConfirm({ kind: 'empty' });
+        return;
+      }
+
+      // Win95's Delete always asks first; the dialog's Yes acts.
+      setPendingConfirm({
+        kind: item.effect,
+        id: item.desktopId,
+        target: item.target,
+        icon: item.icon,
+      });
       return;
     }
 
@@ -271,13 +296,70 @@ export function App() {
     game.showJoke(item.message);
   };
 
-  // Emptying the bin only counts as the disk-full task's beat when the
-  // culprits were the ones in there: an empty of some other shortcut alone
-  // frees no space for grandma to point at. Already-emptied culprits count
-  // as gone, so a half-emptied evening still lands the line.
-  const confirmEmptyBin = () => {
-    setConfirmingEmpty(false);
+  // Recycling lands the same from anywhere — a drop on the bin or a
+  // menu's Delete: into the bin it goes, then grandma checks whether the
+  // culprits are all in there. Emptied ones don't count here — after the
+  // real empty, the bin stays quiet.
+  const recycleAndNote = (id: string) => {
+    iconPositions.recycleIcon(id);
 
+    // Both culprits in the bin: grandma points at the empty step next.
+    const binned = [
+      id,
+      ...iconPositions.recycled.filter((kept) => kept !== id),
+    ];
+
+    if (missionFilesGone(activeFiles, binned)) {
+      game.noteDiskMilestone('binned');
+    }
+  };
+
+  // What each confirm asks: Win95's own sentences — the file quoted by
+  // name with its face looking on, the full bin for the multi-item empty.
+  const confirmFor = (pending: PendingConfirm) => {
+    if (pending.kind === 'empty') {
+      return {
+        title: CONFIRM_EMPTY_BIN.title,
+        message: CONFIRM_EMPTY_BIN.message,
+        icon: RECYCLE_BIN_ICONS.full,
+      };
+    }
+
+    const copy =
+      pending.kind === 'purge' ? CONFIRM_PURGE_FILE : CONFIRM_RECYCLE_FILE;
+
+    return {
+      title: copy.title,
+      message: copy.message(pending.target),
+      icon: pending.icon,
+    };
+  };
+
+  // Yes: the asked-for delete happens for real — the wipe, the trip to
+  // the bin, or the purge out of it — and the dialog goes away.
+  const applyConfirm = (pending: PendingConfirm) => {
+    setPendingConfirm(null);
+
+    if (pending.kind === 'recycle') {
+      audio.play('drop');
+      recycleAndNote(pending.id);
+      return;
+    }
+
+    if (pending.kind === 'purge') {
+      // A purge stays out of grandma's chatter: her freed-disk line
+      // belongs to the empty, which anything still in the bin can always
+      // play later. This one file just goes for the evening.
+      iconPositions.purgeIcon(pending.id);
+      audio.play('trash');
+      return;
+    }
+
+    // Emptying the bin only counts as the disk-full task's beat when the
+    // culprits were the ones in there: an empty of some other shortcut
+    // alone frees no space for grandma to point at. Already-emptied
+    // culprits count as gone, so a half-emptied evening still lands the
+    // line.
     const filesBinned = missionFilesGone(activeFiles, [
       ...iconPositions.recycled,
       ...iconPositions.deleted,
@@ -395,22 +477,7 @@ export function App() {
                       audio.play('drop');
 
                       if (drop === 'recycle') {
-                        iconPositions.recycleIcon(icon.id);
-
-                        // Both culprits in the bin: grandma points at the
-                        // empty step next. Emptied ones don't count here —
-                        // after the real empty, the bin stays quiet.
-                        const binned = [
-                          icon.id,
-                          ...iconPositions.recycled.filter(
-                            (kept) => kept !== icon.id,
-                          ),
-                        ];
-
-                        if (missionFilesGone(activeFiles, binned)) {
-                          game.noteDiskMilestone('binned');
-                        }
-
+                        recycleAndNote(icon.id);
                         return;
                       }
 
@@ -603,14 +670,14 @@ export function App() {
             />
           )}
 
-          {confirmingEmpty && (
+          {pendingConfirm !== null && (
             <ConfirmDialog
-              title={CONFIRM_EMPTY_BIN.title}
-              message={CONFIRM_EMPTY_BIN.message}
-              icon={RECYCLE_BIN_ICONS.full}
-              onConfirm={confirmEmptyBin}
+              {...confirmFor(pendingConfirm)}
+              onConfirm={() => {
+                applyConfirm(pendingConfirm);
+              }}
               onCancel={() => {
-                setConfirmingEmpty(false);
+                setPendingConfirm(null);
               }}
             />
           )}

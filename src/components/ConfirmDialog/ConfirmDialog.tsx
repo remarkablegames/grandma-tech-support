@@ -9,9 +9,9 @@ interface ConfirmDialogProps {
 }
 
 // Win95's two-button message box: the confirm flavour of System Message,
-// asking the real question (emptying the bin, for now) with an autofocused
-// Yes beside a No. Either button just closes it and hands back to the flow
-// that asked.
+// asking the real question (the bin's empty, one file's delete) with an
+// autofocused Yes beside a No. Either button just closes it and hands back
+// to the flow that asked.
 export function ConfirmDialog({
   title,
   message,

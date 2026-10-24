@@ -10,12 +10,12 @@ stay silent; text does the comedy.
 | Event                                                                                                                                                                                                                               | SFX key    | File                                    |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | --------------------------------------- |
 | Plain button tick — window raise (left pointer-down, safe × included), taskbar switch, Start, Start menu items, desktop icon press (keyboard Enter ticks it too), tray speaker, joke-dialog OK, Shut Down `OK`/`Cancel`, Play again | `click`    | `interface_sounds/click.mp3`            |
-| Icon drop lands — on a free cell, into the bin, or into My Documents                                                                                                                                                                | `drop`     | `interface_sounds/drop_002.mp3`         |
+| Icon drop lands — on a free cell, into the bin, into My Documents, or from a menu’s `Delete`                                                                                                                                        | `drop`     | `interface_sounds/drop_002.mp3`         |
 | Right-click menu opens — desktop, icon, row, or folder background; the Start menu stays quiet                                                                                                                                       | `menu`     | `interface_sounds/click_003.mp3`        |
 | Liar “Close” opens extra spam pop-ups                                                                                                                                                                                               | `open`     | `interface_sounds/drop_004.mp3`         |
 | Misleading pop-up button (“Fix now!”, “Buy”, “Claim”)                                                                                                                                                                               | `error`    | `interface_sounds/back_001.mp3`         |
 | Win — email found                                                                                                                                                                                                                   | `win`      | `interface_sounds/confirmation_004.mp3` |
-| Recycle Bin emptied for real — the confirm’s Yes deletes its rows                                                                                                                                                                   | `trash`    | `interface_sounds/scratch_003.mp3`      |
+| Recycle Bin loses for real — the empty’s confirm Yes, or one bin row’s `Delete`                                                                                                                                                     | `trash`    | `interface_sounds/scratch_003.mp3`      |
 | Shut Down confirmed — any screen powering down to black                                                                                                                                                                             | `shutdown` | `interface_sounds/question_004.mp3`     |
 | Return from a black screen — wake or boot line done                                                                                                                                                                                 | `startup`  | `interface_sounds/confirmation_001.mp3` |
 
@@ -30,7 +30,8 @@ The safe little × plays no sound of its own — its pointer-down bubbles to the
 
 Icon gestures sound only their moments: the press ticks `click`, the ride is silent
 the Win95 way, and the landing answers with `drop` — one tick whether the icon lands
-on a free cell, in the bin, or in My Documents. A refused drop (a system icon, or the
+on a free cell, in the bin, or in My Documents. A menu’s `Delete` rides the same
+landing on its way to the bin; a refused drop (a system icon, or the
 containers themselves) keeps the `error` ding.
 
 - **Zero audio libraries.** `src/services/audio.ts` drives `HTMLAudioElement` directly:

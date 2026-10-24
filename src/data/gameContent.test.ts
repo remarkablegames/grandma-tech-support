@@ -1,10 +1,17 @@
 import type {
+  DesktopIconConfig,
   IconWindowId,
   IconWindowRow,
   StartMenuSubmenuItem,
 } from 'src/types/game';
 
-import { ICON_WINDOWS, rowContextMenu, START_ITEMS } from './gameContent';
+import {
+  ICON_WINDOWS,
+  iconContextMenu,
+  JOKES,
+  rowContextMenu,
+  START_ITEMS,
+} from './gameContent';
 
 // Start > Documents mirrors the real My Documents window: same files, same
 // order, same icons, each leaf opening the window its folder row opens.
@@ -75,5 +82,65 @@ describe('gameContent data', () => {
     expect(labels({ label: 'ghost' }, 'recycle')).not.toContain('Restore');
     // ...and folders, which hold nothing to restore, stay pure file menus.
     expect(labels(deleted, 'documents')).not.toContain('Restore');
+  });
+
+  it('makes Delete real wherever the file can go, and a joke where it can’t', () => {
+    const rowDelete = (row: IconWindowRow, windowId: IconWindowId) =>
+      rowContextMenu(row, windowId).find((item) => item.id === 'row-delete');
+
+    const iconDelete = (icon: DesktopIconConfig) =>
+      iconContextMenu(icon, false).find((item) => item.id === 'delete');
+
+    const file: IconWindowRow = {
+      icon: 'sticky_note.png',
+      label: 'Sticky Notes',
+      desktopId: 'notes',
+    };
+
+    // A folder's shortcut heads to the bin behind Win95's confirm...
+    expect(rowDelete(file, 'documents')).toMatchObject({
+      effect: 'recycle',
+      desktopId: 'notes',
+      target: 'Sticky Notes',
+      icon: 'sticky_note.png',
+    });
+    // ...the bin's own row deletes for real...
+    expect(rowDelete(file, 'recycle')).toMatchObject({
+      effect: 'purge',
+      desktopId: 'notes',
+      target: 'Sticky Notes',
+    });
+    // ...and scenery rows keep the joke, which is literally true: the
+    // recipe and the drives aren't going anywhere.
+    expect(rowDelete({ label: 'recipe.txt' }, 'documents')).toMatchObject({
+      message: JOKES.contextDelete,
+    });
+
+    // Desktop menus follow the same line: the icons the bin will take...
+    expect(
+      iconDelete({ id: 'notes', label: 'Sticky Notes', icon: 'note.png' }),
+    ).toMatchObject({
+      effect: 'recycle',
+      desktopId: 'notes',
+      target: 'Sticky Notes',
+      icon: 'note.png',
+    });
+    // ...and the ones Win95 itself never lets you delete keep the joke.
+    expect(
+      iconDelete({
+        id: 'recycle',
+        label: 'Recycle Bin',
+        icon: 'bin.png',
+        container: 'recycle',
+      }),
+    ).toMatchObject({ message: JOKES.contextDelete });
+    expect(
+      iconDelete({
+        id: 'my-computer',
+        label: 'My Computer',
+        icon: 'computer.png',
+        system: true,
+      }),
+    ).toMatchObject({ message: JOKES.contextDelete });
   });
 });

@@ -252,9 +252,9 @@ export type PowerScreenMode = 'safe' | 'boot' | 'splash';
 // Right-click menus. Joke items put a grandma line in the dialog, `open` runs
 // whatever the right-clicked target would have done on a double-click, effect
 // items hand a real action back to the desktop (the bin's Empty Recycle Bin,
-// a deleted file's Restore), disabled items are the greyed-out entries Win95
-// never lets you pick, and separators are the horizontal rules it draws
-// between groups.
+// a deleted file's Restore, Win95's own Delete), disabled items are the
+// greyed-out entries Win95 never lets you pick, and separators are the
+// horizontal rules it draws between groups.
 export interface ContextMenuBaseItem {
   id: string;
   label: string;
@@ -274,11 +274,22 @@ export interface ContextMenuEffectItem extends ContextMenuBaseItem {
   effect: 'empty-bin';
 }
 
-// The other: Win95's file menu inside the Recycle Bin, where `Restore` takes
+// The second: Win95's file menu inside the Recycle Bin, where `Restore` takes
 // the deleted file's own desktop id to put it straight back.
 export interface ContextMenuRestoreItem extends ContextMenuBaseItem {
   effect: 'restore';
   desktopId: string;
+}
+
+// The third: Win95's Delete, which always asks before acting — `recycle`
+// sends the file to the bin (the desktop or a folder's copy of it), while
+// `purge`, from inside the bin, deletes it for real for the evening.
+// `target` and `icon` dress the confirm with the file's name and face.
+export interface ContextMenuDeleteItem extends ContextMenuBaseItem {
+  effect: 'recycle' | 'purge';
+  desktopId: string;
+  target: string;
+  icon?: string;
 }
 
 export interface ContextMenuDisabledItem extends ContextMenuBaseItem {
@@ -295,5 +306,6 @@ export type ContextMenuItem =
   | ContextMenuOpenItem
   | ContextMenuEffectItem
   | ContextMenuRestoreItem
+  | ContextMenuDeleteItem
   | ContextMenuDisabledItem
   | ContextMenuSeparator;

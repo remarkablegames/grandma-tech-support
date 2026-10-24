@@ -11,9 +11,9 @@ export type IconPositions = Record<string, IconCell>;
 
 // The whole persisted desktop: where every icon sits, plus the ones the
 // player has dragged off it — into the Recycle Bin, My Documents, or the
-// deleted list. `deleted` remembers what the bin emptied for real: it all
-// comes back on Play again or a restart, like everything else the reset
-// puts back.
+// deleted list. `deleted` remembers what the bin lost for real — the
+// empty's wipe or one row's Delete — and it all comes back on Play again
+// or a restart, like everything else the reset puts back.
 export interface IconLayout {
   positions: IconPositions;
   recycled: string[];
@@ -151,6 +151,20 @@ export function useIconPositions() {
     });
   };
 
+  // Win95's Delete inside the bin: one shortcut deleted for real, parked
+  // where the empty parks things. Bin files never sit in `deleted` (the
+  // empty moves them out whole), so the append can't double-book the
+  // evening.
+  const purgeIcon = (id: string) => {
+    const current = layoutRef.current;
+
+    commit({
+      ...current,
+      recycled: current.recycled.filter((kept) => kept !== id),
+      deleted: [...current.deleted, id],
+    });
+  };
+
   // Win95's Empty Recycle Bin: everything in the bin — every shortcut the
   // player recycled — is deleted for real, parked in `deleted` so it stays
   // off the desktop until the evening resets. Filed shortcuts belong to
@@ -183,6 +197,7 @@ export function useIconPositions() {
     recycleIcon,
     fileIcon,
     restoreIcon,
+    purgeIcon,
     emptyBin,
     resetBin,
   };

@@ -762,7 +762,7 @@ describe('App component', () => {
 
     // No leaves the shortcut exactly where it was.
     const confirm = screen.getByRole('alertdialog', {
-      name: 'Confirm File Delete',
+      name: 'Confirm Delete',
     });
     expect(confirm).toHaveTextContent(
       'Are you sure you want to delete these items?',
@@ -785,7 +785,7 @@ describe('App component', () => {
     );
     await user.click(
       within(
-        screen.getByRole('alertdialog', { name: 'Confirm File Delete' }),
+        screen.getByRole('alertdialog', { name: 'Confirm Delete' }),
       ).getByRole('button', { name: 'Yes' }),
     );
     expect(within(binWindow).queryByText('Sticky Notes')).toBeNull();
@@ -805,6 +805,167 @@ describe('App component', () => {
         { name: 'Empty Recycle Bin' },
       ),
     ).toBeDisabled();
+  }, 15000);
+
+  it('sends a desktop icon to the bin from Delete behind Win95’s confirm', async () => {
+    window.localStorage.clear();
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
+
+    // Right-click the victim: Win95's Delete is a real entry now.
+    fireEvent.contextMenu(
+      screen.getByRole('button', { name: 'Sticky Notes' }),
+      {
+        clientX: 40,
+        clientY: 400,
+      },
+    );
+    await user.click(
+      within(screen.getByRole('menu', { name: 'Context menu' })).getByRole(
+        'menuitem',
+        { name: 'Delete' },
+      ),
+    );
+
+    // The question names the file...
+    const confirm = screen.getByRole('alertdialog', {
+      name: 'Confirm Delete',
+    });
+    expect(confirm).toHaveTextContent(
+      'Are you sure you want to delete ‘Sticky Notes’ from your desktop?',
+    );
+
+    // No leaves it standing...
+    await user.click(within(confirm).getByRole('button', { name: 'No' }));
+    expect(screen.queryByRole('alertdialog')).toBeNull();
+    expect(
+      screen.getByRole('button', { name: 'Sticky Notes' }),
+    ).toBeInTheDocument();
+
+    // ...and Yes recycles it like the drag would: gone, one landing tick,
+    // the bin's full face.
+    fireEvent.contextMenu(
+      screen.getByRole('button', { name: 'Sticky Notes' }),
+      {
+        clientX: 40,
+        clientY: 400,
+      },
+    );
+    await user.click(
+      within(screen.getByRole('menu', { name: 'Context menu' })).getByRole(
+        'menuitem',
+        { name: 'Delete' },
+      ),
+    );
+    await user.click(
+      within(
+        screen.getByRole('alertdialog', { name: 'Confirm Delete' }),
+      ).getByRole('button', { name: 'Yes' }),
+    );
+
+    expect(screen.queryByRole('button', { name: 'Sticky Notes' })).toBeNull();
+    const bin = screen.getByRole('button', { name: 'Recycle Bin' });
+    expect(bin.querySelector('img')?.getAttribute('src')).toContain(
+      'recycle_bin_full.png',
+    );
+    expect(play).toHaveBeenCalledWith('drop');
+  }, 15000);
+
+  it('sends a filed shortcut back out of My Documents from Delete', async () => {
+    window.localStorage.clear();
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
+
+    // Calculator files itself into My Documents (column 0, row 2).
+    const calculator = screen.getByRole('button', { name: 'Calculator' });
+    firePointer(calculator, 'pointerdown', { clientX: 40, clientY: 300 });
+    firePointer(window, 'pointermove', { clientX: 40, clientY: 140 });
+    firePointer(window, 'pointerup', {});
+
+    await user.dblClick(screen.getByRole('button', { name: 'My Documents' }));
+    const folder = screen.getByRole('region', { name: 'My Documents' });
+
+    // The folder's row Delete is Win95's own: one confirm, then the bin.
+    fireEvent.contextMenu(
+      within(folder).getByRole('button', { name: /Calculator/ }),
+    );
+    await user.click(
+      within(screen.getByRole('menu', { name: 'Context menu' })).getByRole(
+        'menuitem',
+        { name: 'Delete' },
+      ),
+    );
+    const confirm = screen.getByRole('alertdialog', {
+      name: 'Confirm Delete',
+    });
+    expect(confirm).toHaveTextContent(
+      'Are you sure you want to delete ‘Calculator’ from your desktop?',
+    );
+    await user.click(within(confirm).getByRole('button', { name: 'Yes' }));
+
+    // The row leaves the folder, the desktop doesn't get the icon back
+    // (the shortcut is binned, not restored), and the bin fills.
+    expect(within(folder).queryByText('Calculator')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Calculator' })).toBeNull();
+    expect(play).toHaveBeenCalledWith('drop');
+    const bin = screen.getByRole('button', { name: 'Recycle Bin' });
+    expect(bin.querySelector('img')?.getAttribute('src')).toContain(
+      'recycle_bin_full.png',
+    );
+
+    // And the shortcut really is in the bin.
+    await user.dblClick(bin);
+    expect(
+      within(screen.getByRole('region', { name: 'Recycle Bin' })).getByText(
+        'Calculator',
+      ),
+    ).toBeInTheDocument();
+  }, 15000);
+
+  it('purges a bin file for real from Delete behind Win95’s confirm', async () => {
+    window.localStorage.clear();
+    const user = userEvent.setup();
+    render(<App />);
+    await skipSplash(user);
+
+    // Sticky Notes goes into the bin first (column 0, row 3 to row 1).
+    const notes = screen.getByRole('button', { name: 'Sticky Notes' });
+    firePointer(notes, 'pointerdown', { clientX: 40, clientY: 400 });
+    firePointer(window, 'pointermove', { clientX: 40, clientY: 240 });
+    firePointer(window, 'pointerup', {});
+
+    const bin = screen.getByRole('button', { name: 'Recycle Bin' });
+    await user.dblClick(bin);
+    const binWindow = screen.getByRole('region', { name: 'Recycle Bin' });
+
+    // Inside the bin, Delete asks the other question...
+    fireEvent.contextMenu(
+      within(binWindow).getByRole('button', { name: 'Sticky Notes' }),
+    );
+    await user.click(
+      within(screen.getByRole('menu', { name: 'Context menu' })).getByRole(
+        'menuitem',
+        { name: 'Delete' },
+      ),
+    );
+    const confirm = screen.getByRole('alertdialog', {
+      name: 'Confirm Delete',
+    });
+    expect(confirm).toHaveTextContent(
+      'Are you sure you want to delete ‘Sticky Notes’?',
+    );
+    await user.click(within(confirm).getByRole('button', { name: 'Yes' }));
+
+    // Yes deletes it for real: the row is gone, the bin shows its empty
+    // face, the desktop stays bare, and the trash answers.
+    expect(within(binWindow).queryByText('Sticky Notes')).toBeNull();
+    expect(bin.querySelector('img')?.getAttribute('src')).toContain(
+      'recycle_bin_empty.png',
+    );
+    expect(screen.queryByRole('button', { name: 'Sticky Notes' })).toBeNull();
+    expect(play).toHaveBeenCalledWith('trash');
   }, 15000);
 
   it('files a shortcut into My Documents, mirrored in Start > Documents', async () => {
@@ -1668,7 +1829,7 @@ describe('App component', () => {
     );
     await user.click(
       within(
-        screen.getByRole('alertdialog', { name: 'Confirm File Delete' }),
+        screen.getByRole('alertdialog', { name: 'Confirm Delete' }),
       ).getByRole('button', { name: 'Yes' }),
     );
 
