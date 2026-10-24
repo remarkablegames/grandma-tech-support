@@ -290,6 +290,7 @@ export function App() {
         target: item.target,
         icon: item.icon,
       });
+
       return;
     }
 
@@ -357,6 +358,16 @@ export function App() {
       // play later. This one file just goes for the evening.
       iconPositions.purgeIcon(pending.id);
       audio.play('delete');
+
+      const toasterIds = TASK_FILES.map(({ id }) => id);
+      const toastersDeleted = toasterIds.every((id) =>
+        iconPositions.deleted.concat(pending.id).includes(id),
+      );
+      // v8 ignore next
+      if (toastersDeleted) {
+        game.noteDiskMilestone('emptied');
+      }
+
       return;
     }
 

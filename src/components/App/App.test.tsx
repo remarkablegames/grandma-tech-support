@@ -1636,7 +1636,7 @@ describe('App component', () => {
       screen.queryByRole('button', { name: 'toaster_8_install.exe' }),
     ).toBeNull();
     expect(
-      screen.queryByRole('button', { name: 'toasters_the_movie.avi' }),
+      screen.queryByRole('button', { name: 'toaster_guide.avi' }),
     ).toBeNull();
 
     // Tasks 1–3 walk quickly: the mail gate opens, the toaster ships.
@@ -1800,7 +1800,7 @@ describe('App component', () => {
       name: 'toaster_8_install.exe',
     });
     const movie = screen.getByRole('button', {
-      name: 'toasters_the_movie.avi',
+      name: 'toaster_guide.avi',
     });
     expect(installer).toHaveStyle({ left: '88px', top: '8px' });
     expect(movie).toHaveStyle({ left: '88px', top: '88px' });
@@ -1824,7 +1824,7 @@ describe('App component', () => {
       screen.queryByRole('button', { name: 'toaster_8_install.exe' }),
     ).toBeNull();
     expect(
-      screen.queryByRole('button', { name: 'toasters_the_movie.avi' }),
+      screen.queryByRole('button', { name: 'toaster_guide.avi' }),
     ).toBeNull();
     expect(screen.getByRole('status')).toHaveTextContent(
       GRANDMA_LINES.diskBinned,
@@ -1858,7 +1858,7 @@ describe('App component', () => {
       screen.queryByRole('button', { name: 'toaster_8_install.exe' }),
     ).toBeNull();
     expect(
-      screen.queryByRole('button', { name: 'toasters_the_movie.avi' }),
+      screen.queryByRole('button', { name: 'toaster_guide.avi' }),
     ).toBeNull();
 
     // The drive's tidy-up lives in Start > Programs.

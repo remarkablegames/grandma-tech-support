@@ -64,6 +64,7 @@ export function ContextMenu({
         onDismiss();
       }
     };
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         onDismiss();

@@ -136,8 +136,7 @@ export const POWER_MESSAGES: Record<'safe' | 'boot', string> = {
 export const UPDATE_MESSAGES: Record<UpdateStage, string> = {
   installing:
     'Installing important updates... 99% complete. Preparing file 3 of 1.',
-  restored:
-    'Something went wrong. Restoring previous settings... nothing was saved, so nothing was restored.',
+  restored: 'Something went wrong. Restoring previous settings...',
   failed:
     'Windows could not complete the update. Restart your computer to try again.',
 };
@@ -182,7 +181,7 @@ export const OBJECTIVES: ObjectiveConfig[] = [
       'Would you order me a toaster, dear? The burning shopping page. And don’t try to close it, it just comes back!',
     doneTitle: 'Task 4 of 8 complete',
     doneMessage:
-      'Ordered! Although I may have clicked something while we waited, dear.',
+      'Ordered! Although I may have clicked something while we waited...',
     icon: `${ICONS}/world.png`,
     completesOn: 'order-placed',
     open: ['shopping'],
@@ -198,7 +197,7 @@ export const OBJECTIVES: ObjectiveConfig[] = [
   },
   {
     instruction:
-      'The bargain page stopped responding! Use the Task Manager to end it.',
+      'The bargain page stopped responding! Use the Task Manager to quit it.',
     doneTitle: 'Task 6 of 8 complete',
     doneMessage:
       'It stopped yelping! And I may have clicked one little thing while you were in there.',
@@ -241,12 +240,12 @@ export const TASK_FILES: TaskFileConfig[] = [
   {
     id: 'toaster-8-install',
     label: 'toaster_8_install.exe',
-    icon: `${ICONS}/program.png`,
+    icon: `${ICONS}/script_file.png`,
     home: { col: 1, row: 0 },
   },
   {
-    id: 'toasters-movie',
-    label: 'toasters_the_movie.avi',
+    id: 'toaster-guide',
+    label: 'toaster_guide.avi',
     icon: `${ICONS}/video_file.png`,
     home: { col: 1, row: 1 },
   },
@@ -917,7 +916,7 @@ export const START_ITEMS: StartMenuItem[] = [
   {
     id: 'task-manager',
     label: 'Task Manager',
-    icon: `${ICONS}/program.png`,
+    icon: `${ICONS}/aseprite.png`,
     action: 'task-manager',
   },
   {
