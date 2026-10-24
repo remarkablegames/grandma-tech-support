@@ -1,0 +1,57 @@
+# Changelog
+
+## 1.0.0 (2026-10-24)
+
+
+### Features
+
+* add a Win95 shutdown dialog with restart ([afa799c](https://github.com/remarkablegames/grandma-tech-support/commit/afa799cd1fd41ab3e66c632536761a556bd1a548))
+* add empty Recycle Bin and disk full with Disk Defragmenter ([a6f1669](https://github.com/remarkablegames/grandma-tech-support/commit/a6f166934c01e5265a9ce3d677fcb8a20cd46e84))
+* add four-task mission chain with login gate and virus scanner ([b584d86](https://github.com/remarkablegames/grandma-tech-support/commit/b584d8687a0f5a0dead75a37ec41b3cb3609b9a9))
+* add Inbox and The Internet desktop icons ([52fedf9](https://github.com/remarkablegames/grandma-tech-support/commit/52fedf9a9dbe5d64f0fbbe0017f3f7f9e5005f98))
+* add level to find grandma's email ([8c9332e](https://github.com/remarkablegames/grandma-tech-support/commit/8c9332ebccb6d234639ad2e04c52e036f22300bf))
+* add right-click Restore inside the Recycle Bin ([c024d70](https://github.com/remarkablegames/grandma-tech-support/commit/c024d7012ee5005e04d4ca2e433aaa3fb0aea8ed))
+* add Start menu cascade submenus ([eb3bd40](https://github.com/remarkablegames/grandma-tech-support/commit/eb3bd400a22357c932fd9321df93a098dd5dcef7))
+* add taskbar buttons and minimize for desktop icon windows ([75affa1](https://github.com/remarkablegames/grandma-tech-support/commit/75affa1804c047be01f1bc151c078af032fe9da3))
+* add windows update and force-quit missions ([ed1cdbd](https://github.com/remarkablegames/grandma-tech-support/commit/ed1cdbdf680c60c36fd95f9704549958218bf996))
+* animate grandma speech with a pop and wiggle ([96bb3e7](https://github.com/remarkablegames/grandma-tech-support/commit/96bb3e783a3d23d8370423741bde4dd7dfb39394))
+* clear desktop icon selection on outside click ([a2fa261](https://github.com/remarkablegames/grandma-tech-support/commit/a2fa2614fb493a2e647ed0308b16ad4e217139aa))
+* dismiss the Start menu on outside click ([28b1791](https://github.com/remarkablegames/grandma-tech-support/commit/28b1791a815ba015d21e05190c56e9f235a8d19d))
+* double click desktop icons to open windows ([a2e4233](https://github.com/remarkablegames/grandma-tech-support/commit/a2e423363e10f1369aa4abaf10f269e954983ec1))
+* drag and drop desktop icons into other icons ([69d4546](https://github.com/remarkablegames/grandma-tech-support/commit/69d4546efd4d1e69b94f5baba066773c97c64ddc))
+* fill inbox, sale page, and files with more content ([c33b3db](https://github.com/remarkablegames/grandma-tech-support/commit/c33b3db746f032f5159b76c24e9913662133d21c))
+* let grandma re-read the current mission ([324f7ce](https://github.com/remarkablegames/grandma-tech-support/commit/324f7ce0176dab68b85d0b6dc252ebf70f893e34))
+* make desktop icons draggable with grid snap ([1453426](https://github.com/remarkablegames/grandma-tech-support/commit/1453426e77b6782201c194bb1bbbcc696343a969))
+* make right-click Delete on desktop send files to the Recycle Bin ([58dfe0f](https://github.com/remarkablegames/grandma-tech-support/commit/58dfe0f60c502eaa9b074524e4efd53816d1549a))
+* minimize and maximize windows ([d08de02](https://github.com/remarkablegames/grandma-tech-support/commit/d08de02e9629e9c285ed30378b9a4e26671dfb21))
+* move grandma to bottom-right and improve messages ([92a1ef3](https://github.com/remarkablegames/grandma-tech-support/commit/92a1ef3b87187076bb2498b4f42a82cab4c4e86b))
+* open the broken mail shortcut on double-click ([36fb48b](https://github.com/remarkablegames/grandma-tech-support/commit/36fb48b0778656af96c420fed877bed9ac00c090))
+* play audio for desktop icon drag and drop ([aad9ef1](https://github.com/remarkablegames/grandma-tech-support/commit/aad9ef12f7922e13daad7c8d6e16e2ec7d048ffc))
+* play background music ([e7c7fd4](https://github.com/remarkablegames/grandma-tech-support/commit/e7c7fd41d90996c8beaa88019c29f6ffa24362ae))
+* play interface sounds ([a6ea09a](https://github.com/remarkablegames/grandma-tech-support/commit/a6ea09a559a321f6d8c24557272ac8549a494f4d))
+* play sound when volume control is clicked ([a082681](https://github.com/remarkablegames/grandma-tech-support/commit/a082681f8d7d61eb591efe9a66340311bd625f17))
+* play sounds for right-click menu popup and empty Recycle Bin ([956a74d](https://github.com/remarkablegames/grandma-tech-support/commit/956a74dabff5d551b4d2a88b9b85af35f638e0bb))
+* rename and replace the logo ([351c612](https://github.com/remarkablegames/grandma-tech-support/commit/351c612bcf804913fd894dc7364f1a34dcc4db23))
+* select folder rows on click ([104dc13](https://github.com/remarkablegames/grandma-tech-support/commit/104dc13ed7016e8237bac3f46c1b8dd0b31af855))
+* show a clouds splash image on every boot ([7af3f7d](https://github.com/remarkablegames/grandma-tech-support/commit/7af3f7d21c2ab653d23464fa83c6e5230a7f5ce7))
+* show a different menu when right-clicking a row ([184f80f](https://github.com/remarkablegames/grandma-tech-support/commit/184f80f6bc73883d5942f66104e49d75e5165554))
+* show blank desktop on game start ([7b591cf](https://github.com/remarkablegames/grandma-tech-support/commit/7b591cf96846613c11e0a04cfd313459be74070e))
+* show current time in taskbar ([0bf831b](https://github.com/remarkablegames/grandma-tech-support/commit/0bf831ba4a3b8240e7767ea50afaa89e54b5f8ff))
+* show dolder menu inside list windows on right click ([03d877a](https://github.com/remarkablegames/grandma-tech-support/commit/03d877add5384591ac46a3ad4674618ea31a3d2f))
+* show grandma line after restart ([c110986](https://github.com/remarkablegames/grandma-tech-support/commit/c110986269eb5d6999c25962b8abfda70b6fcddd))
+* show info icon in message dialog for mission ([fc7e94e](https://github.com/remarkablegames/grandma-tech-support/commit/fc7e94ed0c465c5321e80a9f1a162585895471e2))
+* show Win95 context menu on right click ([57db094](https://github.com/remarkablegames/grandma-tech-support/commit/57db09464397c36ecb535359ac64880111a7d650))
+* toggle music on visibility change ([4432a8c](https://github.com/remarkablegames/grandma-tech-support/commit/4432a8cdacb095df15858edb60d4912f86c622a2))
+
+
+### Bug Fixes
+
+* add Virus Shield to Start &gt; Programs ([863ccc8](https://github.com/remarkablegames/grandma-tech-support/commit/863ccc8ee06c97a3f7d7a9192a41e3990704e388))
+* ensure emptied Recycle Bin is deleted ([ebeb149](https://github.com/remarkablegames/grandma-tech-support/commit/ebeb1493ccaac70f3e873ac680c7e31c9730fba2))
+* keep right-presses silent under the menu ([a4ccebf](https://github.com/remarkablegames/grandma-tech-support/commit/a4ccebfd1731fc94b06eb8f7240281e771ce9d3b))
+* mirror document files in submenu flyout ([4f13103](https://github.com/remarkablegames/grandma-tech-support/commit/4f131033249870903b1aaa6e311e9a3dd1ec0156))
+* select desktop icon on mouse-down during drag ([d100930](https://github.com/remarkablegames/grandma-tech-support/commit/d100930b386474995523d85da96b3b9b1210f099))
+* show blank link when Recycle Bin is empty ([8be2d04](https://github.com/remarkablegames/grandma-tech-support/commit/8be2d042cb168aa7e0de6ab9c84517cda858d2fa))
+* show clouds after shutdown ([3ea36da](https://github.com/remarkablegames/grandma-tech-support/commit/3ea36dae15c99f802708f5e4a9038a73a604cc36))
+* start Recycle Bin as empty ([86fe1e6](https://github.com/remarkablegames/grandma-tech-support/commit/86fe1e660ce7d9e5aeb231af24a141172b66eaa8))
+* stop other windows pop-ups from blocking the toaster order ([800d41f](https://github.com/remarkablegames/grandma-tech-support/commit/800d41f047c75df08d58ab0ea5b128fe7dc9bea1))
