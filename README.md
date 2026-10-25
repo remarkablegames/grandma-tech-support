@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/cover.jpg" alt="Grandma Tech Support" width="400">
+  <img src="public/cover.jpg" alt="Grandma Tech Support" width="600">
 </p>
 
 # Grandma Tech Support
