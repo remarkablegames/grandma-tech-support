@@ -1,7 +1,7 @@
 {
   "name": "grandma-tech-support",
   "private": true,
-  "version": "1.0.0-alpha",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "build": "tsc && vite build",
