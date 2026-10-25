@@ -44,7 +44,7 @@ jobs:
         run: npm ci --prefer-offline --ignore-scripts
 
       - name: Build game
-        run: npm run build
+        run: npm run build -- --base=./
 
       - name: Get variables
         id: vars
@@ -123,7 +123,7 @@ jobs:
         run: npm ci --prefer-offline --ignore-scripts
 
       - name: Build game
-        run: npm run build
+        run: npm run build -- --base=./
 
       - name: Upload to Wavedash
         uses: remarkablegames/wavedash-action@v2
