@@ -12,6 +12,8 @@
 
 Play in your browser:
 
+- [Wavedash](https://wavedash.com/games/grandma-tech-support)
+- [itch.io](https://remarkablegames.itch.io/grandma-tech-support)
 - [remarkablegames](https://remarkablegames.org/grandma-tech-support/)
 
 Or download for desktop:
