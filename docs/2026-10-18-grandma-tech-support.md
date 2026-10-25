@@ -20,7 +20,7 @@ drive) while dodging fake warnings and misleading buttons.
 ## Core loop
 
 1. Rainbow59 boots through the clouds splash (the `logo.svg` flag over
-   `backgrounds/clouds.jpg`), and as the clouds lift the desktop opens blank —
+   `clouds.jpg`), and as the clouds lift the desktop opens blank —
    desktop icons, taskbar, and Grandma’s instruction, the current task, in her own
    words:
    > I need to check my email, dear. I wrote my password in a note somewhere.

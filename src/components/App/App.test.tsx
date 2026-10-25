@@ -136,7 +136,7 @@ describe('App component', () => {
 
     // The splash owns the screen until it lifts.
     const splash = screen.getByRole('button', { name: 'Rainbow59' });
-    expect(splash.style.backgroundImage).toContain('backgrounds/clouds.jpg');
+    expect(splash.style.backgroundImage).toContain('clouds.jpg');
     expect(screen.queryByRole('button', { name: 'Start' })).toBeNull();
     expect(screen.queryByRole('status')).toBeNull();
 

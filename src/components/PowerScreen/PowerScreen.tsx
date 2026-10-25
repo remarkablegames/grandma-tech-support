@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import clouds from 'src/assets/clouds.jpg';
 import { POWER_MESSAGES } from 'src/data/gameContent';
 import type { PowerScreenMode } from 'src/types/game';
 
@@ -34,15 +35,12 @@ export function PowerScreen({ mode, onLeave }: PowerScreenProps) {
   }, [holdMs, onLeave]);
 
   if (mode === 'splash') {
-    // The style URL is page-relative on purpose: inline styles resolve
-    // against the document, so the clouds survive subpath deploys where a
-    // stylesheet url() would resolve from the CSS folder instead.
     return (
       <button
         type="button"
         autoFocus
         onClick={onLeave}
-        style={{ backgroundImage: "url('backgrounds/clouds.jpg')" }}
+        style={{ backgroundImage: `url(${clouds})` }}
         className="absolute inset-0 z-[60] flex flex-col items-center justify-center gap-4 bg-cover bg-center text-center"
       >
         <img

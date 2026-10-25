@@ -67,7 +67,7 @@ as well as a click, and a click skips every beat.
 - **Boot line** — same black, white DOS-style text and a blinking cursor
   (`aria-hidden`), auto-advancing after about a second (its own timer, cleared on
   unmount).
-- **Clouds splash** — the Win95 splash beat: `backgrounds/clouds.jpg` behind the
+- **Clouds splash** — the Win95 splash beat: `clouds.jpg` behind the
   `logo.svg` flag and a two-tone `Rainbow59` wordmark — thick black `Rainbow`
   beside a thin white `95`, lifted straight out of the era's version-number style —
   auto-lifting after about

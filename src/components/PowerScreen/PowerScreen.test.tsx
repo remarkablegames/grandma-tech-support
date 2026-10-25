@@ -57,7 +57,7 @@ describe('PowerScreen component', () => {
     );
 
     const splash = screen.getByRole('button', { name: 'Rainbow59' });
-    expect(splash.style.backgroundImage).toContain('backgrounds/clouds.jpg');
+    expect(splash.style.backgroundImage).toBe('url("/src/assets/clouds.jpg")');
     expect(container.querySelector('img')).toHaveAttribute('src', 'logo.svg');
 
     await user.click(splash);
