@@ -42,7 +42,7 @@ export const JOKES = {
   liarClose:
     'That “Close” button was reporting to the ads. Now there are twice as many.',
   fixNow:
-    'We “fixed” it by deleting nothing. It wasn’t broken in the first place.',
+    'We “fixed” it by doing nothing. It wasn’t broken in the first place.',
   claimPrize:
     'Congratulations: you’ve won a FREE mouse. The live one got away.',
   cleanNow: 'Your computer is now 400% more infected.',
@@ -108,7 +108,7 @@ export const GRANDMA_LINES = {
   correctClose:
     'That’s it! The little X in the corner. Never trust a big button.',
   mailDecoy:
-    'That one’s been broken since 2000. Your email’s in the internet thing.',
+    'That one’s been broken since 2000. My email’s in the other inbox.',
   inboxFull: 'That’s all the junk the inbox can hold, dear. Delete some!',
   shutDown: 'Don’t shut it down! There’s an unfinished task.',
   powerBack: 'It’s back! Did anything happen while it was dark?',
@@ -155,8 +155,7 @@ export const OBJECTIVES: ObjectiveConfig[] = [
     completesOn: 'logged-in',
   },
   {
-    instruction:
-      'That’s my mail popping open, dear! Double-click the one from the grandkids. The toaster ones are nonsense.',
+    instruction: 'Look for an email from the family. Ignore the spam messages.',
     doneTitle: 'Task 2 of 8 complete',
     doneMessage: GRANDMA_LINES.win,
     icon: `${ICONS}/mail.png`,
@@ -176,11 +175,10 @@ export const OBJECTIVES: ObjectiveConfig[] = [
     inboxTopUp: 3,
   },
   {
-    instruction:
-      'Would you order me a toaster, dear? The burning shopping page. And don’t try to close it, it just comes back!',
+    instruction: 'Could you order a toaster for me from the shopping page?',
     doneTitle: 'Task 4 of 8 complete',
     doneMessage:
-      'Ordered! Although I may have clicked something while we waited...',
+      'Ordered! Though I may have clicked on something while we waited...',
     icon: `${ICONS}/world.png`,
     completesOn: 'order-placed',
     open: ['shopping'],
@@ -196,10 +194,10 @@ export const OBJECTIVES: ObjectiveConfig[] = [
   },
   {
     instruction:
-      'The bargain page stopped responding! Use the Task Manager to quit it.',
+      'The shopping site stopped responding! Use the Task Manager to quit it.',
     doneTitle: 'Task 6 of 8 complete',
     doneMessage:
-      'It stopped yelping! And I may have clicked one little thing while you were in there.',
+      'It stopped yelping! I may have clicked one little thing while you were in there.',
     icon: `${ICONS}/program.png`,
     completesOn: 'frozen-ended',
     open: ['shopping'],
