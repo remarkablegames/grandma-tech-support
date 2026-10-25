@@ -1,7 +1,7 @@
 {
   "name": "Grandma Tech Support",
   "short_name": "Grandma Tech Support",
-  "description": "🛠️ Help grandma fix her computer.",
+  "description": "🛠️ Help grandma fix her computer, dear!",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#008080",
