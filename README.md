@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/cover.jpg" alt="Grandma Tech Support" width="400">
+</p>
+
 # Grandma Tech Support
 
 [![build](https://github.com/remarkablegames/grandma-tech-support/actions/workflows/build.yml/badge.svg)](https://github.com/remarkablegames/grandma-tech-support/actions/workflows/build.yml)
