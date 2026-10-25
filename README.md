@@ -22,6 +22,8 @@ Or download for desktop:
 - [macOS](https://github.com/remarkablegames/grandma-tech-support/releases/latest/download/macos.zip)
 - [Linux](https://github.com/remarkablegames/grandma-tech-support/releases/latest/download/linux.zip)
 
+Read the [blog post](https://remarkablegames.org/posts/grandma-tech-support/) or watch the [YouTube video](https://youtu.be/bK7yEL-XlGg).
+
 ## Features
 
 - A humorous point-and-click puzzle game set on a fictional Windows 95-style desktop
