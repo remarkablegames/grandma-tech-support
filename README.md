@@ -20,6 +20,13 @@ Or download for desktop:
 - [macOS](https://github.com/remarkablegames/grandma-tech-support/releases/latest/download/macos.zip)
 - [Linux](https://github.com/remarkablegames/grandma-tech-support/releases/latest/download/linux.zip)
 
+## Features
+
+- A humorous point-and-click puzzle game set on a fictional Windows 95-style desktop
+- Help Grandma complete 8 tasks while dodging fake warnings, misleading pop-ups, and other computer mishaps
+- There’s no lose state: wrong clicks trigger jokes, and you can try again
+- Estimated playtime: 10-15 minutes
+
 ## Credits
 
 - [𝕎𝕚𝕟𝕕𝕠𝕨𝕤 𝟡𝟝 ~𝓒𝓪𝓵𝓶𝓲𝓷𝓰~ Icon Pack](https://aconfuseddragon.itch.io/windows-95-calming)
