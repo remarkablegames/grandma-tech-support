@@ -92,6 +92,11 @@
 }
 
 @layer base {
+  html {
+    /* disable double-tap zoom while keeping scrolling and pinch-to-zoom available */
+    touch-action: manipulation;
+  }
+
   html,
   body,
   #root {
