@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/remarkablegames/grandma-tech-support/compare/v1.0.0...v1.0.1) (2026-10-25)
+
+
+### Bug Fixes
+
+* **github:** set base path during build in release-please.yml ([e069536](https://github.com/remarkablegames/grandma-tech-support/commit/e069536cca72e5a516736bcca1d698883d9f187e))
+
 ## 1.0.0 (2026-10-25)
 
 
