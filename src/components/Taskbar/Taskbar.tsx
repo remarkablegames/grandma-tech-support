@@ -91,7 +91,7 @@ export function Taskbar({
         className="win-button flex shrink-0 items-center gap-1.5 px-2 py-1.5 text-sm font-bold text-black"
       >
         <img
-          src="windows_icons_32x32/program.png"
+          src="logo.svg"
           alt=""
           width={16}
           height={16}
