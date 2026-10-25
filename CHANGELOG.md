@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/remarkablegames/grandma-tech-support/compare/v1.0.1...v1.0.2) (2026-10-25)
+
+
+### Bug Fixes
+
+* replace Start menu logo in Taskbar ([6c7551c](https://github.com/remarkablegames/grandma-tech-support/commit/6c7551cbcfe7c82b83a364569ca509867c67eb3a))
+
 ## [1.0.1](https://github.com/remarkablegames/grandma-tech-support/compare/v1.0.0...v1.0.1) (2026-10-25)
 
 
