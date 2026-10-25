@@ -8,7 +8,7 @@
 [![test](https://github.com/remarkablegames/grandma-tech-support/actions/workflows/test.yml/badge.svg)](https://github.com/remarkablegames/grandma-tech-support/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/remarkablegames/grandma-tech-support/graph/badge.svg?token=DEr2eVeqdz)](https://codecov.io/gh/remarkablegames/grandma-tech-support)
 
-🛠️ Grandma needs help with her computer. Follow her instructions, dodge suspicious windows, and try not to break anything important.
+👵🛠️ Grandma needs help with her computer. Follow her instructions, dodge suspicious windows, and try not to break anything important.
 
 Play in your browser:
 
