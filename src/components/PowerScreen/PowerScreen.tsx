@@ -54,7 +54,7 @@ export function PowerScreen({ mode, onLeave }: PowerScreenProps) {
           className="pixelated size-32"
         />
         <span className="text-4xl font-bold text-black drop-shadow-md">
-          Rainbows<span className="font-light text-white">95</span>
+          Rainbow<span className="font-light text-white">59</span>
         </span>
       </button>
     );

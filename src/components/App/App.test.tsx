@@ -122,7 +122,7 @@ function getDesktop(container: HTMLElement): HTMLElement {
 // Every boot opens on the clouds splash; click it to reach the desktop
 // (the real game also auto-lifts it after a beat).
 async function skipSplash(user: UserEvent) {
-  await user.click(screen.getByRole('button', { name: 'Rainbows95' }));
+  await user.click(screen.getByRole('button', { name: 'Rainbow59' }));
 }
 
 describe('App component', () => {
@@ -135,14 +135,14 @@ describe('App component', () => {
     render(<App />);
 
     // The splash owns the screen until it lifts.
-    const splash = screen.getByRole('button', { name: 'Rainbows95' });
+    const splash = screen.getByRole('button', { name: 'Rainbow59' });
     expect(splash.style.backgroundImage).toContain('backgrounds/clouds.jpg');
     expect(screen.queryByRole('button', { name: 'Start' })).toBeNull();
     expect(screen.queryByRole('status')).toBeNull();
 
     await user.click(splash);
 
-    expect(screen.queryByRole('button', { name: 'Rainbows95' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Rainbow59' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Start' })).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent(GRANDMA_LINES.intro);
   });
@@ -1423,7 +1423,7 @@ describe('App component', () => {
 
     // Waking runs the same boot ritual: clouds up first, desktop held back.
     expect(
-      screen.getByRole('button', { name: 'Rainbows95' }),
+      screen.getByRole('button', { name: 'Rainbow59' }),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: POWER_MESSAGES.safe }),
@@ -1432,7 +1432,7 @@ describe('App component', () => {
 
     await waitFor(
       () => {
-        expect(screen.queryByRole('button', { name: 'Rainbows95' })).toBeNull();
+        expect(screen.queryByRole('button', { name: 'Rainbow59' })).toBeNull();
       },
       { timeout: 4000 },
     );
@@ -1477,7 +1477,7 @@ describe('App component', () => {
     // holds even the bubble back, then lifts without a click.
     await screen.findByRole(
       'button',
-      { name: 'Rainbows95' },
+      { name: 'Rainbow59' },
       {
         timeout: 3000,
       },
@@ -1486,7 +1486,7 @@ describe('App component', () => {
 
     await waitFor(
       () => {
-        expect(screen.queryByRole('button', { name: 'Rainbows95' })).toBeNull();
+        expect(screen.queryByRole('button', { name: 'Rainbow59' })).toBeNull();
       },
       { timeout: 4000 },
     );
@@ -1681,7 +1681,7 @@ describe('App component', () => {
     // with the reveal.
     const splash = await screen.findByRole(
       'button',
-      { name: 'Rainbows95' },
+      { name: 'Rainbow59' },
       { timeout: 3000 },
     );
     await user.click(splash);

@@ -19,7 +19,7 @@ drive) while dodging fake warnings and misleading buttons.
 
 ## Core loop
 
-1. Rainbows95 boots through the clouds splash (the `logo.svg` flag over
+1. Rainbow59 boots through the clouds splash (the `logo.svg` flag over
    `backgrounds/clouds.jpg`), and as the clouds lift the desktop opens blank —
    desktop icons, taskbar, and Grandma’s instruction, the current task, in her own
    words:
@@ -82,7 +82,7 @@ above applies once they're open (virus on top, tempting).
   the current task, `Task Manager` opens the task list dialog (Win95's
   Close Program under its NT-era name), and `Shut Down...` opens Win95's
   power dialog — see [shutdown](./2026-10-20-shutdown-restart.md). Its
-  vertical side stripe brands the fictional OS as **Rainbows95**.
+  vertical side stripe brands the fictional OS as **Rainbow59**.
 - Desktop icons (single click selects, Win95 style): `My Computer`, `Recycle Bin`,
   `My Documents`, `Sticky Notes`, `Calculator`, `Virus Shield`, `The Internet`, and the
   decoy `Inbox`. Double-clicking six of the icons opens floating mini-windows — see
@@ -199,7 +199,7 @@ Each one plays the `win` jingle. The final screen's closing line from Grandma:
   `Shut down the computer?` (default) / `Restart the computer?` radios and an
   autofocused `OK` beside `Cancel`. Cancel just closes it. Shutting down and
   restarting both pause the theme and go full-screen black — the amber safe-off line
-  or the `Starting Rainbows95...` boot line — and both hand off to the clouds
+  or the `Starting Rainbow59...` boot line — and both hand off to the clouds
   splash: the safe wake back to an untouched desktop (grandma trading the protest
   for her wake line), the restart to the reset one,
   each beat skippable by click. Each transition plays its power sound, and the

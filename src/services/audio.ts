@@ -1,5 +1,5 @@
 /**
- * Sparse interface SFX for Rainbows95, with zero audio libraries: a thin
+ * Sparse interface SFX for Rainbow59, with zero audio libraries: a thin
  * wrapper over HTMLAudioElement plus an injectable clock/storage seam so the
  * suite can run against fakes (jsdom cannot decode or play audio).
  */

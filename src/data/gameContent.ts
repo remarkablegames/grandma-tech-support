@@ -124,12 +124,12 @@ export const GRANDMA_LINES = {
     'There’s room now! Let’s tidy up the drive with the Disk Defragmenter.',
 } as const;
 
-// The two text power lines: Win95's safe-off toast verbatim, and Rainbows95
+// The two text power lines: Win95's safe-off toast verbatim, and Rainbow59
 // booting back up (which gets a blinking cursor). The clouds splash wears
 // the logo and wordmark instead of a message.
 export const POWER_MESSAGES: Record<'safe' | 'boot', string> = {
   safe: 'It’s now safe to turn off your computer.',
-  boot: 'Starting Rainbows95...',
+  boot: 'Starting Rainbow59...',
 };
 
 // Copy for the three click-driven stages of task 4's Windows Update dialog.
@@ -316,7 +316,7 @@ export const EMAILS: EmailConfig[] = [
   },
   {
     id: 'trial',
-    from: 'Rainbows95',
+    from: 'Rainbow59',
     subject: 'Your free trial has expired',
     date: 'Today',
     target: false,
@@ -362,7 +362,7 @@ export const JUNK_EMAILS: EmailConfig[] = [
   },
   {
     id: 'junk-2',
-    from: 'Rainbows95',
+    from: 'Rainbow59',
     subject: 'Your free toaster trial has expired',
     date: 'Today',
     target: false,

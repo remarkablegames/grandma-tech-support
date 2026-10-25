@@ -56,7 +56,7 @@ describe('PowerScreen component', () => {
       <PowerScreen mode="splash" onLeave={onLeave} />,
     );
 
-    const splash = screen.getByRole('button', { name: 'Rainbows95' });
+    const splash = screen.getByRole('button', { name: 'Rainbow59' });
     expect(splash.style.backgroundImage).toContain('backgrounds/clouds.jpg');
     expect(container.querySelector('img')).toHaveAttribute('src', 'logo.svg');
 

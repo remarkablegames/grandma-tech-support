@@ -32,7 +32,7 @@ still repeats the current task.
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Cancel**    | the dialog closes; nothing else changes                                                                                                                                                                                                                                                                                                                                                   |
 | **Shut down** | the `shutdown` sound plays, the theme pauses, and a full-screen black `It’s now safe to turn off your computer.` line appears — a click or keypress powers up through the clouds splash (grandma trading her protest for the wake line behind it), and the desktop returns exactly as it was — windows, pop-ups, task intact — with the `startup` sound and the theme resuming on arrival |
-| **Restart**   | the same sound and pause, but the game resets behind the screens: the black `Starting Rainbows95...` boot line (blinking cursor) hands off to the clouds splash on its own, and the splash lifts to the blank opening desktop — each beat a click to skip, the `startup` sound and theme arriving with the desktop                                                                        |
+| **Restart**   | the same sound and pause, but the game resets behind the screens: the black `Starting Rainbow59...` boot line (blinking cursor) hands off to the clouds splash on its own, and the splash lifts to the blank opening desktop — each beat a click to skip, the `startup` sound and theme arriving with the desktop                                                                         |
 
 Restart is the mid-game twin of the win screen's `Play again`: the same `playAgain()`
 reset (blank desktop, task back to task one, login cleared), reachable without
@@ -68,7 +68,7 @@ as well as a click, and a click skips every beat.
   (`aria-hidden`), auto-advancing after about a second (its own timer, cleared on
   unmount).
 - **Clouds splash** — the Win95 splash beat: `backgrounds/clouds.jpg` behind the
-  `logo.svg` flag and a two-tone `Rainbows95` wordmark — thick black `Rainbows`
+  `logo.svg` flag and a two-tone `Rainbow59` wordmark — thick black `Rainbow`
   beside a thin white `95`, lifted straight out of the era's version-number style —
   auto-lifting after about
   a second and a half. The style URL is inline and page-relative so the clouds
@@ -119,7 +119,7 @@ power screen is up and resumes when the desktop returns — one rule for every p
   dialog's primary button in the game.
 - Every power screen is a real button focused on mount: the text beats are named by
   their own message (the blinking cursor is `aria-hidden`), the splash by its
-  `Rainbows95` wordmark.
+  `Rainbow59` wordmark.
 - Nothing sits behind the splash while it is up — the desktop mounts on the reveal,
   so keyboard and screen-reader users meet the game, not a hidden layer.
 - No new motion: the cursor reuses the existing `animate-blink` keyframes, which the
