@@ -91,7 +91,7 @@ export function InboxWindow({
         }}
       >
         <p className="text-sm font-bold">Grandma’s Mail: Sign In</p>
-        <p className="text-[11px]">User name: grandma</p>
+        <p className="text-sm">User name: grandma</p>
         <label className="flex items-center gap-2">
           Password
           <input
@@ -134,14 +134,14 @@ export function InboxWindow({
                   onDelete(selectedEmail);
                 }
           }
-          className="win-button disabled:text-win-shadow px-2 py-0.5 text-[11px] text-black"
+          className="win-button disabled:text-win-shadow px-2 py-0.5 text-sm text-black"
         >
           Delete
         </button>
-        <span aria-hidden="true" className="text-win-shadow px-1 text-[11px]">
+        <span aria-hidden="true" className="text-win-shadow px-1 text-sm">
           Reply
         </span>
-        <span aria-hidden="true" className="text-win-shadow px-1 text-[11px]">
+        <span aria-hidden="true" className="text-win-shadow px-1 text-sm">
           Forward
         </span>
       </div>

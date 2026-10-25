@@ -45,13 +45,12 @@ export const JOKES = {
     'We “fixed” it by deleting nothing. It wasn’t broken in the first place.',
   claimPrize:
     'Congratulations: you’ve won a FREE mouse. The live one got away.',
-  cleanNow:
-    'Your computer is now 400% more infected. Just kidding, someone made this in Paint.',
+  cleanNow: 'Your computer is now 400% more infected.',
   maybeLater: 'It’ll still be urgent later.',
   updateLater: '“Later” has always meant “now” to Windows Update.',
   endTaskAlive: 'That one’s running fine. End Task is only for the frozen one.',
   goBack: 'There’s nowhere to go back to. The internet only goes forward.',
-  goForward: 'Forward is where the popups live.',
+  goForward: 'You can’t go forward if you haven’t been there before.',
   emailDog: 'Attached: the dog. Also attached: the same dog again.',
   emailUpdate: 'That’s the update that broke the internet.',
   emailPrize: 'You’ve been selected for a free toaster!',

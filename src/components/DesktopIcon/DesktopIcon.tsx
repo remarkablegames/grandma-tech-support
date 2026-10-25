@@ -159,7 +159,7 @@ export function DesktopIcon({
         className="pixelated size-8"
       />
       <span
-        className={`px-1 text-center text-[11px] leading-tight text-white [text-shadow:1px_1px_0_#000] ${
+        className={`px-1 text-center text-xs leading-tight text-white [text-shadow:1px_1px_0_#000] ${
           selected ? 'bg-win-navy' : ''
         }`}
       >

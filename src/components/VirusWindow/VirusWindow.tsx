@@ -1,10 +1,16 @@
+import { useEffect } from 'react';
 import { JOKES } from 'src/data/gameContent';
+import { audio } from 'src/services/audio';
 
 interface VirusWindowProps {
   onJoke: (joke: string) => void;
 }
 
 export function VirusWindow({ onJoke }: VirusWindowProps) {
+  useEffect(() => {
+    audio.play('error');
+  }, []);
+
   return (
     <div
       role="region"

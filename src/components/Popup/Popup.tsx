@@ -16,7 +16,7 @@ export function Popup({ config, offset, onDismiss, onAction }: PopupProps) {
       style={{ left: 12 + offset * 16, top: 14 + offset * 16, right: 12 }}
     >
       <div className="win-titlebar flex items-center justify-between gap-2 px-1 py-0.5">
-        <span className="truncate text-[11px] font-bold text-white">
+        <span className="truncate text-sm font-bold text-white">
           {config.title}
         </span>
         <button

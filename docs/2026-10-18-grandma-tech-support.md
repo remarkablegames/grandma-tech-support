@@ -128,8 +128,7 @@ that blocks the content underneath. Every pop-up has:
 
 Not a pop-up — a full window with a blinking red alert and two buttons:
 
-- `CLEAN MY COMPUTER NOW!` → "Your computer is now 400% more infected. Just kidding,
-  someone made this in Paint."
+- `CLEAN MY COMPUTER NOW!` → "Your computer is now 400% more infected."
 - `Maybe later` → "It’ll still be urgent later."
 
 ### Inbox
