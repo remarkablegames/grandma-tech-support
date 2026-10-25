@@ -1,8 +1,19 @@
 @import 'tailwindcss';
 
+@font-face {
+  font-family: W95FA;
+  src:
+    url('./fonts/w95f.woff2') format('woff2'),
+    url('./fonts/w95f.woff') format('woff'),
+    url('./fonts/w95f.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
-  /* System fonts only — offline friendly, no web fonts. */
   --font-sans: Tahoma, Verdana, 'DejaVu Sans', sans-serif;
+  --font-w95fa: W95FA, Tahoma, Verdana, 'DejaVu Sans', sans-serif;
 
   /* Fictional Win95 pastiche palette. */
   --color-win-desktop: #008080;

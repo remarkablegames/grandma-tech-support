@@ -51,7 +51,7 @@ export function PowerScreen({ mode, onLeave }: PowerScreenProps) {
           draggable={false}
           className="pixelated size-32"
         />
-        <span className="text-4xl font-bold text-black drop-shadow-md">
+        <span className="font-w95fa text-5xl font-bold text-black drop-shadow-md">
           Rainbow<span className="font-light text-white">59</span>
         </span>
       </button>
@@ -66,7 +66,7 @@ export function PowerScreen({ mode, onLeave }: PowerScreenProps) {
       className="absolute inset-0 z-[60] flex items-center justify-center bg-black p-4 text-center"
     >
       <span
-        className={`font-mono text-xl font-bold ${mode === 'boot' ? 'text-white' : 'text-[#ffa500]'}`}
+        className={`font-w95fa text-2xl font-bold ${mode === 'boot' ? 'text-white' : 'text-[#ffa500]'}`}
       >
         {POWER_MESSAGES[mode]}
         {mode === 'boot' && (

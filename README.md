@@ -25,6 +25,7 @@ Or download for desktop:
 - [𝕎𝕚𝕟𝕕𝕠𝕨𝕤 𝟡𝟝 ~𝓒𝓪𝓵𝓶𝓲𝓷𝓰~ Icon Pack](https://aconfuseddragon.itch.io/windows-95-calming)
 - [Paradise Road Trip - The Original Soundtrack](https://fricochet.itch.io/paradise-road-trip-ost)
 - [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds)
+- [W95FA font](https://www.dafont.com/w95fa.font)
 
 ## Install
 
