@@ -2,7 +2,6 @@
   "name": "grandma-tech-support",
   "private": true,
   "version": "1.0.2",
-  "type": "module",
   "scripts": {
     "build": "tsc && vite build",
     "lint": "eslint .",
